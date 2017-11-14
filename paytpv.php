@@ -46,7 +46,7 @@ class Paytpv extends PaymentModule {
 		$this->name = 'paytpv';
 		$this->tab = 'payments_gateways';
 		$this->author = 'PayTPV';
-		$this->version = '6.4.0';
+		$this->version = '6.4.1';
 
 		$this->url_paytpv = "https://secure.paytpv.com/gateway/bnkgateway.php";
 		
@@ -314,7 +314,7 @@ class Paytpv extends PaymentModule {
 
         if ($config["PAYTPV_MERCHANTDATA"]){
             $merchantData = $this->getMerchantData($cart);
-            $arrScore["merchantdata"] = json_encode($merchantData);
+            $arrScore["merchantdata"] =  urlencode(base64_encode(json_encode($merchantData)));
         }
 
         $shipping_address_country = "";
@@ -957,13 +957,17 @@ class Paytpv extends PaymentModule {
 		}).call(this);
 
 		$(document).ready(function() {
+			var oldLength = 0;
 			$('#expiry_date').on('input',function(){
 				var curLength = $(this).val().length;
-				if(curLength === 2){
-					var newInput = $(this).val();
-					newInput += '/';
-					$(this).val(newInput);
+				if(!$(this).val().match(/[/]/)) {
+					if((curLength === 2) && (oldLength<curLength) ){
+						var newInput = $(this).val();
+						newInput += '/';
+						$(this).val(newInput);
+					}
 				}
+				oldLength = curLength;
 			});
 		})";
 		return Minifier::minify($js_code);
