@@ -187,6 +187,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 				'result' => $result
 			);
 
+
 			// EXIST ORDER
 			if($id_order){
 
@@ -298,12 +299,16 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 				 
 
 				$pagoRegistrado = $paytpv->validateOrder($id_cart, _PS_OS_PAYMENT_, $importe, $paytpv->displayName, NULL, $transaction, NULL, false, $customer->secure_key);
-			
+
 				$id_order = Order::getOrderByCartId(intval($id_cart));
 				$id_suscription = 0;
-				$datos_order = Paytpv_Order_Info::get_Order_Info($cart->id_customer,$id_cart);
 
+				$disableoffersavecard = $paytpv->disableoffersavecard;
+				$remembercardunselected = $paytpv->remembercardunselected;
 
+				$defaultsavecard = ($disableoffersavecard!=1 && $remembercardunselected!=1)?1:0;
+				$datos_order = Paytpv_Order_Info::get_Order_Info($cart->id_customer,$id_cart,$defaultsavecard);
+			
 				// BANKSTORE: Si hay notificacion
 				if(Tools::getValue('IdUser')){
 
