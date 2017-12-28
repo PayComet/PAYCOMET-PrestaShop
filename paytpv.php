@@ -46,7 +46,7 @@ class Paytpv extends PaymentModule {
 		$this->name = 'paytpv';
 		$this->tab = 'payments_gateways';
 		$this->author = 'PayTPV';
-		$this->version = '6.4.2';
+		$this->version = '6.4.3';
 
 		$this->url_paytpv = "https://secure.paytpv.com/gateway/bnkgateway.php";
 		
@@ -317,6 +317,7 @@ class Paytpv extends PaymentModule {
         $arrScore = array();
         $arrScore["score"] = null;
         $arrScore["merchantdata"] = null;
+        $arrScore["scoreCalc"] = null;
 
         if ($config["PAYTPV_MERCHANTDATA"]){
             $merchantData = $this->getMerchantData($cart);
