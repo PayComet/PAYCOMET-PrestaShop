@@ -299,7 +299,8 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 					$pagoRegistrado = $paytpv->validateOrder($new_cart['cart']->id, _PS_OS_PAYMENT_, $importe, $paytpv->displayName, NULL, $transaction, NULL, true, $customer->secure_key);
 					$id_order = Order::getOrderByCartId(intval($new_cart['cart']->id));
 
-					Order::save_Order($paytpv_iduser,$paytpv_tokenuser,$id_suscription,$cart->id_customer,$id_order,$importe);
+					// Save paytpv order
+					Paytpv_Order::add_Order($paytpv_iduser, $paytpv_tokenuser, $id_suscription, $cart->id_customer, $id_order, $importe);
 				}
 			// NO ORDER
 			}else{

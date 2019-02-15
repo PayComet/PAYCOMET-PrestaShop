@@ -35,22 +35,6 @@
             <div class="col-xs-12 col-md-6">
         {/if}
             <div class="paytpv">
-                {if ($newpage_payment==2)}
-                <div class="row">
-                    <div class="col-xs-12 col-md-12">
-                        <p style="padding-top: 10px;">
-                            <input type="radio" title="{l s='Pay with Card' mod='paytpv'}" 
-                            name="payment_mode" 
-                            class="payment_mode" 
-                            id="payment_mode_paytpv" 
-                            data-payment="paytpv"
-                            data-payment-link="{$paytpv_iframe}">
-                            <label class="upletter" style="padding-left: 20px;" for="payment_mode_paytpv">{l s='Pay with Card' mod='paytpv'}</label>
-                        </p>
-                        <form action="{$link->getModuleLink('paytpv', 'validation')}" method="post" id="paytpv_form" class="hidden"></form>
-                    </div>
-                </div>
-                {/if}
                 <a href="http://www.paytpv.com" target="_blank"><img src="{$this_path}views/img/paytpv_logo.svg" width="135"></a>
                 <img src="{$this_path}views/img/tarjetas.png">
                 {if ($msg_paytpv!="")}
@@ -134,15 +118,15 @@
                         <label for="card">{l s='Card' mod='paytpv'}:</label>
                         <select name="card" id="card" onChange="checkCard()" class="form-control">
                             {section name=card loop=$saved_card }
-                            {if ($saved_card[card].url=="0")}
-                            {if ($newpage_payment==2)}
-                            <option value='{$paytpv_iframe}'>{l s='NEW CARD' mod='paytpv'}</option>
-                            {else}
-                            <option value='0'>{l s='NEW CARD' mod='paytpv'}</option>
-                            {/if}
-                            {else}
-                            <option value='{$saved_card[card].url}'>{$saved_card[card].CC} ({$saved_card[card].BRAND}){if ($saved_card[card].CARD_DESC!="")} - {$saved_card[card].CARD_DESC}{/if}</option>
-                            {/if}
+                                {if ($saved_card[card].url=="0")}
+                                    {if ($newpage_payment==2)}
+                                        <option value='{$paytpv_iframe}'>{l s='NEW CARD' mod='paytpv'}</option>
+                                    {else}
+                                        <option value='0'>{l s='NEW CARD' mod='paytpv'}</option>
+                                    {/if}
+                                {else}
+                                    <option value='{$saved_card[card].url}'>{$saved_card[card].CC} ({$saved_card[card].BRAND}){if ($saved_card[card].CARD_DESC!="")} - {$saved_card[card].CARD_DESC}{/if}</option>
+                                {/if}
                             {/section}
                         </select>
                     </div>

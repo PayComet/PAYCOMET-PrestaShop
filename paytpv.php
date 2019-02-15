@@ -46,7 +46,7 @@ class Paytpv extends PaymentModule {
 		$this->name = 'paytpv';
 		$this->tab = 'payments_gateways';
 		$this->author = 'PayTPV';
-		$this->version = '6.4.7';
+		$this->version = '6.4.8';
 
 		$this->url_paytpv = "https://secure.paytpv.com/gateway/bnkgateway.php";
 		
@@ -658,11 +658,19 @@ class Paytpv extends PaymentModule {
 		$disableoffersavecard = Configuration::get('PAYTPV_DISABLEOFFERSAVECARD');
 		$remembercardunselected = Configuration::get('PAYTPV_REMEMBERCARDUNSELECTED');
 
-		if ($newpage_payment==1){
+		$saved_card = Paytpv_Customer::get_Cards_Customer((int)$this->context->customer->id);
+
+		// Pago en nueva pagina dentro del comercio
+		if ($newpage_payment==1) {	
 			$this->context->smarty->assign('this_path',$this->_path);
 			return $this->display(__FILE__, 'payment_newpage.tpl');
-		}else{
-
+		// Pago en nueva pagina fullscreen si no tiene tarjetas almacenadas
+		} else if ($newpage_payment==2 && empty($saved_card)){
+			$this->context->smarty->assign('this_path',$this->_path);
+			$this->context->smarty->assign('paytpv_iframe',$this->paytpv_iframe_URL());
+			return $this->display(__FILE__, 'payment_newpage2.tpl');
+		// Pago integrado
+		} else {
 			$cart = Context::getContext()->cart;
 			$datos_pedido = $this->TerminalCurrency($cart);
 			$idterminal = $datos_pedido["idterminal"];
@@ -707,7 +715,6 @@ class Paytpv extends PaymentModule {
 
 			$active_suscriptions = intval(Configuration::get('PAYTPV_SUSCRIPTIONS'));
 
-			$saved_card = Paytpv_Customer::get_Cards_Customer((int)$this->context->customer->id);
 			$index = 0;
 			foreach ($saved_card as $key=>$val){
 				$values_aux = array_merge($values,array("TOKEN_USER"=>$val["TOKEN_USER"]));
