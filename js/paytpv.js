@@ -75,22 +75,42 @@ function check_suscription(){
 }
 
 function checkCard(){
-    // Show Cards only if exists saved cards
-    if ($("#card option").length>1){
-        $("#saved_cards").show();
-        if ($("#payment_mode_paytpv")==2){
-            $("#button_directpay").hide();
-            $("#payment_mode_paytpv").attr("data-payment-link",$("#card").val());
+    // Pago integrado o dentro del comercio en nueva pagina
+    if ($("#newpage_payment").val()==0 || $("#newpage_payment").val()==1){
+        // Show Cards only if exists saved cards
+        if ($("#card option").length>1){
+            $("#saved_cards").show();
         }
-    }
-    
-    if ($("#card").val()=="0"){
-        $("#storingStep,.paytpv_iframe").removeClass("hidden").show();
-        $("#open_directpay,#exec_directpay").hide();
-    }else{
-        $("#storingStep,.paytpv_iframe").hide();
+        // Si está seleccionada NUEVA TARJETA
+        if ($("#card").val()=="0"){
+            $("#storingStep,.paytpv_iframe").removeClass("hidden").show();
+            $("#open_directpay,#exec_directpay").hide();
+        }else{
+            $("#storingStep,.paytpv_iframe").hide();
+            $("#open_directpay,#exec_directpay").show();
+        }
+    // Pago en pagina de PAYTPV Fullscreen
+    } else if ($("#newpage_payment").val()==2){
+        $("#saved_cards").show();
+        // El boton de pagar lo mostramos siempre
         $("#open_directpay,#exec_directpay").show();
-    }
+
+        // Ocultar select de Tarjetas si solo hay NUEVA TARJETA
+        if ($("#card option").length==1){
+            $("#form_cards").hide();
+            $("#storingStep,.paytpv_iframe").removeClass("hidden").show();
+        // Si hay mas tarketas
+        }else{
+            // Si se ha selecciona Nueva Tarjeta mostramos Recordar Tarjeta
+            if ($("#card").prop('selectedIndex')==$("#card").length){
+                $("#storingStep,.paytpv_iframe").removeClass("hidden").show();
+            }else{
+                $("#storingStep,.paytpv_iframe").removeClass("hidden").hide();
+            }
+        }
+       
+        
+    }   
 }
 
 

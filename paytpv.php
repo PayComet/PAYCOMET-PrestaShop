@@ -46,7 +46,7 @@ class Paytpv extends PaymentModule {
 		$this->name = 'paytpv';
 		$this->tab = 'payments_gateways';
 		$this->author = 'PayTPV';
-		$this->version = '6.4.8';
+		$this->version = '6.4.9';
 
 		$this->url_paytpv = "https://secure.paytpv.com/gateway/bnkgateway.php";
 		
@@ -665,7 +665,7 @@ class Paytpv extends PaymentModule {
 			$this->context->smarty->assign('this_path',$this->_path);
 			return $this->display(__FILE__, 'payment_newpage.tpl');
 		// Pago en nueva pagina fullscreen si no tiene tarjetas almacenadas
-		} else if ($newpage_payment==2 && empty($saved_card)){
+		} else if ($newpage_payment==2 && empty($saved_card) && $disableoffersavecard) {
 			$this->context->smarty->assign('this_path',$this->_path);
 			$this->context->smarty->assign('paytpv_iframe',$this->paytpv_iframe_URL());
 			return $this->display(__FILE__, 'payment_newpage2.tpl');

@@ -29,6 +29,7 @@
     {/capture}
 
     <div class="row">
+        <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment}">
         {if ($newpage_payment==1)}
             <div class="col-xs-12 col-md-12">
         {else}
@@ -113,7 +114,7 @@
             
 
             <div id="saved_cards" style="display:none">
-                <form class="form-inline">
+                <form class="form-inline" id="form_cards">
                     <div class="form-group">
                         <label for="card">{l s='Card' mod='paytpv'}:</label>
                         <select name="card" id="card" onChange="checkCard()" class="form-control">
@@ -132,7 +133,7 @@
                     </div>
                 </form>
 
-                {if (sizeof($saved_card)>1)}
+                {if (sizeof($saved_card)>1 || $newpage_payment==2)}
                 <div id="button_directpay">
                     {if ($commerce_password)}
                     <a id="open_directpay" href="#directpay" class="paytpv_pay button button-small btn btn-default">          
