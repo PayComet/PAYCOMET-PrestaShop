@@ -18,8 +18,8 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author     Jose Ramon Garcia <jrgarcia@paytpv.com>
-*  @copyright  2015 PAYTPV ON LINE S.L.
+*  @author     PAYCOMET <info@paycomet.com>
+*  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 /**
@@ -100,6 +100,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
 	    	$client = new WS_Client(
 				array(
+					'endpoint_paytpv' => $paytpv->endpoint_paytpv,
 					'clientcode' => $paytpv->clientcode,
 					'term' => $idterminal_sel,
 					'pass' => $pass_sel,
@@ -153,7 +154,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
 		$score = $paytpv->transactionScore($this->context->cart);
 		$MERCHANT_SCORING = $score["score"];
-		$MERCHANT_DATA = $score["merchantdata"];
+		$MERCHANT_DATA = $paytpv->getMerchantData($this->context->cart);
 			
 		if ($secure_pay){
 
@@ -185,7 +186,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 					$subscription_enddate = date('Ymd', strtotime("+".$dias_subscription." days"));
 				}
 				$OPERATION = "110";
-				$signature = md5($paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
+				$signature = hash('sha512',$paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
 
 
 				$fields = array
@@ -211,7 +212,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 			}else{
 
 				$OPERATION = "109"; //exec_purchase_token
-				$signature = md5($paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
+				$signature = hash('sha512',$paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
 		
 				$fields = array
 					(
@@ -232,9 +233,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 			}
 
 			if ($MERCHANT_SCORING!=null)        $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
-        	if ($MERCHANT_DATA!=null)           $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
+			if ($MERCHANT_DATA!=null)           $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
 			
-
 			$query = http_build_query($fields);
 
 			$vhash = hash('sha512', md5($query.md5($pass_sel))); 
@@ -250,6 +250,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 		
 		$client = new WS_Client(
 			array(
+				'endpoint_paytpv' => $paytpv->endpoint_paytpv,
 				'clientcode' => $paytpv->clientcode,
 				'term' => $idterminal_sel,
 				'pass' => $pass_sel,

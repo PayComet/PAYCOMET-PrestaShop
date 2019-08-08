@@ -18,8 +18,8 @@
 * versions in the future. If you wish to customize PrestaShop for your
 * needs please refer to http://www.prestashop.com for more information.
 *
-*  @author     Jose Ramon Garcia <jrgarcia@paytpv.com>
-*  @copyright  2015 PAYTPV ON LINE S.L.
+*  @author     PAYCOMET <info@paycomet.com>
+*  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
@@ -159,14 +159,15 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
 		if (Paytpv_Order_Info::save_Order_Info((int)$this->context->customer->id,$cart->id,$paytpv_agree,$suscripcion,$periodicity,$cycles,0)){
 			$OPERATION = "1";
 			// Cálculo Firma
-			$signature = md5($paytpv->clientcode.$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
-
+			$signature = hash('sha512',$paytpv->clientcode.$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
+			
+			
 			$language_data = explode("-",$this->context->language->language_code);
 			$language = $language_data[0];
 
 			$score = $paytpv->transactionScore($cart);
         	$MERCHANT_SCORING = $score["score"];
-        	$MERCHANT_DATA = $score["merchantdata"];
+			$MERCHANT_DATA = $paytpv->getMerchantData($cart);
 
 			$fields = array
 			(
@@ -184,8 +185,8 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
 			);
 
 			if ($MERCHANT_SCORING!=null)        $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
-        	if ($MERCHANT_DATA!=null)           $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
-
+			if ($MERCHANT_DATA!=null)           $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
+			
         	$query = http_build_query($fields);
 
 			$url_paytpv = $paytpv->url_paytpv . "?".$query;
@@ -314,14 +315,14 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
 			}
 			// Cálculo Firma
 			
-			$signature = md5($paytpv->clientcode.$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
+			$signature = hash('sha512',$paytpv->clientcode.$idterminal_sel.$OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
 
 			$language_data = explode("-",$this->context->language->language_code);
 			$language = $language_data[0];
 
 			$score = $paytpv->transactionScore($cart);
 	        $MERCHANT_SCORING = $score["score"];
-	        $MERCHANT_DATA = $score["merchantdata"];
+	        $MERCHANT_DATA = $paytpv->getMerchantData($cart);
 
 			$fields = array
 			(
@@ -342,7 +343,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
 			);
 
 			if ($MERCHANT_SCORING!=null)        $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
-        	if ($MERCHANT_DATA!=null)           $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
+			if ($MERCHANT_DATA!=null)           $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
 
 			$query = http_build_query($fields);
 
