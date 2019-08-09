@@ -129,7 +129,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 		}else if (Tools::getValue('TransactionType')==="9"){
 
 			$result = Tools::getValue('Response')=='OK'?0:-1;
-			$sign = Tools::getValue('HashNotification');
+			$sign = Tools::getValue('NotificationHash');
 			$esURLOK = false;
 
 			$arrTerminal = Paytpv_Terminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
