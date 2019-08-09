@@ -174,14 +174,7 @@ class Paytpv extends PaymentModule {
 
 	    // Show error when required fields.
 		if (isset($_POST['btnSubmit']))
-		{
-
-			if (empty($_POST['url_paytpv']))
-				$this->_postErrors[] = $this->l('URL of the IFRAME element required');
-			if (empty($_POST['endpoint_paytpv']))
-				$this->_postErrors[] = $this->l('URL of the service required');
-			if (empty($_POST['jet_paytpv']) && $_POST["integration"]=="1")
-				$this->_postErrors[] = $this->l('JET URL required');
+		{			
 
 			if (empty($_POST['clientcode']))
 				$this->_postErrors[] = $this->l('Client Code required');
