@@ -34,8 +34,9 @@ class WS_Client {
 	var $config = null;
 	private function write_log($log){
 
-		PrestaShopLogger::addLog($log, 1);
-
+		if (version_compare(_PS_VERSION_, '1.6', '>=')){			
+			PrestaShopLogger::addLog($log, 1);
+		}
 	}
 	public function __construct( array $config = array( ), $proxyhost = '', $proxyport = '', $proxyusername = '', $proxypassword = '' ) {
 

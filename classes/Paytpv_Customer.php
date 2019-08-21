@@ -113,8 +113,10 @@ class Paytpv_Customer extends ObjectModel
 	}
 
 	public static function add_Customer($paytpv_iduser,$paytpv_tokenuser,$paytpv_cc,$paytpv_brand,$id_customer){
-		$sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_customer (`paytpv_iduser`, `paytpv_tokenuser`, `paytpv_cc`,`paytpv_brand`,`id_customer`,`date`) VALUES('.pSQL($paytpv_iduser).',"'.pSQL($paytpv_tokenuser).'","'.pSQL($paytpv_cc).'","'.pSQL($paytpv_brand).'",'.pSQL($id_customer).',"'.pSQL(date('Y-m-d H:i:s')).'")';
-		Db::getInstance()->Execute($sql);
+		try {
+			$sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_customer (`paytpv_iduser`, `paytpv_tokenuser`, `paytpv_cc`,`paytpv_brand`,`id_customer`,`date`) VALUES('.pSQL($paytpv_iduser).',"'.pSQL($paytpv_tokenuser).'","'.pSQL($paytpv_cc).'","'.pSQL($paytpv_brand).'",'.pSQL($id_customer).',"'.pSQL(date('Y-m-d H:i:s')).'")';
+			Db::getInstance()->Execute($sql);
+		} catch (exception $e) { }
 	}
 
 

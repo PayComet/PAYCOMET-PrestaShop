@@ -45,7 +45,7 @@ class Paytpv extends PaymentModule {
 		$this->name = 'paytpv';
 		$this->tab = 'payments_gateways';
 		$this->author = 'Paycomet';
-		$this->version = '6.5.1';
+		$this->version = '6.5.2';
 
 		//$this->bootstrap = true;
 		// Array config:  configuration values
@@ -77,8 +77,8 @@ class Paytpv extends PaymentModule {
 
 		if (isset($config['PAYTPV_FIRSTPURCHASE_SCORING']))
 			$this->firstpurchase_scoring = $config['PAYTPV_FIRSTPURCHASE_SCORING'];
-		if (isset($config['PAYTPV_FIRSTPURCHASE_SCORING_SCORE']))
-			$this->firstpurchase_scoring_score = $config['PAYTPV_FIRSTPURCHASE_SCORING_SCORE'];
+		if (isset($config['PAYTPV_FIRSTPURCHASE_SCORING_SCO']))
+			$this->firstpurchase_scoring_score = $config['PAYTPV_FIRSTPURCHASE_SCORING_SCO'];
 		if (isset($config['PAYTPV_SESSIONTIME_SCORING']))
 			$this->sessiontime_scoring = $config['PAYTPV_SESSIONTIME_SCORING'];
 		if (isset($config['PAYTPV_SESSIONTIME_SCORING_VAL']))
@@ -262,7 +262,7 @@ class Paytpv extends PaymentModule {
 			// Datos Scoring
 	        	        
 			Configuration::updateValue('PAYTPV_FIRSTPURCHASE_SCORING', $_POST['firstpurchase_scoring']); 
-			Configuration::updateValue('PAYTPV_FIRSTPURCHASE_SCORING_SCORE', $_POST['firstpurchase_scoring_score']); 
+			Configuration::updateValue('PAYTPV_FIRSTPURCHASE_SCORING_SCO', $_POST['firstpurchase_scoring_score']); 
 			Configuration::updateValue('PAYTPV_SESSIONTIME_SCORING', $_POST['sessiontime_scoring']); 
 			Configuration::updateValue('PAYTPV_SESSIONTIME_SCORING_VAL', $_POST['sessiontime_scoring_val']); 
 			Configuration::updateValue('PAYTPV_SESSIONTIME_SCORING_SCORE', $_POST['sessiontime_scoring_score']); 
@@ -309,7 +309,7 @@ class Paytpv extends PaymentModule {
 
         // First Purchase 
         if ($config["PAYTPV_FIRSTPURCHASE_SCORING"]){
-            $firstpurchase_scoring_score = $config["PAYTPV_FIRSTPURCHASE_SCORING_SCORE"];
+            $firstpurchase_scoring_score = $config["PAYTPV_FIRSTPURCHASE_SCORING_SCO"];
             if (Paytpv_Order::isFirstPurchaseCustomer($this->context->customer->id)){
                 $arrScore["scoreCalc"]["firstpurchase"] = $firstpurchase_scoring_score;
             }
@@ -649,7 +649,7 @@ class Paytpv extends PaymentModule {
         }
 
         $firstpurchase_scoring = isset($_POST["firstpurchase_scoring"])?$_POST["firstpurchase_scoring"]:$conf_values['PAYTPV_FIRSTPURCHASE_SCORING'];
-        $firstpurchase_scoring_score = isset($_POST["firstpurchase_scoring_score"])?$_POST["firstpurchase_scoring_score"]:$conf_values['PAYTPV_FIRSTPURCHASE_SCORING_SCORE'];
+        $firstpurchase_scoring_score = isset($_POST["firstpurchase_scoring_score"])?$_POST["firstpurchase_scoring_score"]:$conf_values['PAYTPV_FIRSTPURCHASE_SCORING_SCO'];
 
         $sessiontime_scoring = isset($_POST["sessiontime_scoring"])?$_POST["sessiontime_scoring"]:$conf_values['PAYTPV_SESSIONTIME_SCORING'];
         $sessiontime_scoring_val = isset($_POST["sessiontime_scoring_val"])?$_POST["sessiontime_scoring_val"]:$conf_values['PAYTPV_SESSIONTIME_SCORING_VAL'];
@@ -1374,7 +1374,7 @@ class Paytpv extends PaymentModule {
 	}
 	private function getConfigValues(){
 
-		return Configuration::getMultiple(array('PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_COMMERCEPASSWORD', 'PAYTPV_NEWPAGEPAYMENT', 'PAYTPV_SUSCRIPTIONS','PAYTPV_REG_ESTADO','PAYTPV_FIRSTPURCHASE_SCORING','PAYTPV_FIRSTPURCHASE_SCORING_SCORE','PAYTPV_SESSIONTIME_SCORING','PAYTPV_SESSIONTIME_SCORING_VAL','PAYTPV_SESSIONTIME_SCORING_SCORE','PAYTPV_DCOUNTRY_SCORING','PAYTPV_DCOUNTRY_SCORING_VAL','PAYTPV_DCOUNTRY_SCORING_SCORE','PAYTPV_IPCHANGE_SCORING','PAYTPV_IPCHANGE_SCORING_SCORE','PAYTPV_BROWSER_SCORING','PAYTPV_BROWSER_SCORING_SCORE','PAYTPV_SO_SCORING','PAYTPV_SO_SCORING_SCORE','PAYTPV_DISABLEOFFERSAVECARD','PAYTPV_REMEMBERCARDUNSELECTED'));
+		return Configuration::getMultiple(array('PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_COMMERCEPASSWORD', 'PAYTPV_NEWPAGEPAYMENT', 'PAYTPV_SUSCRIPTIONS','PAYTPV_REG_ESTADO','PAYTPV_FIRSTPURCHASE_SCORING','PAYTPV_FIRSTPURCHASE_SCORING_SCO','PAYTPV_SESSIONTIME_SCORING','PAYTPV_SESSIONTIME_SCORING_VAL','PAYTPV_SESSIONTIME_SCORING_SCORE','PAYTPV_DCOUNTRY_SCORING','PAYTPV_DCOUNTRY_SCORING_VAL','PAYTPV_DCOUNTRY_SCORING_SCORE','PAYTPV_IPCHANGE_SCORING','PAYTPV_IPCHANGE_SCORING_SCORE','PAYTPV_BROWSER_SCORING','PAYTPV_BROWSER_SCORING_SCORE','PAYTPV_SO_SCORING','PAYTPV_SO_SCORING_SCORE','PAYTPV_DISABLEOFFERSAVECARD','PAYTPV_REMEMBERCARDUNSELECTED'));
 	}
 	
 	public function saveCard($id_customer,$paytpv_iduser,$paytpv_tokenuser,$paytpv_cc,$paytpv_brand){
