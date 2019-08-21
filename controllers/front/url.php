@@ -64,11 +64,19 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 			$sign = Tools::getValue('NotificationHash');
 			$esURLOK = false;
 
+			$context = Context::getContext();
+			$id_cart = (int)substr($ref,0,8);
+			$cart = new Cart($id_cart);
+			if (Context::getContext()->shop->id!=$cart->id_shop) {
+				$context->shop->id = $cart->id_shop;
+			}
+			
 			$arrTerminal = Paytpv_Terminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
 			$idterminal = $arrTerminal["idterminal"];
 			$idterminal_ns = $arrTerminal["idterminal_ns"];
 			$pass = $arrTerminal["password"];
 			$pass_ns = $arrTerminal["password_ns"];
+			
 
 			if (Tools::getValue('TpvID')==$idterminal){
 				$idterminal_sel = $idterminal;
@@ -80,7 +88,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 			}
 
 			$local_sign = hash('sha512',$paytpv->clientcode.$idterminal_sel.Tools::getValue('TransactionType').$ref.Tools::getValue('Amount').Tools::getValue('Currency').md5($pass_sel).Tools::getValue('BankDateTime').Tools::getValue('Response'));
-		
+			
 			// Check Signature
 			if ($sign!=$local_sign)	die('Error 1');
 			
@@ -89,6 +97,14 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 			$ref = Tools::getValue('Order');
 			$sign = Tools::getValue('NotificationHash');
 			$esURLOK = false;
+						
+			$datos_op = explode("_",$ref);
+			$id_customer = $datos_op[0];
+			$id_shop = $datos_op[1];
+			$context = Context::getContext();
+			if (Context::getContext()->shop->id!=$id_shop) {
+				$context->shop->id = $id_shop;
+			}			
 
 			$arrTerminal = Paytpv_Terminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
 			$idterminal = $arrTerminal["idterminal"];
@@ -118,8 +134,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 					'pass' => $pass_sel,
 				)
 			);
-
-			$id_customer = Tools::getValue('Order');
+			
 			$result = $client->info_user( Tools::getValue('IdUser'),Tools::getValue('TokenUser'));
 			$paytpv->saveCard($id_customer,Tools::getValue('IdUser'),Tools::getValue('TokenUser'),$result['DS_MERCHANT_PAN'],$result['DS_CARD_BRAND']);
 			
@@ -131,6 +146,18 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 			$result = Tools::getValue('Response')=='OK'?0:-1;
 			$sign = Tools::getValue('NotificationHash');
 			$esURLOK = false;
+
+			$ref = Tools::getValue('Order');
+			// Look if is initial order or a subscription payment (orden[Iduser]Fecha)
+			$datos = explode("[",$ref);
+			$ref = $datos[0];
+
+			$context = Context::getContext();
+			$id_cart = (int)substr($ref,0,8);
+			$cart = new Cart($id_cart);
+			if (Context::getContext()->shop->id!=$cart->id_shop) {
+				$context->shop->id = $cart->id_shop;
+			}
 
 			$arrTerminal = Paytpv_Terminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
 			$idterminal = $arrTerminal["idterminal"];
@@ -155,12 +182,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 
 			$suscripcion = 1;  // Inicio Suscripcion
 			$importe  = number_format(Tools::getValue('Amount')/ 100, 2, ".","");
-			$ref = Tools::getValue('Order');
-
-			// Look if is initial order or a subscription payment (orden[Iduser]Fecha)
-			$datos = explode("[",$ref);
-			$ref = $datos[0];
-
+			
 			// Check if is a suscription payment
 			$id_cart = (int)substr($ref,0,8);
 			$id_order = Order::getOrderByCartId(intval($id_cart));

@@ -45,7 +45,7 @@ class Paytpv extends PaymentModule {
 		$this->name = 'paytpv';
 		$this->tab = 'payments_gateways';
 		$this->author = 'Paycomet';
-		$this->version = '6.5.0';
+		$this->version = '6.5.1';
 
 		//$this->bootstrap = true;
 		// Array config:  configuration values
@@ -1240,7 +1240,7 @@ class Paytpv extends PaymentModule {
 	 * return array Term,Currency,amount
 	 */
 	public function TerminalCurrency($cart){
-
+		
 		// Si hay un terminal definido para la moneda del usuario devolvemos ese.
 		$result = Paytpv_Terminal::get_Terminal_Currency($this->context->currency->iso_code,$cart->id_shop);
 		// Not exists terminal in user currency
@@ -1256,6 +1256,7 @@ class Paytpv extends PaymentModule {
 			}
 		}
 
+		
 		$arrDatos["idterminal"] = $result["idterminal"];
 		$arrDatos["idterminal_ns"] = $result["idterminal_ns"];
 		$arrDatos["password"] = $result["password"];
