@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -23,35 +22,31 @@
 *  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
+
 /**
  * @since 1.5.0
  */
 
 class PaytpvUrlkoModuleFrontController extends ModuleFrontController
 {
-	public $display_column_left = false;
+    public $display_column_left = false;
 
-	public $ssl = true;
-	/**
-	 * @see FrontController::initContent()
-	 */
+    public $ssl = true;
+    /**
+     * @see FrontController::initContent()
+     */
 
-	public function initContent()
+    public function initContent()
+    {
+        parent::initContent();
 
-	{
+        $password_fail = 0;
+        $this->context->smarty->assign('password_fail', $password_fail);
+        $this->context->smarty->assign('error_msg', "");
+        $this->context->smarty->assign(array(
+            'this_path' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->module->name.'/'
+        ));
 
-		parent::initContent();
-
-		$password_fail = 0;
-		$this->context->smarty->assign('password_fail',$password_fail);
-		$this->context->smarty->assign('error_msg',"");
-		$this->context->smarty->assign(array(
-			'this_path' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->module->name.'/'
-		));
-
-		$this->setTemplate('payment_fail.tpl');
-
-	}
-
+        $this->setTemplate('payment_fail.tpl');
+    }
 }
-

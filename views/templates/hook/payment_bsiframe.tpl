@@ -24,23 +24,23 @@
 
     {capture name=path}
     <a href="{$link->getPageLink('order', true)|escape:'html'}">{l s='Cart' mod='paytpv'}</a>
-    <span class="navigation-pipe">{$navigationPipe}</span>
+    <span class="navigation-pipe">{$navigationPipe|escape:'htmlall':'UTF-8':FALSE}</span>
     {l s='Pay with Card' mod='paytpv'}</a>
     {/capture}
 
     <div class="row">
-        <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment}">
+        <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
         {if ($newpage_payment==1)}
             <div class="col-xs-12 col-md-12">
         {else}
             <div class="col-xs-12 col-md-6">
         {/if}
             <div class="paytpv">
-                <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path}views/img/paytpv_logo.svg" width="135"></a>
-                <img src="{$this_path}views/img/tarjetas.png">
+                <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135"></a>
+                <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/tarjetas.png">
                 {if ($msg_paytpv!="")}
                 <p>
-                    <span class="message">{$msg_paytpv}</span>
+                    <span class="message">{$msg_paytpv|escape:'htmlall':'UTF-8':FALSE}</span>
                 </p>
                 {/if}
                 {if ($active_suscriptions)}
@@ -105,7 +105,7 @@
                       <h3>{l s='Credit Card Operation' mod='paytpv'}</h3>
                       <div style="display:inline-table;">
                         <div class="operation">
-                            <h4 class="cost_num">{l s='Total Amount' mod='paytpv'}:<b>{$total_amount} {$currency_symbol}</b></h4>
+                            <h4 class="cost_num">{l s='Total Amount' mod='paytpv'}:<b>{$total_amount|escape:'htmlall':'UTF-8':FALSE} {$currency_symbol|escape:'htmlall':'UTF-8':FALSE}</b></h4>
                         </div>
                       </div>
                     </div>
@@ -121,12 +121,12 @@
                             {section name=card loop=$saved_card }
                                 {if ($saved_card[card].url=="0")}
                                     {if ($newpage_payment==2)}
-                                        <option value='{$paytpv_iframe}'>{l s='NEW CARD' mod='paytpv'}</option>
+                                        <option value='{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}'>{l s='NEW CARD' mod='paytpv'}</option>
                                     {else}
                                         <option value='0'>{l s='NEW CARD' mod='paytpv'}</option>
                                     {/if}
                                 {else}
-                                    <option value='{$saved_card[card].url}'>{$saved_card[card].CC} ({$saved_card[card].BRAND}){if ($saved_card[card].CARD_DESC!="")} - {$saved_card[card].CARD_DESC}{/if}</option>
+                                    <option value='{$saved_card[card].url|escape:'htmlall':'UTF-8':FALSE}'>{$saved_card[card].CC|escape:'htmlall':'UTF-8':FALSE} ({$saved_card[card].BRAND|escape:'htmlall':'UTF-8':FALSE}){if ($saved_card[card].CARD_DESC!="")} - {$saved_card[card].CARD_DESC|escape:'htmlall':'UTF-8':FALSE}{/if}</option>
                                 {/if}
                             {/section}
                         </select>
@@ -144,7 +144,7 @@
                         <span>{l s='Pay' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
                     </a>
                     {/if}
-                    <img id='clockwait' style="display:none" src="{$this_path}views/img/clockpayblue.gif"></img>
+                    <img id='clockwait' style="display:none" src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/clockpayblue.gif"></img>
                 </div>
                 {/if}
                 
@@ -179,12 +179,12 @@
                     
                     {if ($paytpv_integration==0)}
                         <p id='ajax_loader' style="display:none">
-                            <img id='ajax_loader' src="{$this_path}views/img/clockpayblue.gif"></img>
+                            <img id='ajax_loader' src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/clockpayblue.gif"></img>
                             {l s='Loading payment form...' mod='paytpv'}
                         </p>
-                        <iframe id="paytpv_iframe" src="{$paytpv_iframe}" name="paytpv" style="width: 670px; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: 342px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                        <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 670px; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: 342px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
                     {else}
-                        <form action="{$paytpv_jetid_url}" method="POST" class="paytpv_jet" id="paytpvPaymentForm" onsubmit="return takingOff();" style="clear:left;">
+                        <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8':FALSE}" method="POST" class="paytpv_jet" id="paytpvPaymentForm" onsubmit="return takingOff();" style="clear:left;">
                         <ul>
                             <li>
                                 <label for="MERCHANT_PAN">{l s='Credit Card Number' mod='paytpv'}:</label>
@@ -212,16 +212,16 @@
                             <li>
                                 
                                 <input type="submit" class="button" value="{l s='Make Payment' mod='paytpv'}" id="btnforg" style="display: inline-block;font-size: 21px;font-weight: 300;line-height: 46px;height:46px;padding: 0 0px;text-align: center;width: 100%;" onclick="buildED();">
-                                <div class="button" id="clockwait_jet" style="display:none;"><img src="{$this_path}views/img/loader.gif" title="{l s='Wait' mod='paytpv'}" /></div>
+                                <div class="button" id="clockwait_jet" style="display:none;"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/loader.gif" title="{l s='Wait' mod='paytpv'}" /></div>
 
                                 <span style="color:red;font-weight:bold;" id="paymentErrorMsg"></span>
                             </li>
                         </ul>
                         </form>
 
-                        <script type="text/javascript" src="{$jet_paytpv}?id={$jet_id}&language={$jet_lang}"></script>
+                        <script type="text/javascript" src="{$jet_paytpv|escape:'htmlall':'UTF-8':FALSE}?id={$jet_id|escape:'htmlall':'UTF-8':FALSE}&language={$jet_lang|escape:'htmlall':'UTF-8':FALSE}"></script>
                         <script type="text/javascript">
-                        {$js_code}
+                        {$js_code|escape:'htmlall':'UTF-8':FALSE}
                         </script>
                     {/if}
 
@@ -232,20 +232,20 @@
                             <div class="footer_line">
                               <div class="footer_logo">
                                 <a href="https://www.paycomet.com" target="_blank">
-                                  <img src="{$this_path}views/img/paytpv_logo.svg">
+                                  <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg">
                                 </a>
                               </div>
                               <ul class="payment_icons">
-                                <li><img src="{$this_path}views/img/visa.png" alt="Visa"></li>
-                                <li><img src="{$this_path}views/img/visa_electron.png" alt="Visa Electron"></li>
-                                <li><img src="{$this_path}views/img/mastercard.png" alt="Mastercard"></li>
-                                <li><img src="{$this_path}views/img/maestro.png" alt="Maestro"></li>
-                                <li><img src="{$this_path}views/img/amex.png" alt="American Express"></li>
-                                <li><img src="{$this_path}views/img/jcb.png" alt="JCB card"></li>
-                                <li><img src="{$this_path}views/img/veryfied_by_visa.png" alt="Veryfied by Visa"></li>
-                                <li><img src="{$this_path}views/img/mastercard_secure_code.png" alt="Mastercard Secure code"></li>
-                                <li><img src="{$this_path}views/img/pci.png" alt="PCI"></li>
-                                <li><img src="{$this_path}views/img/thawte.png" alt="Thawte"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/visa.png" alt="Visa"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/visa_electron.png" alt="Visa Electron"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/mastercard.png" alt="Mastercard"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/maestro.png" alt="Maestro"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/amex.png" alt="American Express"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/jcb.png" alt="JCB card"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/veryfied_by_visa.png" alt="Veryfied by Visa"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/mastercard_secure_code.png" alt="Mastercard Secure code"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/pci.png" alt="PCI"></li>
+                                <li><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/thawte.png" alt="Thawte"></li>
                               </ul>
                             </div>
                         </div>
@@ -327,7 +327,7 @@
 
     <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$link->getModuleLink('paytpv', 'actions',[], true)|escape:'htmlall':'UTF-8'}">
 
-    <form id="form_paytpv" action="{$base_dir}index.php?controller=order" method="post">
+    <form id="form_paytpv" action="{$base_dir|escape:'htmlall':'UTF-8':FALSE}index.php?controller=order" method="post">
         <input type="hidden" name="step" value="3">
         <input type="hidden" name="paytpv_cc" id="paytpv_cc" value="">
 
@@ -339,7 +339,7 @@
         <input type="hidden" name="paytpv_periodicity" id="paytpv_periodicity"  value="0">
         <input type="hidden" name="paytpv_cycles" id="paytpv_cycles"  value="0">
 
-        <input type="hidden" name="id_cart" id="id_cart"  value="{$id_cart}">
+        <input type="hidden" name="id_cart" id="id_cart"  value="{$id_cart|escape:'htmlall':'UTF-8':FALSE}">
 
     </form>
 

@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,19 +23,19 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-function upgrade_module_6_2_4($object)
+function upgrade_module_6_2_4()
 {
-
-	try{
-		Db::getInstance()->Execute('
+    try {
+        Db::getInstance()->Execute('
 		ALTER TABLE `' . _DB_PREFIX_ . 'paytpv_terminal` DROP PRIMARY KEY,
 		ADD COLUMN `id_shop` INT UNSIGNED DEFAULT 1 NOT null AFTER id,
 		ADD PRIMARY KEY(id,id_shop)');
-		
-	}catch (exception $e){}
+    } catch (exception $e) {
+    }
 
-	return true;
+    return true;
 }

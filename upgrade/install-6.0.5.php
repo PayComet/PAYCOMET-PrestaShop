@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,17 +23,20 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-function upgrade_module_6_0_5($object)
+function upgrade_module_6_0_5()
 {
-	try{
-	    Db::getInstance()->execute('
+    try {
+        Db::getInstance()->execute(
+            '
 	    ALTER TABLE `'._DB_PREFIX_.'paytpv_customer` 
 	    ADD COLUMN `card_desc` varchar(32) NULL DEFAULT NULL'
-	    );
-	}catch (exception $e){}
+        );
+    } catch (exception $e) {
+    }
 
     return true;
 }

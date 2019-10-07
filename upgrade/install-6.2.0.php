@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,13 +23,14 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-function upgrade_module_6_2_0($object)
+function upgrade_module_6_2_0()
 {
-	try{
-		Db::getInstance()->Execute('
+    try {
+        Db::getInstance()->Execute('
 		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'paytpv_refund` (
 			`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 			`id_order` INT(10) UNSIGNED NOT NULL,
@@ -39,8 +39,8 @@ function upgrade_module_6_2_0($object)
 			`date` DATETIME NOT NULL,
 			PRIMARY KEY (`id`)
 		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8');
+    } catch (exception $e) {
+    }
 
-	}catch (exception $e){}
-
-	return true;
+    return true;
 }

@@ -24,10 +24,10 @@
 
     
 
-    <img width="200" src="{$base_dir}modules/paytpv/views/img/paytpv.png" style="float:left; margin-right:15px;"><b>{l s='This module allows you to accept card payments via www.paycomet.com.' mod='paytpv'}</b><br /><br />
+    <img width="200" src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}modules/paytpv/views/img/paytpv.png" style="float:left; margin-right:15px;"><b>{l s='This module allows you to accept card payments via www.paycomet.com.' mod='paytpv'}</b><br /><br />
             {l s='If the customer chooses this payment method, they will be able to make payments automatically.' mod='paytpv'}<br /><br />
 
-    {$errorMessage}
+    {$errorMessage|escape:'quotes'}
 
     <div>
         <p><H1>{l s='PRERREQUISTES' mod='paytpv'}</H1></p>
@@ -37,7 +37,7 @@
             </ul>
         </p>
     </div>
-    <form action="{$serverRequestUri|strip_tags}" method="post">
+    <form action="{$serverRequestUri|escape:'htmlall':'UTF-8':FALSE}" method="post">
     	<fieldset>
     		<legend>{l s='PAYCOMET Product Configuration' mod='paytpv'}</legend>
             <p><strong>{l s='If you need to test the Module and do not have a PAYCOMET test account, please contact us at ' mod='paytpv'}<a href="mailto:info@paycomet.com">info@paycomet.com</a></strong></p>
@@ -51,14 +51,11 @@
                 <div class="margin-form">
                     <select name="integration" id="integration" onchange="checkmode();">
                         <option value="0" {if $integration==0}selected="1"{/if}>Bankstore IFRAME/XML</option>
-                        <option value="1" {if $integration==1}selected="1"{/if}>Bankstore JET/XML</option>
-                    </select>
-                    <br/>Bankstore IFRAME/XML: {l s='PAYCOMET payment iframe' mod='paytpv'}
-                    <br/>Bankstore JET/XML: {l s='SSL mandatory' mod='paytpv'}<br/>
+                    </select>                    
                 </div>
 
                 <label>{l s='Client Code' mod='paytpv'}</label>
-                <div class="margin-form"><input type="text" size="60" name="clientcode" value="{$clientcode}" /></div>
+                <div class="margin-form"><input type="text" size="60" name="clientcode" value="{$clientcode|escape:'htmlall':'UTF-8':FALSE}" /></div>
         		
               
             </fieldset>
@@ -75,62 +72,62 @@
                         <legend><a style="{if $cont==0}display:none{/if}"  href="javascript:void(0)" onclick="removeTerminal(this)"><img src="../img/admin/cross.png" title="{l s='Remove Terminal' mod='paytpv'}" /></a>
                         
                         {if $cont==0}
-                        <img id="img_term_{$cont}" src="../img/admin/bullet_green.png" title="" />
+                        <img id="img_term_{$cont|escape:'htmlall':'UTF-8':FALSE}" src="../img/admin/bullet_green.png" title="" />
                         {/if}</legend>
 
-                        <fieldset id="term_s_container_{$cont}">
+                        <fieldset id="term_s_container_{$cont|escape:'htmlall':'UTF-8':FALSE}">
                             <legend>3D SECURE</legend>
 
                             <label>{l s='Terminal Number' mod='paytpv'}</label>
-                            <div class="margin-form"><input type="text" size="8" class="term" maxlength="6" name="term[]" value="{$terminal['idterminal']}" /></div>
+                            <div class="margin-form"><input type="text" size="8" class="term" maxlength="6" name="term[]" value="{$terminal['idterminal']|escape:'htmlall':'UTF-8':FALSE}" /></div>
 
                             <label>{l s='User Password' mod='paytpv'}</label>
-                            <div class="margin-form"><input type="text" size="22" maxlength="30" name="pass[]" value="{$terminal['password']}" /></div>
+                            <div class="margin-form"><input type="text" size="22" maxlength="30" name="pass[]" value="{$terminal['password']|escape:'htmlall':'UTF-8':FALSE}" /></div>
 
                             <div class="class_jetid">
                                 <label>JET ID</label>
-                                <div class="margin-form"><input type="text" size="40" maxlength="32" name="jetid[]" value="{$terminal['jetid']}" /></div>
+                                <div class="margin-form"><input type="text" size="40" maxlength="32" name="jetid[]" value="{$terminal['jetid']|escape:'htmlall':'UTF-8':FALSE}" /></div>
                             </div>
                         </fieldset>
 
-                        <fieldset id="term_ns_container_{$cont}">
+                        <fieldset id="term_ns_container_{$cont|escape:'htmlall':'UTF-8':FALSE}">
                             <legend>NO 3D SECURE</legend>
                             <label>{l s='Terminal Number' mod='paytpv'}</label>
-                            <div class="margin-form"><input type="text" size="8" name="term_ns[]" maxlength="6" value="{$terminal['idterminal_ns']}" /></div>
+                            <div class="margin-form"><input type="text" size="8" name="term_ns[]" maxlength="6" value="{$terminal['idterminal_ns']|escape:'htmlall':'UTF-8':FALSE}" /></div>
 
                             <label>{l s='User Password' mod='paytpv'}</label>
-                            <div class="margin-form"><input type="text" size="22" maxlength="30" name="pass_ns[]" value="{$terminal['password_ns']}" /></div>
+                            <div class="margin-form"><input type="text" size="22" maxlength="30" name="pass_ns[]" value="{$terminal['password_ns']|escape:'htmlall':'UTF-8':FALSE}" /></div>
 
                             <div class="class_jetid">
                                 <label>JET ID</label>
-                                <div class="margin-form"><input type="text" maxlength="32" size="40" name="jetid_ns[]" value="{$terminal['jetid_ns']}" /></div>
+                                <div class="margin-form"><input type="text" maxlength="32" size="40" name="jetid_ns[]" value="{$terminal['jetid_ns']|escape:'htmlall':'UTF-8':FALSE}" /></div>
                             </div>
                         </fieldset>
 
 
                         <label>{l s='Terminals available' mod='paytpv'}</label>
-                        <div class="margin-form"><select name="terminales[]" onchange="checkterminales(this);" id="terminales_{$cont}" >
+                        <div class="margin-form"><select name="terminales[]" onchange="checkterminales(this);" id="terminales_{$cont|escape:'htmlall':'UTF-8':FALSE}" >
                             <option value="0" {if $terminal['terminales']==0} selected="1"{/if}>{l s='Secure' mod='paytpv'}</option>
                             <option value="1" {if $terminal['terminales']==1} selected="1"{/if}>{l s='Non-Secure' mod='paytpv'}</option>
                             <option value="2" {if $terminal['terminales']==2} selected="1"{/if}>{l s='Both' mod='paytpv'}</option>
                         </select></div>
 
                         <label>{l s='Use 3D Secure' mod='paytpv'}</label>
-                        <div class="margin-form"><select name="tdfirst[]" onchange="checktdfirst(this);" id="tdfirst_{$cont}">
+                        <div class="margin-form"><select name="tdfirst[]" onchange="checktdfirst(this);" id="tdfirst_{$cont|escape:'htmlall':'UTF-8':FALSE}">
                             <option value="0" {if $terminal['tdfirst']==0}selected="1"{/if}>{l s='No' mod='paytpv'}</option>
                             <option value="1" {if $terminal['tdfirst']==1}selected="1"{/if}>{l s='Yes' mod='paytpv'}</option>
                         </select></div>
 
                         <label>{l s='Currency' mod='paytpv'}</label>
-                        <div class="margin-form"><select name="moneda[]" id="moneda_{$cont}">
+                        <div class="margin-form"><select name="moneda[]" id="moneda_{$cont|escape:'htmlall':'UTF-8':FALSE}">
                             {foreach from=$currency_array item=currency}
-                            <option value="{$currency['iso_code']}" {if $currency['iso_code']==$terminal['currency_iso_code']}selected="1"{/if}>{$currency['name']} {if $currency['id_currency']==$default_currency} [{l s='Default Currency' mod='paytpv'}]{/if}</option>
+                            <option value="{$currency['iso_code']|escape:'htmlall':'UTF-8':FALSE}" {if $currency['iso_code']==$terminal['currency_iso_code']}selected="1"{/if}>{$currency['name']|escape:'htmlall':'UTF-8':FALSE} {if $currency['id_currency']==$default_currency} [{l s='Default Currency' mod='paytpv'}]{/if}</option>
                             {/foreach}
                         </select></div>
 
-                        <div class="min3d" id="tdmin_container_{$cont}">
+                        <div class="min3d" id="tdmin_container_{$cont|escape:'htmlall':'UTF-8':FALSE}">
                             <label>{l s='Use 3D Secure on purchases over' mod='paytpv'}</label>
-                            <div class="margin-form"><input type="text" size="10" name="tdmin[]" width="10" id="tdmin_{$cont}" value="{$terminal['tdmin']}" style="text-align:right"/> [{l s='0 for Not use' mod='paytpv'}]</div>
+                            <div class="margin-form"><input type="text" size="10" name="tdmin[]" width="10" id="tdmin_{$cont|escape:'htmlall':'UTF-8':FALSE}" value="{$terminal['tdmin']|escape:'htmlall':'UTF-8':FALSE}" style="text-align:right"/> [{l s='0 for Not use' mod='paytpv'}]</div>
                         </div>
                     </fieldset>
                 </li>
@@ -233,8 +230,8 @@
                             <select name="firstpurchase_scoring_score" id="firstpurchase_scoring_score">
                                 {$i=0}
                                 {while $i <= 100}
-                                 <option value="{$i}" {if $firstpurchase_scoring_score==$i}selected="1"{/if}>{$i}</option>
-                                  {$i++}
+                                 <option value="{$i|escape:'htmlall':'UTF-8':FALSE}" {if $firstpurchase_scoring_score==$i}selected="1"{/if}>{$i|escape:'htmlall':'UTF-8':FALSE}</option>
+                                  {$i++|escape:'htmlall':'UTF-8':FALSE}
                                 {/while}
                             </select>
                         </div>
@@ -255,8 +252,8 @@
                             <select name="sessiontime_scoring_score" id="firstpurchase_scoring_score">
                                 {$i=0}
                                 {while $i <= 100}
-                                 <option value="{$i}" {if $sessiontime_scoring_score==$i}selected="1"{/if}>{$i}</option>
-                                  {$i++}
+                                 <option value="{$i|escape:'htmlall':'UTF-8':FALSE}" {if $sessiontime_scoring_score==$i}selected="1"{/if}>{$i|escape:'htmlall':'UTF-8':FALSE}</option>
+                                  {$i++|escape:'htmlall':'UTF-8':FALSE}
                                 {/while}
                             </select>
                         </div>
@@ -267,7 +264,7 @@
                                 {assign var=arrTiempos value=['0'=>'00:00','15'=>'00:15','30'=>'00:30','45'=>'00:45','60'=>'01:00','90'=>'01:30','120'=>'02:00','180'=>'03:00','240'=>'04:00','300'=>'05:00','360'=>'06:00']}    
 
                                 {foreach from=$arrTiempos key=key item=tiempo}
-                                    <option value="{$key}" {if $sessiontime_scoring_val==$key}selected="1"{/if}>{$tiempo}</option>
+                                    <option value="{$key|escape:'htmlall':'UTF-8':FALSE}" {if $sessiontime_scoring_val==$key}selected="1"{/if}>{$tiempo|escape:'htmlall':'UTF-8':FALSE}</option>
                                 {/foreach}
                                 
                             </select>
@@ -289,8 +286,8 @@
                             <select name="dcountry_scoring_score" style="vertical-align:top;" id="dcountry_scoring_score">
                                 {$i=0}
                                 {while $i <= 100}
-                                 <option value="{$i}" {if $dcountry_scoring_score==$i}selected="1"{/if}>{$i}</option>
-                                  {$i++}
+                                 <option value="{$i|escape:'htmlall':'UTF-8':FALSE}" {if $dcountry_scoring_score==$i}selected="1"{/if}>{$i|escape:'htmlall':'UTF-8':FALSE}</option>
+                                  {$i++|escape:'htmlall':'UTF-8':FALSE}
                                 {/while}
                             </select>
                         </div>
@@ -299,7 +296,7 @@
                             <label style="float:none;vertical-align:top;">{l s='Countries' mod='paytpv'}</label>
                             <select name="dcountry_scoring_val[]" id="dcountry_scoring_val" multiple="multiple" size="10">
                                 {foreach from=$countries key=key item=countrie}
-                                    <option value="{$countrie.iso_code}" {if in_array($countrie.iso_code,$arr_dcountry_scoring_val)}selected="1"{/if}>{$countrie.name}</option>
+                                    <option value="{$countrie.iso_code|escape:'htmlall':'UTF-8':FALSE}" {if in_array($countrie.iso_code,$arr_dcountry_scoring_val)}selected="1"{/if}>{$countrie.name|escape:'htmlall':'UTF-8':FALSE}</option>
                                 {/foreach}
                                 
                             </select>
@@ -321,8 +318,8 @@
                             <select name="ip_change_scoring_score" id="ip_change_scoring_score">
                                 {$i=0}
                                 {while $i <= 100}
-                                 <option value="{$i}" {if $ip_change_scoring_score==$i}selected="1"{/if}>{$i}</option>
-                                  {$i++}
+                                 <option value="{$i|escape:'htmlall':'UTF-8':FALSE}" {if $ip_change_scoring_score==$i}selected="1"{/if}>{$i|escape:'htmlall':'UTF-8':FALSE}</option>
+                                  {$i++|escape:'htmlall':'UTF-8':FALSE}
                                 {/while}
                             </select>
                         </div>
@@ -344,8 +341,8 @@
                             <select name="browser_scoring_score" id="browser_scoring_score">
                                 {$i=0}
                                 {while $i <= 100}
-                                 <option value="{$i}" {if $browser_scoring_score==$i}selected="1"{/if}>{$i}</option>
-                                  {$i++}
+                                 <option value="{$i|escape:'htmlall':'UTF-8':FALSE}" {if $browser_scoring_score==$i}selected="1"{/if}>{$i|escape:'htmlall':'UTF-8':FALSE}</option>
+                                  {$i++|escape:'htmlall':'UTF-8':FALSE}
                                 {/while}
                             </select>
                         </div>
@@ -366,8 +363,8 @@
                             <select name="so_scoring_score" id="ip_change_scoring_score">
                                 {$i=0}
                                 {while $i <= 100}
-                                 <option value="{$i}" {if $so_scoring_score==$i}selected="1"{/if}>{$i}</option>
-                                  {$i++}
+                                 <option value="{$i|escape:'htmlall':'UTF-8':FALSE}" {if $so_scoring_score==$i}selected="1"{/if}>{$i|escape:'htmlall':'UTF-8':FALSE}</option>
+                                  {$i++|escape:'htmlall':'UTF-8':FALSE}
                                 {/while}
                             </select>
                         </div>
@@ -407,11 +404,11 @@
     		<p><strong>{l s='Finally you need to configure in your account' mod='paytpv'} <a class='link' target="_blank" href="https://dashboard.paycomet.com/cp_control"> PAYCOMET </a>{l s='the following URLs for the payment module to work properly' mod='paytpv'}:</strong>
             </p>
 			<ul class="paytpv">
-				<li><strong>URL OK:</strong> {$OK}</li>
-				<li><strong>URL KO:</strong> {$KO}</li>
+				<li><strong>URL OK:</strong> {$OK|escape:'htmlall':'UTF-8':FALSE}</li>
+				<li><strong>URL KO:</strong> {$KO|escape:'htmlall':'UTF-8':FALSE}</li>
                 <li><strong>{l s='Type of Notification (IMPORTANT)' mod='paytpv'}:</strong> {l s='Notification via URL or Notification via URL and email' mod='paytpv'}
                     <ul class="paytpv">
-                        <li><strong>URL NOTIFICACION:</strong> {$NOTIFICACION}</li>
+                        <li><strong>URL NOTIFICACION:</strong> {$NOTIFICACION|escape:'htmlall':'UTF-8':FALSE}</li>
                     </ul>
                 </li>		
 			</ul>
@@ -445,14 +442,14 @@
                 <tbody>
                 {foreach from=$carritos item=registro}
                     <tr>
-                        <td class="first_item" style="text-align:center;">{$registro['date_add']}</td>
-                        <td class="item" style="text-align:left;"><span>{$registro['customer_firstname']} {$registro['customer_lastname']}</span></td>
-                        <td class="item" style="text-align:center;">{$registro['amount']}</td>
-                        <td class="item" style="text-align:left;">{$registro['error_code']}</td>
+                        <td class="first_item" style="text-align:center;">{$registro['date_add']|escape:'htmlall':'UTF-8':FALSE}</td>
+                        <td class="item" style="text-align:left;"><span>{$registro['customer_firstname']|escape:'htmlall':'UTF-8':FALSE} {$registro['customer_lastname']|escape:'htmlall':'UTF-8':FALSE}</span></td>
+                        <td class="item" style="text-align:center;">{$registro['amount']|escape:'htmlall':'UTF-8':FALSE}</td>
+                        <td class="item" style="text-align:left;">{$registro['error_code']|escape:'htmlall':'UTF-8':FALSE}</td>
                         <td class="center">
-                            <img onClick="document.location ={$currentindex}&configure={$name}&token={$token}&amount={$registro['amount']}&id_cart={$registro['id_cart']}&id_registro={$registro['id_registro']}';" src="../img/admin/add.gif" style="cursor:pointer" alt="{l s='Create Order' mod='paytpv'}" title="{l s='Create Order' mod='paytpv'}" />
+                            <img onClick="document.location ={$currentindex|escape:'htmlall':'UTF-8':FALSE}&configure={$name|escape:'htmlall':'UTF-8':FALSE}&token={$token|escape:'htmlall':'UTF-8':FALSE}&amount={$registro['amount']|escape:'htmlall':'UTF-8':FALSE}&id_cart={$registro['id_cart']|escape:'htmlall':'UTF-8':FALSE}&id_registro={$registro['id_registro']|escape:'htmlall':'UTF-8':FALSE}';" src="../img/admin/add.gif" style="cursor:pointer" alt="{l s='Create Order' mod='paytpv'}" title="{l s='Create Order' mod='paytpv'}" />
                             
-                            <img onClick="if (confirm(\"{l s='Delete this payment error?' mod='paytpv'}\")) document.location = {$currentindex}&configure={$name}&token={$token}&id_registro={$registro['id_registro']}';" style="cursor:pointer; margin-left:10px;" src="../img/admin/disabled.gif" alt="{l s='Remove record' mod='paytpv'}" title="{l s='Remove record' mod='paytpv'}" />
+                            <img onClick="if (confirm(\"{l s='Delete this payment error?' mod='paytpv'}\")) document.location = {$currentindex|escape:'htmlall':'UTF-8':FALSE}&configure={$name|escape:'htmlall':'UTF-8':FALSE}&token={$token|escape:'htmlall':'UTF-8':FALSE}&id_registro={$registro['id_registro']|escape:'htmlall':'UTF-8':FALSE}';" style="cursor:pointer; margin-left:10px;" src="../img/admin/disabled.gif" alt="{l s='Remove record' mod='paytpv'}" title="{l s='Remove record' mod='paytpv'}" />
                         </td>
                     </tr>
                 {/foreach}

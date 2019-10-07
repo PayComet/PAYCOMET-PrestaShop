@@ -1,4 +1,5 @@
 <?php
+
 /*
 * 2007-2015 PrestaShop
 *
@@ -23,34 +24,13 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-class Paytpv_Refund extends ObjectModel
-{
-	public $id;
-	public $id_order;
-	public $amount;
-	public $date;
-		
+                        
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
-	public static function add_Refund($id_order,$amount,$type)
-    {
-        $sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_refund (`id_order`,`amount`,`type`,`date`) VALUES('.pSQL($id_order).',"'.pSQL($amount).'","'.pSQL($type).'","'.pSQL(date('Y-m-d H:i:s')).'")';
-		Db::getInstance()->Execute($sql);
-    }
+header("Location: ../");
 
-
-    public static function get_TotalRefund($id_order)
-    {
-        $sql = 'select sum(amount) as "total_amount" FROM '. _DB_PREFIX_ .'paytpv_refund where id_order = '. pSQL($id_order);
-		$result = Db::getInstance()->getRow($sql);
-		return $result["total_amount"]; 
-    }
-
-    public static function get_Refund($id_order)
-    {
-        $sql = 'select * FROM '. _DB_PREFIX_ .'paytpv_refund where id_order = '. pSQL($id_order);
-		$refunds = Db::getInstance()->executeS($sql);
-		return $refunds; 
-    }
-
-    	
-}
+exit;

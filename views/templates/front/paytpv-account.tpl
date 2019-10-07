@@ -24,28 +24,28 @@
 
 
 {capture name=path}
-    <a href="{$link->getPageLink('my-account', true)|escape:'html'}">{l s='My account' mod='paytpv'}</a>
-    <span class="navigation-pipe">{$navigationPipe}</span>
+    <a href="{$link->getPageLink('my-account', true)|escape:'htmlall':'UTF-8':FALSE}">{l s='My account' mod='paytpv'}</a>
+    <span class="navigation-pipe">{$navigationPipe|escape:'htmlall':'UTF-8':FALSE}</span>
         {l s='My Cards and Subscriptions' mod='paytpv'}</a>
         
 {/capture}
 
 
 <script type="text/javascript">
-    var url_removecard = "{$url_removecard}";
-    var url_cancelsuscription = "{$url_cancelsuscription}";
-    var url_savedesc = "{$url_savedesc}";
+    var url_removecard = "{$url_removecard|escape:'htmlall':'UTF-8':FALSE}";
+    var url_cancelsuscription = "{$url_cancelsuscription|escape:'htmlall':'UTF-8':FALSE}";
+    var url_savedesc = "{$url_savedesc|escape:'htmlall':'UTF-8':FALSE}";
     var msg_cancelsuscription = "{l s='Cancel Subscription' mod='paytpv'}"
     var msg_removecard = "{l s='Remove Card' mod='paytpv'}";
     var msg_accept = "{l s='You must accept the terms and conditions of the service' mod='paytpv'}";
     var msg_savedesc = "{l s='Save description' mod='paytpv'}";
     var msg_descriptionsaved = "{l s='Description saved' mod='paytpv'}";
-    var status_canceled = "{$status_canceled}";
+    var status_canceled = "{$status_canceled|escape:'htmlall':'UTF-8':FALSE}";
     
 </script>
 
 {if {$error}!=""}
-<div class="alert alert-danger">{$error}</div>
+<div class="alert alert-danger">{$error|escape:'htmlall':'UTF-8':FALSE}</div>
 {/if}
 
 <div id="paytpv_block_account">
@@ -54,19 +54,19 @@
         <div class="span6" id="div_tarjetas">
             {l s='Available Cards' mod='paytpv'}:
             {section name=card loop=$saved_card}   
-                <div class="bankstoreCard" id="card_{$saved_card[card].IDUSER}">  
-                    {$saved_card[card].CC} ({$saved_card[card].BRAND})
-                    <input type="text" maxlength="32" style="width:300px" id="card_desc_{$saved_card[card].IDUSER}" name="card_desc_{$saved_card[card].IDUSER}" value="{$saved_card[card].CARD_DESC}" placeholder="{l s='Add a description' mod='paytpv'}">
+                <div class="bankstoreCard" id="card_{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}">  
+                    {$saved_card[card].CC|escape:'htmlall':'UTF-8':FALSE} ({$saved_card[card].BRAND|escape:'htmlall':'UTF-8':FALSE})
+                    <input type="text" maxlength="32" style="width:300px" id="card_desc_{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}" name="card_desc_{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}" value="{$saved_card[card].CARD_DESC|escape:'htmlall':'UTF-8':FALSE}" placeholder="{l s='Add a description' mod='paytpv'}">
                     <label class="button_del">
-                        <a href="#" id="{$saved_card[card].IDUSER}" class="save_desc">
+                        <a href="#" id="{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}" class="save_desc">
                          {l s='Save description' mod='paytpv'}
                         </a>
                          | 
-                        <a href="#" id="{$saved_card[card].IDUSER}" class="remove_card">
+                        <a href="#" id="{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}" class="remove_card">
                          {l s='Remove Card' mod='paytpv'}
                         </a>
                        
-                        <input type="hidden" name="cc_{$saved_card[card].IDUSER}" id="cc_{$saved_card[card].IDUSER}" value="{$saved_card[card].CC}">
+                        <input type="hidden" name="cc_{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}" id="cc_{$saved_card[card].IDUSER|escape:'htmlall':'UTF-8':FALSE}" value="{$saved_card[card].CC|escape:'htmlall':'UTF-8':FALSE}">
                     </label>
                 </div>
             {/section}
@@ -95,9 +95,9 @@
 
         <div class="payment_module paytpv_iframe" id="nueva_tarjeta" style="display:none">
             {if ($paytpv_integration==0)}
-                <iframe src="{$url_paytpv}" id="paytpv_iframe" name="paytpv" style="width: 670px; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: 342px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                <iframe src="{$url_paytpv|escape:'htmlall':'UTF-8':FALSE}" id="paytpv_iframe" name="paytpv" style="width: 670px; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: 342px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
             {else}
-                <form action="{$paytpv_jetid_url}" method="POST" class="paytpv_jet" id="paytpvPaymentForm" onsubmit="return takingOff();">
+                <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8':FALSE}" method="POST" class="paytpv_jet" id="paytpvPaymentForm" onsubmit="return takingOff();">
                 <ul>
                     <li>
                         <label for="MERCHANT_PAN">{l s='Credit Card Number' mod='paytpv'}:</label>
@@ -128,16 +128,16 @@
                         
                         <input type="submit" class="button" value="{l s='Save Card' mod='paytpv'}" id="btnforg" style="display: inline-block;font-size: 21px;font-weight: 300;line-height: 46px;height:46px;padding: 0 0px;text-align: center;width: 100%;" onclick="buildED();">
                         
-                        <div class="button" id="clockwait_jet" style="display:none;"><img src="{$this_path}views/img/loader.gif" title="{l s='Wait' mod='paytpv'}" /></div>
+                        <div class="button" id="clockwait_jet" style="display:none;"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/loader.gif" title="{l s='Wait' mod='paytpv'}" /></div>
 
                         <span style="color:red;font-weight:bold;" id="paymentErrorMsg"></span>
                     </li>
                 </ul>
                 </form>
 
-                <script type="text/javascript" src="{$jet_paytpv}?id={$jet_id}&language={$jet_lang}"></script>
+                <script type="text/javascript" src="{$jet_paytpv|escape:'htmlall':'UTF-8':FALSE}?id={$jet_id|escape:'htmlall':'UTF-8':FALSE}&language={$jet_lang|escape:'htmlall':'UTF-8':FALSE}"></script>
                 <script type="text/javascript">
-                    {$js_code}
+                    {$js_code|escape:'htmlall':'UTF-8':FALSE}
                 </script>
             {/if}
         </div>
@@ -149,13 +149,13 @@
             {l s='Subscriptions' mod='paytpv'}:
             <ul>
                 {section name=suscription loop=$suscriptions} 
-                    <li class="suscriptionCard" id="suscription_{$suscriptions[suscription].ID_SUSCRIPTION}">  
+                    <li class="suscriptionCard" id="suscription_{$suscriptions[suscription].ID_SUSCRIPTION|escape:'htmlall':'UTF-8':FALSE}">  
                         <a href="{$link->getPageLink('order-detail',true,null,"id_order={$suscriptions[suscription].ID_ORDER}")|escape:'html'}">{l s='Order' mod='paytpv'}: {$suscriptions[suscription].ORDER_REFERENCE}</a>
                         <br>
-                        {l s='Every' mod='paytpv'} {$suscriptions[suscription].PERIODICITY} {l s='days' mod='paytpv'} - {l s='repeat' mod='paytpv'} {$suscriptions[suscription].CYCLES} {l s='times' mod='paytpv'} - {l s='Amount' mod='paytpv'}: {$suscriptions[suscription].PRICE} - {l s='Start' mod='paytpv'}: {$suscriptions[suscription].DATE_YYYYMMDD}
+                        {l s='Every' mod='paytpv'} {$suscriptions[suscription].PERIODICITY|escape:'htmlall':'UTF-8':FALSE} {l s='days' mod='paytpv'} - {l s='repeat' mod='paytpv'} {$suscriptions[suscription].CYCLES|escape:'htmlall':'UTF-8':FALSE} {l s='times' mod='paytpv'} - {l s='Amount' mod='paytpv'}: {$suscriptions[suscription].PRICE|escape:'htmlall':'UTF-8':FALSE} - {l s='Start' mod='paytpv'}: {$suscriptions[suscription].DATE_YYYYMMDD|escape:'htmlall':'UTF-8':FALSE}
                         <label class="button_del">
                             {if $suscriptions[suscription].STATUS==0}
-                                <a href="#" id="{$suscriptions[suscription].ID_SUSCRIPTION}" class="cancel_suscription">
+                                <a href="#" id="{$suscriptions[suscription].ID_SUSCRIPTION|escape:'htmlall':'UTF-8':FALSE}" class="cancel_suscription">
                                  {l s='Cancel Subscription' mod='paytpv'}
                                 </a>
                             {else if $suscriptions[suscription].STATUS==1}
@@ -172,9 +172,9 @@
                             {$suscription_pay = $suscriptions[suscription].SUSCRIPTION_PAY}
                             <ul >
                                 {section name=suscription_pay loop=$suscription_pay}
-                                <li class="suscription_pay" id="suscription_pay{$suscription_pay[suscription_pay].ID_SUSCRIPTION}">
+                                <li class="suscription_pay" id="suscription_pay{$suscription_pay[suscription_pay].ID_SUSCRIPTION|escape:'htmlall':'UTF-8':FALSE}">
                                      <a href="{$link->getPageLink('order-detail',true,null,"id_order={$suscription_pay[suscription_pay].ID_ORDER}")|escape:'html'}">{l s='Order' mod='paytpv'}: {$suscription_pay[suscription_pay].ORDER_REFERENCE}</a>
-                                     {l s='Amount' mod='paytpv'}: {$suscription_pay[suscription_pay].PRICE} - {l s='Date' mod='paytpv'}: {$suscription_pay[suscription_pay].DATE_YYYYMMDD}
+                                     {l s='Amount' mod='paytpv'}: {$suscription_pay[suscription_pay].PRICE|escape:'htmlall':'UTF-8':FALSE} - {l s='Date' mod='paytpv'}: {$suscription_pay[suscription_pay].DATE_YYYYMMDD|escape:'htmlall':'UTF-8':FALSE}
 
                                 </li>
                                 {/section}
@@ -201,7 +201,7 @@
         <input type="hidden" name="paytpv_cc" id="paytpv_cc">
         <input type="hidden" name="paytpv_iduser" id="paytpv_iduser">
         <input type="hidden" name="id_suscription" id="id_suscription">
-        <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment}">
+        <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
     </div>
 
     <div style="display: none;">

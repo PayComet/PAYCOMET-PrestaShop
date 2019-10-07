@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,13 +23,14 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-function upgrade_module_6_1_2($object)
+function upgrade_module_6_1_2()
 {
-	try{
-		Db::getInstance()->Execute('
+    try {
+        Db::getInstance()->Execute('
 		CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'paytpv_terminal` (
 			`id` INT(2) UNSIGNED NOT NULL,
 			`idterminal` INT(4) UNSIGNED NOT NULL,
@@ -41,28 +41,31 @@ function upgrade_module_6_1_2($object)
 			`tdmin` DECIMAL(17,2),
 			PRIMARY KEY (`id`)
 		) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8');
+    } catch (exception $e) {
+    }
 
-	}catch (exception $e){}
+    // Insert Client Terminal info in paytpv_terminal table
+    try {
+        $id_currency = (int)(Configuration::get('PS_CURRENCY_DEFAULT'));
+        $currency = new Currency((int)($id_currency));
 
-	// Insert Client Terminal info in paytpv_terminal table
-	try{
-		$id_currency = intval(Configuration::get('PS_CURRENCY_DEFAULT'));
-		$currency = new Currency(intval($id_currency));
+        $tdmin = (Configuration::get('PAYTPV_3DMIN')=="")?0:Configuration::get('PAYTPV_3DMIN');
 
-		$tdmin = (Configuration::get('PAYTPV_3DMIN')=="")?0:Configuration::get('PAYTPV_3DMIN');
-
-		$sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_terminal (id,idterminal,password,currency_iso_code,terminales,tdfirst,tdmin) VALUES(1,'.Configuration::get('PAYTPV_TERM').',"'.Configuration::get('PAYTPV_PASS').'","'.$currency->iso_code.'",'.Configuration::get('PAYTPV_TERMINALES').','.Configuration::get('PAYTPV_3DFIRST').','.$tdmin.')';
-		Db::getInstance()->Execute($sql);
-
-	}catch (exception $e){}
+        $sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_terminal (id,idterminal,password,currency_iso_code,terminales,
+        tdfirst,tdmin) VALUES(1,'.Configuration::get('PAYTPV_TERM').',"'.Configuration::get('PAYTPV_PASS').'","'
+        .$currency->iso_code.'",'.Configuration::get('PAYTPV_TERMINALES').','.Configuration::get('PAYTPV_3DFIRST')
+        .','.$tdmin.')';
+        Db::getInstance()->Execute($sql);
+    } catch (exception $e) {
+    }
 
 
-	// Valores a eliminar
-	Configuration::deleteByName('PAYTPV_3DFIRST');
-	Configuration::deleteByName('PAYTPV_3DMIN');
-	Configuration::deleteByName('PAYTPV_TERMINALES');
-	Configuration::deleteByName('PAYTPV_TERM');
-	Configuration::deleteByName('PAYTPV_PASS');
-	
-	return true;
+    // Valores a eliminar
+    Configuration::deleteByName('PAYTPV_3DFIRST');
+    Configuration::deleteByName('PAYTPV_3DMIN');
+    Configuration::deleteByName('PAYTPV_TERMINALES');
+    Configuration::deleteByName('PAYTPV_TERM');
+    Configuration::deleteByName('PAYTPV_PASS');
+    
+    return true;
 }

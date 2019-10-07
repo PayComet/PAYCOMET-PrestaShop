@@ -24,7 +24,7 @@
 
 <li class="lnk_paytpv">
 	<a href="{$link->getModuleLink('paytpv', 'account')|escape:'htmlall':'UTF-8'}" title="{l s='My Cards' mod='paytpv'}">
-		<i class="icon-paytpv"><img src="{$module_template_dir}views/img/tarjetas.gif" class="ui-li-icon ui-li-thumb" class="icon" alt="{l s='My Cards paytpv' mod='paytpv'}"/></i>
+		<i class="icon-paytpv"><img src="{$module_template_dir|escape:'htmlall':'UTF-8':FALSE}views/img/tarjetas.gif" class="ui-li-icon ui-li-thumb" class="icon" alt="{l s='My Cards paytpv' mod='paytpv'}"/></i>
 		<span>{l s='My Cards and Subscriptions' mod='paytpv'}</span>
 	</a>
 </li>

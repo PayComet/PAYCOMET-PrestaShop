@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,16 +23,17 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-function upgrade_module_6_3_0($object)
+function upgrade_module_6_3_0()
 {
+    try {
+        Db::getInstance()->Execute('ALTER TABLE `' . _DB_PREFIX_ . 'paytpv_terminal` ADD COLUMN `jetid`
+        VARCHAR(32) AFTER password');
+    } catch (exception $e) {
+    }
 
-	try{
-		Db::getInstance()->Execute('ALTER TABLE `' . _DB_PREFIX_ . 'paytpv_terminal` ADD COLUMN `jetid` VARCHAR(32) AFTER password');
-		
-	}catch (exception $e){}
-
-	return true;
+    return true;
 }

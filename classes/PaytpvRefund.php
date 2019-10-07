@@ -23,30 +23,34 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
-function upgrade_module_6_3_4()
+class PaytpvRefund extends ObjectModel
 {
-    try {
-        Db::getInstance()->Execute('ALTER TABLE `' . _DB_PREFIX_ . 'paytpv_terminal` 
-			MODIFY idterminal int(6) null,
-			MODIFY password varchar(30) null,
-			ADD COLUMN `idterminal_ns` INT(6) AFTER idterminal,
-			ADD COLUMN `password_ns` VARCHAR(30) AFTER password,
-			ADD COLUMN `jetid_ns` VARCHAR(32) AFTER jetid
-			');
-    } catch (exception $e) {
-    }
+    public $id;
+    public $id_order;
+    public $amount;
+    public $date;
+        
 
-    // Actualizar terminales No Seguros con la misma info que el Seguro
-    try {
-        $sql = 'UPDATE '. _DB_PREFIX_ .'paytpv_terminal set idterminal_ns = idterminal, password_ns = password,
-        jetid_ns = jetid where terminales in (1,2)';
+    public static function addRefund($id_order, $amount, $type)
+    {
+        $sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_refund (`id_order`,`amount`,`type`,`date`) VALUES('
+        .pSQL($id_order).',"'.pSQL($amount).'","'.pSQL($type).'","'.pSQL(date('Y-m-d H:i:s')).'")';
         Db::getInstance()->Execute($sql);
-    } catch (exception $e) {
     }
 
-    return true;
+
+    public static function getTotalRefund($id_order)
+    {
+        $sql = 'select sum(amount) as "total_amount" FROM '. _DB_PREFIX_ .'paytpv_refund where id_order = '
+        .pSQL($id_order);
+        $result = Db::getInstance()->getRow($sql);
+        return $result["total_amount"];
+    }
+
+    public static function getRefund($id_order)
+    {
+        $sql = 'select * FROM '. _DB_PREFIX_ .'paytpv_refund where id_order = '. pSQL($id_order);
+        $refunds = Db::getInstance()->executeS($sql);
+        return $refunds;
+    }
 }

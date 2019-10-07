@@ -26,8 +26,8 @@
 <div class="row">
     <div class="col-xs-12 col-md-6">
         <p class="payment_module">      
-            <a class="bankwire" href="{$link->getModuleLink('paytpv', 'payment')|escape:'htmlall':'UTF-8'}" title="{l s='Pay with Card' mod='paytpv'}"rel="nofollow">
-                <img src="{$this_path}views/img/paytpv_logo.svg" width="135">
+            <a class="bankwire" href="{$link->getModuleLink('paytpv', 'payment')|escape:'htmlall':'UTF-8':FALSE}" title="{l s='Pay with Card' mod='paytpv'}"rel="nofollow">
+                <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135">
                 {l s='Pay with Card' mod='paytpv'}
             </a>
         </p>

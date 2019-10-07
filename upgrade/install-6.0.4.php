@@ -1,6 +1,5 @@
 <?php
-
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,34 +23,39 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
-if (!defined('_PS_VERSION_'))
-	exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 function upgrade_module_6_0_4($object)
 {
 
-	/* Update hooks */
-	$object->registerHook('displayPayment');
-	$object->registerHook('displayPaymentTop');
-	$object->registerHook('displayPaymentReturn');
-	$object->registerHook('displayMyAccountBlock'); 
-	$object->registerHook('displayAdminOrder'); 
-	$object->registerHook('displayCustomerAccount');
-	$object->registerHook('actionProductCancel');
+    /* Update hooks */
+    $object->registerHook('displayPayment');
+    $object->registerHook('displayPaymentTop');
+    $object->registerHook('displayPaymentReturn');
+    $object->registerHook('displayMyAccountBlock');
+    $object->registerHook('displayAdminOrder');
+    $object->registerHook('displayCustomerAccount');
+    $object->registerHook('actionProductCancel');
 
-	try{
-	    Db::getInstance()->execute('
+    try {
+        Db::getInstance()->execute(
+            '
 	    ALTER TABLE `'._DB_PREFIX_.'paytpv_order_info` 
 	    ADD COLUMN `paytpv_iduser` INT(11) UNSIGNED NOT NULL DEFAULT 0'
-	    );
-	}catch (exception $e){}
+        );
+    } catch (exception $e) {
+    }
 
-	try{
-	    Db::getInstance()->execute('
+    try {
+        Db::getInstance()->execute(
+            '
 	    ALTER TABLE `'._DB_PREFIX_.'paytpv_order` 
 	    ADD COLUMN `payment_status` varchar(255) DEFAULT NULL'
-	    );
-	}catch (exception $e){}
+        );
+    } catch (exception $e) {
+    }
 
     return true;
 }
