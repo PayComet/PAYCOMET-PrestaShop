@@ -1,27 +1,27 @@
 <?php
 /**
-* 2007-2015 PrestaShop
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author     PAYCOMET <info@paycomet.com>
-*  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
-*  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ * 2007-2015 PrestaShop
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author     PAYCOMET <info@paycomet.com>
+ *  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
+ *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
 /**
  * @since 1.5.0
@@ -39,8 +39,10 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
     public function initContent()
     {
         $this->context->smarty->assign(array(
-            'this_path' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->module->name.'/'
+            'this_path' =>
+            Tools::getShopDomainSsl(true, true) . __PS_BASE_URI__ . 'modules/' . $this->module->name . '/'
         ));
+        
 
         $esURLOK = false;
         $pagoRegistrado = false;
@@ -50,62 +52,75 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
         $reg_estado = $paytpv->reg_estado;
 
         $suscripcion = 0;
-    
+
+        // Check Notification
+        if (Tools::getValue('ping') == "1") {
+            die('PING OK');
+        }
+
+        // Obtencion de datos
+        if (Tools::getValue('paycomet_data') == "1") {
+            $arrDatos = array("module_v" => $paytpv->version, "ps_v" => _PS_VERSION_);
+            exit(json_encode($arrDatos));
+        }
+
         // Notify response
         // (execute_purchase)
-        if (Tools::getValue('TransactionType')==="1"
+        if (Tools::getValue('TransactionType') === "1"
             and Tools::getValue('Order')
             and Tools::getValue('Response')
-            and Tools::getValue('NotificationHash')) {
-            $importe  = number_format(Tools::getValue('Amount')/ 100, 2, ".", "");
+            and Tools::getValue('NotificationHash')
+        ) {
+            $importe  = number_format(Tools::getValue('Amount') / 100, 2, ".", "");
             $ref = Tools::getValue('Order');
-            $result = Tools::getValue('Response')=='OK'?0:-1;
+            $result = Tools::getValue('Response') == 'OK' ? 0 : -1;
             $sign = Tools::getValue('NotificationHash');
             $esURLOK = false;
 
             $context = Context::getContext();
-            $id_cart = (int)Tools::substr($ref, 0, 8);
+            $id_cart = (int) Tools::substr($ref, 0, 8);
             $cart = new Cart($id_cart);
-            if (Context::getContext()->shop->id!=$cart->id_shop) {
+            if (Context::getContext()->shop->id != $cart->id_shop) {
                 $context->shop->id = $cart->id_shop;
             }
-            
+
             $arrTerminal = PaytpvTerminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
             $idterminal = $arrTerminal["idterminal"];
             $idterminal_ns = $arrTerminal["idterminal_ns"];
             $pass = $arrTerminal["password"];
             $pass_ns = $arrTerminal["password_ns"];
-            
 
-            if (Tools::getValue('TpvID')==$idterminal) {
+
+            if (Tools::getValue('TpvID') == $idterminal) {
                 $idterminal_sel = $idterminal;
                 $pass_sel = $pass;
             }
-            if (Tools::getValue('TpvID')==$idterminal_ns) {
+            if (Tools::getValue('TpvID') == $idterminal_ns) {
                 $idterminal_sel = $idterminal_ns;
                 $pass_sel = $pass_ns;
             }
 
-            $local_sign = hash('sha512', $paytpv->clientcode.$idterminal_sel.Tools::getValue('TransactionType').$ref
-            .Tools::getValue('Amount').Tools::getValue('Currency').md5($pass_sel).Tools::getValue('BankDateTime')
-            .Tools::getValue('Response'));
-            
+            $local_sign = hash('sha512', $paytpv->clientcode . $idterminal_sel . Tools::getValue('TransactionType')
+                . $ref . Tools::getValue('Amount') . Tools::getValue('Currency') . md5($pass_sel)
+                . Tools::getValue('BankDateTime')
+                . Tools::getValue('Response'));
+
             // Check Signature
-            if ($sign!=$local_sign) {
+            if ($sign != $local_sign) {
                 die('Error 1');
             }
-            
+
             // (add_user)
-        } elseif (Tools::getValue('TransactionType')==="107") {
+        } elseif (Tools::getValue('TransactionType') === "107") {
             $ref = Tools::getValue('Order');
             $sign = Tools::getValue('NotificationHash');
             $esURLOK = false;
-                        
+
             $datos_op = explode("_", $ref);
             $id_customer = $datos_op[0];
             $id_shop = $datos_op[1];
             $context = Context::getContext();
-            if (Context::getContext()->shop->id!=$id_shop) {
+            if (Context::getContext()->shop->id != $id_shop) {
                 $context->shop->id = $id_shop;
             }
 
@@ -115,23 +130,23 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             $pass = $arrTerminal["password"];
             $pass_ns = $arrTerminal["password_ns"];
 
-            if (Tools::getValue('TpvID')==$idterminal) {
+            if (Tools::getValue('TpvID') == $idterminal) {
                 $idterminal_sel = $idterminal;
                 $pass_sel = $pass;
             }
-            if (Tools::getValue('TpvID')==$idterminal_ns) {
+            if (Tools::getValue('TpvID') == $idterminal_ns) {
                 $idterminal_sel = $idterminal_ns;
                 $pass_sel = $pass_ns;
             }
-            $local_sign = hash('sha512', $paytpv->clientcode.$idterminal_sel.Tools::getValue('TransactionType')
-            .$ref.Tools::getValue('DateTime').md5($pass_sel));
+            $local_sign = hash('sha512', $paytpv->clientcode . $idterminal_sel . Tools::getValue('TransactionType')
+                . $ref . Tools::getValue('DateTime') . md5($pass_sel));
 
             // Check Signature
-            if ($sign!=$local_sign) {
+            if ($sign != $local_sign) {
                 die('Error 2');
             }
-            
-            include_once(_PS_MODULE_DIR_.'/paytpv/classes/WSClient.php');
+
+            include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
             $client = new WSClient(
                 array(
                     'endpoint_paytpv' => $paytpv->endpoint_paytpv,
@@ -140,7 +155,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                     'pass' => $pass_sel,
                 )
             );
-            
+
             $result = $client->infoUser(Tools::getValue('IdUser'), Tools::getValue('TokenUser'));
             $paytpv->saveCard(
                 $id_customer,
@@ -149,12 +164,12 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                 $result['DS_MERCHANT_PAN'],
                 $result['DS_CARD_BRAND']
             );
-            
+
             die('Usuario Registrado');
-        
-        // (create_subscription)
-        } elseif (Tools::getValue('TransactionType')==="9") {
-            $result = Tools::getValue('Response')=='OK'?0:-1;
+
+            // (create_subscription)
+        } elseif (Tools::getValue('TransactionType') === "9") {
+            $result = Tools::getValue('Response') == 'OK' ? 0 : -1;
             $sign = Tools::getValue('NotificationHash');
             $esURLOK = false;
 
@@ -164,9 +179,9 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             $ref = $datos[0];
 
             $context = Context::getContext();
-            $id_cart = (int)Tools::substr($ref, 0, 8);
+            $id_cart = (int) Tools::substr($ref, 0, 8);
             $cart = new Cart($id_cart);
-            if (Context::getContext()->shop->id!=$cart->id_shop) {
+            if (Context::getContext()->shop->id != $cart->id_shop) {
                 $context->shop->id = $cart->id_shop;
             }
 
@@ -176,31 +191,31 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             $pass = $arrTerminal["password"];
             $pass_ns = $arrTerminal["password_ns"];
 
-            if (Tools::getValue('TpvID')==$idterminal) {
+            if (Tools::getValue('TpvID') == $idterminal) {
                 $idterminal_sel = $idterminal;
                 $pass_sel = $pass;
             }
-            if (Tools::getValue('TpvID')==$idterminal_ns) {
+            if (Tools::getValue('TpvID') == $idterminal_ns) {
                 $idterminal_sel = $idterminal_ns;
                 $pass_sel = $pass_ns;
             }
 
-            $local_sign = hash('sha512', $paytpv->clientcode.$idterminal_sel.Tools::getValue('TransactionType')
-            .Tools::getValue('Order').Tools::getValue('Amount').Tools::getValue('Currency').md5($pass_sel)
-            .Tools::getValue('BankDateTime').Tools::getValue('Response'));
-            
+            $local_sign = hash('sha512', $paytpv->clientcode . $idterminal_sel . Tools::getValue('TransactionType')
+                . Tools::getValue('Order') . Tools::getValue('Amount') . Tools::getValue('Currency') . md5($pass_sel)
+                . Tools::getValue('BankDateTime') . Tools::getValue('Response'));
+
 
             // Check Signature
-            if ($sign!=$local_sign) {
+            if ($sign != $local_sign) {
                 die('Error 3');
             }
 
             $suscripcion = 1;  // Inicio Suscripcion
-            $importe  = number_format(Tools::getValue('Amount')/ 100, 2, ".", "");
-            
+            $importe  = number_format(Tools::getValue('Amount') / 100, 2, ".", "");
+
             // Check if is a suscription payment
-            $id_cart = (int)Tools::substr($ref, 0, 8);
-            $id_order = Order::getOrderByCartId((int)($id_cart));
+            $id_cart = (int) Tools::substr($ref, 0, 8);
+            $id_order = Order::getOrderByCartId((int) ($id_cart));
 
             // if exits cart order is a suscription payment
             if ($id_order) {
@@ -211,22 +226,22 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 
         if ($result == 0) {
             $context = Context::getContext();
-            $id_cart = (int)Tools::substr($ref, 0, 8);
+            $id_cart = (int) Tools::substr($ref, 0, 8);
             $cart = new Cart($id_cart);
             $customer = new Customer((int) $cart->id_customer);
 
-            $address = new Address((int)$cart->id_address_invoice);
+            $address = new Address((int) $cart->id_address_invoice);
             $context->cart = $cart;
-            $context->customer = new Customer((int)$cart->id_customer);
-            $context->country = new Country((int)$address->id_country);
-            $context->language = new Language((int)$cart->id_lang);
-            $context->currency = new Currency((int)$cart->id_currency);
+            $context->customer = new Customer((int) $cart->id_customer);
+            $context->country = new Country((int) $address->id_country);
+            $context->language = new Language((int) $cart->id_lang);
+            $context->currency = new Currency((int) $cart->id_currency);
 
             $_GET['id_shop'] = $cart->id_shop;
             Shop::initialize();
-        
-            $id_order = Order::getOrderByCartId((int)($id_cart));
-            
+
+            $id_order = Order::getOrderByCartId((int) ($id_cart));
+
             $transaction = array(
                 'transaction_id' => Tools::getValue('AuthCode'),
                 'result' => $result
@@ -238,15 +253,15 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                 $order = new Order($id_order);
 
                 $sql = 'SELECT COUNT(oh.`id_order_history`) AS nb
-						FROM `'._DB_PREFIX_.'order_history` oh
-						WHERE oh.`id_order` = '.(int)$id_order.'
-				AND oh.id_order_state = '.Configuration::get('PS_OS_PAYMENT');
+						FROM `' . _DB_PREFIX_ . 'order_history` oh
+						WHERE oh.`id_order` = ' . (int) $id_order . '
+				AND oh.id_order_state = ' . Configuration::get('PS_OS_PAYMENT');
                 $n = Db::getInstance()->getValue($sql);
-                $pagoRegistrado = $n>0;
+                $pagoRegistrado = $n > 0;
 
                 // If a subscription payment
                 // SUSCRIPCION
-                if (Tools::getValue('TransactionType')==="9" && $suscripcion==2) {
+                if (Tools::getValue('TransactionType') === "9" && $suscripcion == 2) {
                     $cart_problem_txt = "";
 
                     $new_cart = $cart->duplicate();
@@ -259,7 +274,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                         exit;
                     } elseif (!$new_cart['success']) {
                         // Refund amount
-                        include_once(_PS_MODULE_DIR_.'/paytpv/classes/WSClient.php');
+                        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
                         $client = new WSClient(
                             array(
                                 'endpoint_paytpv' => $paytpv->endpoint_paytpv,
@@ -279,27 +294,28 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                             Tools::getValue('Amount')
                         );
                         $refund = 1;
-                        if (( int ) $result[ 'DS_RESPONSE' ] != 1) {
+                        if ((int) $result['DS_RESPONSE'] != 1) {
                             $refund = 0;
                         }
 
                         $cart_problem_txt =
-                        $paytpv->l("Any subscription product is no longer available", (int)$cart->id_lang) . "<br>";
+                            $paytpv->l("Any subscription product is no longer available", (int) $cart->id_lang)
+                            . "<br>";
 
                         // Mailing to Customer: Product in suscription is no longer available **********************
                         $message = "<br> "
-                        .$paytpv->l(
-                            'Dear Customer. There have been changes in the order to whichyou are subscribed',
-                            (int)$cart->id_lang
-                        )." (". $order->reference .")";
-                        $message .= "<br><br>" .  $paytpv->l($cart_problem_txt, (int)$cart->id_lang);
+                            . $paytpv->l(
+                                'Dear Customer. There have been changes in the order to whichyou are subscribed',
+                                (int) $cart->id_lang
+                            ) . " (" . $order->reference . ")";
+                        $message .= "<br><br>" .  $paytpv->l($cart_problem_txt, (int) $cart->id_lang);
                         $message .= "<br> " .  $paytpv->l(
                             'The payment amount of the subscription has been refunded to your account',
-                            (int)$cart->id_lang
+                            (int) $cart->id_lang
                         );
                         $message .= "<br> " .  $paytpv->l(
                             "You can Unsubscribe from your acount if desired",
-                            (int)$cart->id_lang
+                            (int) $cart->id_lang
                         );
 
                         $params = array(
@@ -311,25 +327,25 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                         );
 
                         Mail::Send(
-                            (int)$order->id_lang,
+                            (int) $order->id_lang,
                             'order_merchant_comment',
                             sprintf(
                                 Mail::l(
                                     'Problem with subscription order %s',
-                                    (int)$order->id_lang
+                                    (int) $order->id_lang
                                 ),
                                 $order->reference
                             ),
                             $params,
                             $this->context->customer->email,
-                            $this->context->customer->firstname.' '.$this->context->customer->lastname,
+                            $this->context->customer->firstname . ' ' . $this->context->customer->lastname,
                             null,
                             null,
                             null,
                             null,
                             _PS_MAIL_DIR_,
                             false,
-                            (int)$order->id_shop
+                            (int) $order->id_shop
                         );
                         // ***********************************************************************
 
@@ -338,33 +354,33 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                             '{firstname}' => $this->context->customer->firstname,
                             '{lastname}' => $this->context->customer->lastname,
                             '{email}' => $this->context->customer->email,
-                            '{id_order}' => (int)($order->id),
+                            '{id_order}' => (int) ($order->id),
                             '{order_name}' => $order->getUniqReference(),
                             '{message}' => sprintf(
                                 Mail::l(
                                     'Subscription payment error to order %s',
-                                    (int)$order->id_lang
+                                    (int) $order->id_lang
                                 ),
                                 $order->reference
                             ) . " -- Referencia PAYCOMET: " . Tools::getValue('Order')
                         );
 
                         if (!Configuration::get('PS_MAIL_EMAIL_MESSAGE')) {
-                            $to = (string)(Configuration::get('PS_SHOP_EMAIL'));
+                            $to = (string) (Configuration::get('PS_SHOP_EMAIL'));
                         } else {
-                            $to = new Contact((int)(Configuration::get('PS_MAIL_EMAIL_MESSAGE')));
-                            $to = (string)($to->email);
+                            $to = new Contact((int) (Configuration::get('PS_MAIL_EMAIL_MESSAGE')));
+                            $to = (string) ($to->email);
                         }
-                        $toName = (string)(Configuration::get('PS_SHOP_NAME'));
+                        $toName = (string) (Configuration::get('PS_SHOP_NAME'));
 
                         // Mailing
                         Mail::Send(
-                            (int)$order->id_lang,
+                            (int) $order->id_lang,
                             'order_customer_comment',
                             sprintf(
                                 Mail::l(
                                     'Subscription payment error in order %s',
-                                    (int)$order->id_lang
+                                    (int) $order->id_lang
                                 ),
                                 $order->reference
                             ),
@@ -372,10 +388,10 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                             $to,
                             $toName,
                             $this->context->customer->email,
-                            $this->context->customer->firstname.' '.$this->context->customer->lastname
+                            $this->context->customer->firstname . ' ' . $this->context->customer->lastname
                         );
                         // *********************************************************************************
-                        die("[Refund " . $refund . "] ".$cart_problem_txt);
+                        die("[Refund " . $refund . "] " . $cart_problem_txt);
                     }
 
                     $pagoRegistrado = $paytpv->validateOrder(
@@ -389,7 +405,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                         true,
                         $customer->secure_key
                     );
-                    $id_order = Order::getOrderByCartId((int)($new_cart['cart']->id));
+                    $id_order = Order::getOrderByCartId((int) ($new_cart['cart']->id));
 
                     // Save paytpv order
                     PaytpvOrder::addOrder(
@@ -415,23 +431,23 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                     $customer->secure_key
                 );
 
-                $id_order = Order::getOrderByCartId((int)($id_cart));
+                $id_order = Order::getOrderByCartId((int) ($id_cart));
                 $id_suscription = 0;
 
                 $disableoffersavecard = $paytpv->disableoffersavecard;
                 $remembercardunselected = $paytpv->remembercardunselected;
 
-                $defaultsavecard = ($disableoffersavecard!=1 && $remembercardunselected!=1)?1:0;
+                $defaultsavecard = ($disableoffersavecard != 1 && $remembercardunselected != 1) ? 1 : 0;
                 $datos_order = PaytpvOrderInfo::getOrderInfo($cart->id_customer, $id_cart, $defaultsavecard);
-            
+
                 // BANKSTORE: Si hay notificacion
                 if (Tools::getValue('IdUser')) {
                     $paytpv_iduser = Tools::getValue('IdUser');
                     $paytpv_tokenuser = Tools::getValue('TokenUser');
-                    
+
                     // IF check agreement save token
-                    if ($suscripcion==0 && $datos_order["paytpvagree"]) {
-                        include_once(_PS_MODULE_DIR_.'/paytpv/classes/WSClient.php');
+                    if ($suscripcion == 0 && $datos_order["paytpvagree"]) {
+                        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
                         $client = new WSClient(
                             array(
                                 'endpoint_paytpv' => $paytpv->endpoint_paytpv,
@@ -441,7 +457,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                             )
                         );
                         $result = $client->infoUser($paytpv_iduser, $paytpv_tokenuser);
-                        
+
                         $result = $paytpv->saveCard(
                             $cart->id_customer,
                             Tools::getValue('IdUser'),
@@ -454,7 +470,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                     }
 
                     // SUSCRIPCION
-                    if ($suscripcion==1) {
+                    if ($suscripcion == 1) {
                         PaytpvSuscription::saveSuscription(
                             $cart->id_customer,
                             $id_order,
@@ -470,39 +486,39 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 
                         // Mailing to Merchant: Subscription order info **********************************************
                         $order = new Order($id_order);
-                        
+
                         $params = array(
                             '{firstname}' => $this->context->customer->firstname,
                             '{lastname}' => $this->context->customer->lastname,
                             '{email}' => $this->context->customer->email,
-                            '{id_order}' => (int)($order->id),
+                            '{id_order}' => (int) ($order->id),
                             '{order_name}' => $order->getUniqReference(),
                             '{message}' => sprintf(
                                 Mail::l(
                                     'New subscription to order %s',
-                                    (int)$order->id_lang
+                                    (int) $order->id_lang
                                 ),
                                 $order->reference
                             )
                         );
 
                         if (!Configuration::get('PS_MAIL_EMAIL_MESSAGE')) {
-                            $to = (string)(Configuration::get('PS_SHOP_EMAIL'));
+                            $to = (string) (Configuration::get('PS_SHOP_EMAIL'));
                         } else {
-                            $to = new Contact((int)(Configuration::get('PS_MAIL_EMAIL_MESSAGE')));
-                            $to = (string)($to->email);
+                            $to = new Contact((int) (Configuration::get('PS_MAIL_EMAIL_MESSAGE')));
+                            $to = (string) ($to->email);
                         }
-                        $toName = (string)(Configuration::get('PS_SHOP_NAME'));
+                        $toName = (string) (Configuration::get('PS_SHOP_NAME'));
 
                         Mail::Send(
-                            (int)$order->id_lang,
+                            (int) $order->id_lang,
                             'order_customer_comment',
-                            sprintf(Mail::l('New Subscription to order %s', (int)$order->id_lang), $order->reference),
+                            sprintf(Mail::l('New Subscription to order %s', (int) $order->id_lang), $order->reference),
                             $params,
                             $to,
                             $toName,
                             $this->context->customer->email,
-                            $this->context->customer->firstname.' '.$this->context->customer->lastname
+                            $this->context->customer->firstname . ' ' . $this->context->customer->lastname
                         );
 
                         // ******************************************************************************************
@@ -532,7 +548,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             if ($esURLOK && $pagoRegistrado) {
                 $values = array(
                     'id_cart' => $id_cart,
-                    'id_module' => (int)$this->module->id,
+                    'id_module' => (int) $this->module->id,
                     'id_order' => $id_order,
                     'key' => Tools::getValue('key')
                 );
