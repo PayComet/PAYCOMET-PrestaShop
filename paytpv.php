@@ -141,7 +141,7 @@ class Paytpv extends PaymentModule
         $this->description = $this->l('This module allows you to accept card payments via www.paycomet.com');
 
         try {
-            if (!Tools::getIsset($this->clientcode) or !PaytpvTerminal::existTerminal()) {
+            if (!isset($this->clientcode) or $this->clientcode=="" or !PaytpvTerminal::existTerminal()) {
                 $this->warning = $this->l('Missing data when configuring the module PAYCOMET');
             }
         } catch (exception $e) {
@@ -284,9 +284,12 @@ class Paytpv extends PaymentModule
                 $this->postErrors[] = $this->l('Duplicate Currency. Specify a different currency for each terminal');
             }
 
-            $arrValidatePaycomet = $this->validatePaycomet();
-            if ($arrValidatePaycomet["error"] != 0) {
-                $this->postErrors[] = $arrValidatePaycomet["error_txt"];
+            // Si no hay errores previos se contrastan los datos
+            if (!sizeof($this->postErrors)) {
+                $arrValidatePaycomet = $this->validatePaycomet();
+                if ($arrValidatePaycomet["error"] != 0) {
+                    $this->postErrors[] = $arrValidatePaycomet["error_txt"];
+                }
             }
         }
     }
@@ -826,7 +829,7 @@ class Paytpv extends PaymentModule
                 $errorMessage = $this->postProcess();
             } else {
                 $errorMessage .=
-                    '<div class="bootstrap"><div class="alert alert-warning"><strong>'
+                    '<div class="bootstrap"><div class="alert alert-danger"><strong>'
                     . $this->l('Error') . '</strong><ol>';
                 foreach ($this->postErrors as $err) {
                     $errorMessage .= '<li>' . $err . '</li>';
@@ -1559,6 +1562,7 @@ class Paytpv extends PaymentModule
 
     public function isSecureTransaction($idterminal, $importe, $card)
     {
+        
         $arrTerminal = PaytpvTerminal::getTerminalByIdTerminal($idterminal);
 
         $terminales = $arrTerminal["terminales"];
