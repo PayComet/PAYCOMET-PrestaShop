@@ -47,6 +47,7 @@ class Paytpv extends PaymentModule
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
         $this->version = '6.5.4';
+        $this->module_key = '73836a23c42bbcdec111cc1309a41776';
 
         //$this->bootstrap = true;
         // Array config:  configuration values
