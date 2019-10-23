@@ -1340,7 +1340,7 @@ class PaytpvApi
                 $terminales_txt = "NO-CES";
                 break;
             case 2:
-                $terminales_txt = "BOTHNO-CES";
+                $terminales_txt = "BOTH";
                 break;
         }
 
