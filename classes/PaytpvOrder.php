@@ -117,8 +117,8 @@ class PaytpvOrder extends ObjectModel
         $price
     ) {
         $sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_order (`paytpv_iduser`,`paytpv_tokenuser`,`id_suscription`,
-        `id_customer`, `id_order`,`price`,`date`) VALUES('.pSQL($paytpv_iduser).',"'.pSQL($paytpv_tokenuser).'",'
-        .pSQL($id_suscription).','.pSQL($id_customer).','.pSQL($id_order).',"'.pSQL($price).'","'
+        `id_customer`, `id_order`,`price`,`date`) VALUES('.(int)$paytpv_iduser.',"'.pSQL($paytpv_tokenuser).'",'
+        .(int)$id_suscription.','.(int)$id_customer.','.(int)$id_order.',"'.(float)$price.'","'
         .pSQL(date('Y-m-d H:i:s')).'")';
         Db::getInstance()->Execute($sql);
     }
@@ -127,7 +127,7 @@ class PaytpvOrder extends ObjectModel
     /* Obtener los pagos de una suscripcion */
     public static function getOrdersSuscription($iso_code, $id_suscription)
     {
-        $sql = 'select * from ' . _DB_PREFIX_ .'paytpv_order where id_suscription = ' . pSQL($id_suscription)
+        $sql = 'select * from ' . _DB_PREFIX_ .'paytpv_order where id_suscription = ' . (int)$id_suscription
         .' LIMIT 1,100';
 
 
@@ -154,7 +154,7 @@ class PaytpvOrder extends ObjectModel
 
     public static function getOrder($id_order)
     {
-        $sql = 'select * from ' . _DB_PREFIX_ .'paytpv_order where id_order="'.pSQL($id_order).'"';
+        $sql = 'select * from ' . _DB_PREFIX_ .'paytpv_order where id_order="'.(int)$id_order.'"';
         $result = Db::getInstance()->getRow($sql);
         return $result;
     }
@@ -162,7 +162,7 @@ class PaytpvOrder extends ObjectModel
     public static function getOrderCustomer($id_customer)
     {
         $sql = 'SELECT now() as "fechaactual",paytpv_order.* FROM `'._DB_PREFIX_.'paytpv_order` as paytpv_order WHERE
-        `id_customer` = '.$id_customer.' ORDER BY `date` DESC';
+        `id_customer` = '.(int)$id_customer.' ORDER BY `date` DESC';
         $result = Db::getInstance()->getRow($sql);
         return $result;
     }

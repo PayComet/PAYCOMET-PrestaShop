@@ -34,6 +34,7 @@ include_once dirname(__FILE__) . '/classes/PaytpvOrderInfo.php';
 include_once dirname(__FILE__) . '/classes/PaytpvCustomer.php';
 include_once dirname(__FILE__) . '/classes/PaytpvSuscription.php';
 include_once dirname(__FILE__) . '/classes/PaytpvRefund.php';
+include_once dirname(__FILE__) . '/classes/PaytpvPaymentsHelperForm.php';
 
 class Paytpv extends PaymentModule
 {
@@ -46,10 +47,10 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.5.5';
-        $this->module_key = '73836a23c42bbcdec111cc1309a41776';
+        $this->version = '6.5.7';
+        $this->module_key = 'deef285812f52026197223a4c07221c4';
 
-        //$this->bootstrap = true;
+        $this->bootstrap = true;
         // Array config:  configuration values
         $config = $this->getConfigValues();
 
@@ -62,13 +63,9 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_INTEGRATION', $config)) {
             $this->integration = $config['PAYTPV_INTEGRATION'];
         }
-
-
         if (array_key_exists('PAYTPV_CLIENTCODE', $config)) {
             $this->clientcode = $config['PAYTPV_CLIENTCODE'];
         }
-
-
         if (array_key_exists('PAYTPV_COMMERCEPASSWORD', $config)) {
             $this->commerce_password = $config['PAYTPV_COMMERCEPASSWORD'];
         }
@@ -81,8 +78,6 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_REG_ESTADO', $config)) {
             $this->reg_estado = $config['PAYTPV_REG_ESTADO'];
         }
-
-
         if (array_key_exists('PAYTPV_FIRSTPURCHASE_SCORING', $config)) {
             $this->firstpurchase_scoring = $config['PAYTPV_FIRSTPURCHASE_SCORING'];
         }
@@ -129,7 +124,6 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_DISABLEOFFERSAVECARD', $config)) {
             $this->disableoffersavecard = $config['PAYTPV_DISABLEOFFERSAVECARD'];
         }
-
 
         if (array_key_exists('PAYTPV_REMEMBERCARDUNSELECTED', $config)) {
             $this->remembercardunselected = $config['PAYTPV_REMEMBERCARDUNSELECTED'];
@@ -210,7 +204,6 @@ class Paytpv extends PaymentModule
                 $this->postErrors[] = $this->l('User Password required');
             }
 
-
             // Check Terminal empty fields SECURE
             foreach (Tools::getValue('term') as $key => $term) {
                 if ((Tools::getValue("terminales")[$key] == 0 || Tools::getValue("terminales")[$key] == 2)
@@ -286,6 +279,7 @@ class Paytpv extends PaymentModule
             }
 
             // Si no hay errores previos se contrastan los datos
+            
             if (!sizeof($this->postErrors)) {
                 $arrValidatePaycomet = $this->validatePaycomet();
                 if ($arrValidatePaycomet["error"] != 0) {
@@ -374,7 +368,7 @@ class Paytpv extends PaymentModule
 
     private function postProcess()
     {
-
+       
         // Update databse configuration
         if (Tools::getIsset('btnSubmit')) {
             Configuration::updateValue('PAYTPV_CLIENTCODE', trim(Tools::getValue('clientcode')));
@@ -387,12 +381,13 @@ class Paytpv extends PaymentModule
 
             // Save Paytpv Terminals
             PaytpvTerminal::removeTerminals();
-
+           
             foreach (array_keys(Tools::getValue("term")) as $key) {
                 $aux_tdmin = (Tools::getValue('tdmin')[$key] == ''|| Tools::getValue("terminales")[$key] != 2) ?
                 0 : Tools::getValue('tdmin')[$key];
                 $aux_term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
                 $aux_term_ns = (Tools::getValue('term_ns')[$key] == '') ? "" : Tools::getValue('term_ns')[$key];
+                
                 PaytpvTerminal::addTerminal(
                     $key + 1,
                     trim($aux_term),
@@ -407,6 +402,7 @@ class Paytpv extends PaymentModule
                     $aux_tdmin
                 );
             }
+           
 
             // Datos Scoring
 
@@ -749,8 +745,6 @@ class Paytpv extends PaymentModule
                 $Merchant_EMV3DS["billing"]["billAddrState"] = $billAddState;
             }
 
-
-
             if ($billing->phone) {
                 $arrDatosHomePhone = array();
 
@@ -769,7 +763,6 @@ class Paytpv extends PaymentModule
                 $Merchant_EMV3DS["customer"]["mobilePhone"] = $arrDatosMobilePhone;
             }
         }
-
 
         // Shiping info
         $shipping = new Address($cart->id_address_delivery);
@@ -840,9 +833,7 @@ class Paytpv extends PaymentModule
         } else {
             $errorMessage = '';
         }
-
-        $conf_values = $this->getConfigValues();
-
+       
         if (Tools::isSubmit('id_cart')) {
             $this->validateOrder(
                 Tools::getValue('id_cart'),
@@ -856,186 +847,687 @@ class Paytpv extends PaymentModule
         if (Tools::isSubmit('id_registro')) {
             ClassRegistro::remove(Tools::getValue('id_registro'));
         }
-
-        $carritos = ClassRegistro::select();
-
-        $id_currency = (int) (Configuration::get('PS_CURRENCY_DEFAULT'));
-        $currency_array =   Currency::getCurrenciesByIdShop(Context::getContext()->shop->id);
+        
+        $this->currency_array = Currency::getCurrenciesByIdShop(Context::getContext()->shop->id);
 
         if (Configuration::get('PS_RESTRICT_DELIVERED_COUNTRIES')) {
-            $countries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
+            $this->countries = Carrier::getDeliveredCountries($this->context->language->id, true, true);
         } else {
-            $countries = Country::getCountries($this->context->language->id, true);
+            $this->countries = Country::getCountries($this->context->language->id, true);
         }
-
-        $firstpurchase_scoring = Tools::getIsset("firstpurchase_scoring") ?
-            Tools::getValue("firstpurchase_scoring") : $conf_values['PAYTPV_FIRSTPURCHASE_SCORING'];
-        $firstpurchase_scoring_score = Tools::getIsset("firstpurchase_scoring_score") ?
-            Tools::getValue("firstpurchase_scoring_score") : $conf_values['PAYTPV_FIRSTPURCHASE_SCORING_SCO'];
-
-        $sessiontime_scoring = Tools::getIsset("sessiontime_scoring") ?
-            Tools::getValue("sessiontime_scoring") : $conf_values['PAYTPV_SESSIONTIME_SCORING'];
-
-        $sessiontime_scoring_val =
-            Tools::getIsset("sessiontime_scoring_val") ?
-            Tools::getValue("sessiontime_scoring_val") : $conf_values['PAYTPV_SESSIONTIME_SCORING_VAL'];
-
-        $sessiontime_scoring_score = Tools::getIsset("sessiontime_scoring_score") ?
-            Tools::getValue("sessiontime_scoring_score") : $conf_values['PAYTPV_SESSIONTIME_SCORING_SCORE'];
-
-        $dcountry_scoring = Tools::getIsset("dcountry_scoring") ?
-            Tools::getValue("dcountry_scoring") : $conf_values['PAYTPV_DCOUNTRY_SCORING'];
-
-        $dcountry_scoring_val = Tools::getIsset("dcountry_scoring_val") ?
-            implode(",", Tools::getValue("dcountry_scoring_val")) : $conf_values['PAYTPV_DCOUNTRY_SCORING_VAL'];
-
-        $arr_dcountry_scoring_val = explode(",", $dcountry_scoring_val);
-
-        $dcountry_scoring_score = Tools::getIsset("dcountry_scoring_score") ?
-            Tools::getValue("dcountry_scoring_score") : $conf_values['PAYTPV_DCOUNTRY_SCORING_SCORE'];
-
-        $ip_change_scoring = Tools::getIsset("ip_change_scoring") ?
-            Tools::getValue("ip_change_scoring") : $conf_values['PAYTPV_IPCHANGE_SCORING'];
-
-        $ip_change_scoring_score = Tools::getIsset("ip_change_scoring_score") ?
-            Tools::getValue("ip_change_scoring_score") : $conf_values['PAYTPV_IPCHANGE_SCORING_SCORE'];
-
-        $browser_scoring = Tools::getIsset("browser_scoring") ?
-            Tools::getValue("browser_scoring") : $conf_values['PAYTPV_BROWSER_SCORING'];
-
-        $browser_scoring_score = Tools::getIsset("browser_scoring_score") ?
-            Tools::getValue("browser_scoring_score") : $conf_values['PAYTPV_BROWSER_SCORING_SCORE'];
-
-        $so_scoring = Tools::getIsset("so_scoring") ?
-            Tools::getValue("so_scoring") : $conf_values['PAYTPV_SO_SCORING'];
-        $so_scoring_score = Tools::getIsset("so_scoring_score") ?
-            Tools::getValue("so_scoring_score") : $conf_values['PAYTPV_SO_SCORING_SCORE'];
-
-
-        $disableoffersavecard = Tools::getIsset("disableoffersavecard") ?
-            Tools::getValue("disableoffersavecard") : $conf_values['PAYTPV_DISABLEOFFERSAVECARD'];
-
-        $remembercardunselected = Tools::getIsset("remembercardunselected") ?
-            Tools::getValue("remembercardunselected") : $conf_values['PAYTPV_REMEMBERCARDUNSELECTED'];
-
-
 
         $ssl = Configuration::get('PS_SSL_ENABLED');
         // Set the smarty env
-        $this->context->smarty->assign('serverRequestUri', Tools::safeOutput($_SERVER['REQUEST_URI']));
+        
         $this->context->smarty->assign('displayName', Tools::safeOutput($this->displayName));
         $this->context->smarty->assign('description', Tools::safeOutput($this->description));
-        $this->context->smarty->assign('currentindex', AdminController::$currentIndex);
-        $this->context->smarty->assign('token', Tools::getValue('token'));
-        $this->context->smarty->assign('name', $this->name);
-        $this->context->smarty->assign('reg_estado', $conf_values['PAYTPV_REG_ESTADO']);
-        $this->context->smarty->assign('carritos', $carritos);
+                       
         $this->context->smarty->assign('errorMessage', $errorMessage);
 
-        $this->context->smarty->assign(
-            'integration',
-            (Tools::getIsset("integration")) ? Tools::getValue("integration") : $conf_values['PAYTPV_INTEGRATION']
-        );
-        $this->context->smarty->assign(
-            'clientcode',
-            (Tools::getIsset("clientcode")) ? Tools::getValue("clientcode") : $conf_values['PAYTPV_CLIENTCODE']
-        );
-
-        $this->context->smarty->assign('terminales_paytpv', $this->obtenerTerminalesConfigurados($_POST));
-
-        $this->context->smarty->assign(
-            'commerce_password',
-            (Tools::getIsset("commerce_password")) ?
-                Tools::getValue("commerce_password") : $conf_values['PAYTPV_COMMERCEPASSWORD']
-        );
-        $this->context->smarty->assign(
-            'newpage_payment',
-            (Tools::getIsset("newpage_payment")) ?
-                Tools::getValue("newpage_payment") : $conf_values['PAYTPV_NEWPAGEPAYMENT']
-        );
-        $this->context->smarty->assign(
-            'suscriptions',
-            (Tools::getIsset("suscriptions")) ? Tools::getValue("suscriptions") : $conf_values['PAYTPV_SUSCRIPTIONS']
-        );
-        $this->context->smarty->assign('currency_array', $currency_array);
-        $this->context->smarty->assign('default_currency', $id_currency);
-        $this->context->smarty->assign(
-            'OK',
-            Context::getContext()->link->getModuleLink($this->name, 'urlok', array(), $ssl)
-        );
-        $this->context->smarty->assign(
-            'KO',
-            Context::getContext()->link->getModuleLink($this->name, 'urlko', array(), $ssl)
-        );
         $this->context->smarty->assign(
             'NOTIFICACION',
             Context::getContext()->link->getModuleLink($this->name, 'url', array(), $ssl)
         );
-        $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
 
-        // Scoring Data.
-
-        $this->context->smarty->assign('countries', $countries);
-
-        $this->context->smarty->assign('firstpurchase_scoring', $firstpurchase_scoring);
-        $this->context->smarty->assign('firstpurchase_scoring_score', $firstpurchase_scoring_score);
-        $this->context->smarty->assign('sessiontime_scoring', $sessiontime_scoring);
-        $this->context->smarty->assign('sessiontime_scoring_val', $sessiontime_scoring_val);
-        $this->context->smarty->assign('sessiontime_scoring_score', $sessiontime_scoring_score);
-        $this->context->smarty->assign('dcountry_scoring', $dcountry_scoring);
-        $this->context->smarty->assign('arr_dcountry_scoring_val', $arr_dcountry_scoring_val);
-        $this->context->smarty->assign('dcountry_scoring_score', $dcountry_scoring_score);
-        $this->context->smarty->assign('ip_change_scoring', $ip_change_scoring);
-        $this->context->smarty->assign('ip_change_scoring_score', $ip_change_scoring_score);
-        $this->context->smarty->assign('browser_scoring', $browser_scoring);
-        $this->context->smarty->assign('browser_scoring_score', $browser_scoring_score);
-        $this->context->smarty->assign('so_scoring', $so_scoring);
-        $this->context->smarty->assign('so_scoring_score', $so_scoring_score);
-
-        $this->context->smarty->assign('disableoffersavecard', $disableoffersavecard);
-        $this->context->smarty->assign('remembercardunselected', $remembercardunselected);
-
-
+        $this->terminales_paytpv = $this->obtenerTerminalesConfigurados();
+                
+        $this->context->controller->addJS($this->_path . 'views/js/admin.js', 'all');
         $this->context->controller->addCSS($this->_path . 'views/css/admin.css', 'all');
-        return $this->display(__FILE__, 'views/templates/admin.tpl');
+        
+        $this->context->smarty->assign('configform', str_replace('</form>', '', $this->_displayForm()));
+        $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/admin.tpl');
+        
+        return $output;
     }
 
 
-    public function obtenerTerminalesConfigurados($params)
+    private function _displayForm()
     {
-        if (array_key_exists("term", $params)) {
-            $terminales = array();
+        $helper = new PaytpvPaymentsHelperForm();
 
-            foreach (array_keys($params["term"]) as $key) {
-                $terminales[$key]["idterminal"] = $params["term"][$key];
-                $terminales[$key]["password"] = $params["pass"][$key];
-                $terminales[$key]["jetid"] = $params["jetid"][$key];
-                $terminales[$key]["idterminal_ns"] = $params["term_ns"][$key];
-                $terminales[$key]["password_ns"] = $params["pass_ns"][$key];
-                $terminales[$key]["jetid_ns"] = $params["jetid_ns"][$key];
-                $terminales[$key]["terminales"] = $params["terminales"][$key];
-                $terminales[$key]["tdfirst"] = $params["tdfirst"][$key];
-                $terminales[$key]["tdmin"] = $params["tdmin"][$key];
-                $terminales[$key]["currency_iso_code"] = $params["moneda"][$key];
-            }
-        } else {
-            $terminales = PaytpvTerminal::getTerminals();
-            if (sizeof($terminales) == 0) {
-                $id_currency = (int) (Configuration::get('PS_CURRENCY_DEFAULT'));
-                $currency = new Currency((int) ($id_currency));
+        $helper->show_toolbar = false;
+        $helper->table = $this->table;
+        $helper->module = $this;
+        $helper->default_form_language = $this->context->language->id;
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
+        
+        $helper->identifier = $this->identifier;
+        $helper->submit_action = 'submitPaytpvpaymentsModule';
+        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
+        . '&configure=' . $this->name . '&tab_module=' . $this->tab . '&module_name=' . $this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
 
-                $terminales[0]["idterminal"] = "";
-                $terminales[0]["password"] = "";
-                $terminales[0]["jetid"] = "";
-                $terminales[0]["idterminal_ns"] = "";
-                $terminales[0]["password_ns"] = "";
-                $terminales[0]["jetid_ns"] = "";
-                $terminales[0]["terminales"] = 0;
-                $terminales[0]["tdfirst"] = 1;
-                $terminales[0]["tdmin"] = 0;
-                $terminales[0]["currency_iso_code"] = $currency->iso_code;
-            }
+        $helper->tpl_vars = array(
+            'fields_value' => $this->getConfigFormValues(),
+            'languages' => $this->context->controller->getLanguages(),
+            'id_language' => $this->context->language->id
+        );
+               
+        return $helper->generatePaytpvForm($this->context->smarty, $this->getConfigForm());
+    }
+    
+    public function getConfigFormValues()
+    {
+        $config = $this->getConfigValues();
+        $arrValues = array();
+
+        $arrValues["clientcode"] = $config["PAYTPV_CLIENTCODE"];
+        $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
+        $arrValues["commerce_password"] = $config["PAYTPV_COMMERCEPASSWORD"];
+        $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
+        $arrValues["suscriptions"] = $config["PAYTPV_SUSCRIPTIONS"];
+        $arrValues["reg_estado"] = $config["PAYTPV_REG_ESTADO"];
+        
+        $arrValues["firstpurchase_scoring"] = $config["PAYTPV_FIRSTPURCHASE_SCORING"];
+        $arrValues["firstpurchase_scoring_score"] = $config["PAYTPV_FIRSTPURCHASE_SCORING_SCO"];
+        $arrValues["sessiontime_scoring"] = $config["PAYTPV_SESSIONTIME_SCORING"];
+        $arrValues["sessiontime_scoring_val"] = $config["PAYTPV_SESSIONTIME_SCORING_VAL"];
+        $arrValues["sessiontime_scoring_score"] = $config["PAYTPV_SESSIONTIME_SCORING_SCORE"];
+        $arrValues["dcountry_scoring"] = $config["PAYTPV_DCOUNTRY_SCORING"];
+        $arrValues["dcountry_scoring_val[]"] = explode(",", $config["PAYTPV_DCOUNTRY_SCORING_VAL"]);
+        $arrValues["dcountry_scoring_score"] = $config["PAYTPV_DCOUNTRY_SCORING_SCORE"];
+        $arrValues["ip_change_scoring"] = $config["PAYTPV_IPCHANGE_SCORING"];
+
+        $arrValues["ip_change_scoring_score"] = $config["PAYTPV_IPCHANGE_SCORING_SCORE"];
+        $arrValues["browser_scoring"] = $config["PAYTPV_BROWSER_SCORING"];
+        $arrValues["browser_scoring_score"] = $config["PAYTPV_BROWSER_SCORING_SCORE"];
+
+        $arrValues["so_scoring"] = $config["PAYTPV_SO_SCORING"];
+        $arrValues["so_scoring_score"] = $config["PAYTPV_SO_SCORING_SCORE"];
+        $arrValues["disableoffersavecard"] = $config["PAYTPV_DISABLEOFFERSAVECARD"];
+        $arrValues["remembercardunselected"] = $config["PAYTPV_REMEMBERCARDUNSELECTED"];
+                
+
+        foreach ($this->terminales_paytpv as $key => $term) {
+            $arrValues["term[".$key."]"] = $term["idterminal"];
+            $arrValues["pass[".$key."]"] = $term["password"];
+            $arrValues["jetid[".$key."]"] = $term["jetid"];
+            $arrValues["term_ns[".$key."]"] = $term["idterminal_ns"];
+            $arrValues["pass_ns[".$key."]"] = $term["password_ns"];
+            $arrValues["jetid_ns[".$key."]"] = $term["jetid_ns"];
+            $arrValues["terminales[".$key."]"] = $term["terminales"];
+            $arrValues["tdfirst[".$key."]"] = $term["tdfirst"];
+            $arrValues["tdmin[".$key."]"] = $term["tdmin"];
+            $arrValues["moneda[".$key."]"] = $term["currency_iso_code"];
         }
+        return $arrValues;
+    }
+    
+    public function getConfigForm()
+    {
+       
+        $arrCurrency = array();
+        foreach ($this->currency_array as $key => $datos) {
+            $arrCurrency[$key]["id"] = $datos["iso_code"];
+            $arrCurrency[$key]["name"] = $datos["name"];
+        }
+        $arrFields = array();
+        $general_form = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('General'),
+                    'icon' => 'icon-cogs'
+                ),
+                'input' => array(
+                    array(
+                        'col' => 3,
+                        'type' => 'select',
+                        'label' => $this->l('Integration'),
+                        'name' => 'integration',
+                        'options' => array(
+                            'query' => array(
+                                array(
+                                    'id' => 0,
+                                    'name' => $this->l('Bankstore IFRAME/XML')
+                                )
+                            ),
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'col' => 1,
+                        'type' => 'text',
+                        'label' => $this->l('Client Code'),
+                        'name' => 'clientcode',
+                        'hint' => $this->l('Client Code. Available in the PAYCOMET product configuration'),
+                        'required' => true
+                    ),
+                )
+            )
+        );
+        $arrFields[] = $general_form;
+        $arrTerminal = array();
+        foreach (array_keys($this->terminales_paytpv) as $key) {
+            $arrTerminal[$key] = array(
+                array(
+                    'col' => 1,
+                    'type' => 'text',
+                    'label' => $this->l('Terminal Number Secure'),
+                    'name' => 'term['.$key.']',
+                    'id' => 'term_' . $key,
+                    'class' => 'term term_s_container_'.$key,
+                    'hint' => $this->l('Product Terminal Number Secure. Available in the PAYCOMET product configuration'),
+                    'required' => true
+                ),
+                array(
+                    'col' => 2,
+                    'type' => 'text',
+                    'label' => $this->l('Password Secure'),
+                    'name' => 'pass['.$key.']',
+                    'id' => 'pass_' . $key,
+                    'class' => 'term_s_container_'.$key,
+                    'hint' => $this->l('Product Password Secure. Available in the PAYCOMET product configuration'),
+                    'required' => true
+                ),
+                array(
+                    'col' => 2,
+                    'type' => 'text',
+                    'label' => $this->l('JET ID Secure'),
+                    'name' => 'jetid['.$key.']',
+                    'id' => 'jetid_' . $key,
+                    'class' => 'class_jetid term_s_container_'.$key,
+                    'hint' => $this->l('Product JET ID Secure. Available in the PAYCOMET product configuration'),
+                    'required' => true
+                ),
+                array(
+                    'col' => 1,
+                    'type' => 'text',
+                    'label' => $this->l('Terminal Number Non-Secure'),
+                    'name' => 'term_ns['.$key.']',
+                    'id' => 'term_ns_' . $key,
+                    'class' => 'term_ns_container_'.$key,
+                    'hint' => $this->l('Product Terminal Number Non-Secure. Available in the PAYCOMET product configuration'),
+                    'required' => true
+                ),
+                array(
+                    'col' => 2,
+                    'type' => 'text',
+                    'label' => $this->l('Password Non-Secure'),
+                    'name' => 'pass_ns['.$key.']',
+                    'id' => 'pass_ns_' . $key,
+                    'class' => 'term_ns_container_'.$key,
+                    'hint' => $this->l('Product Password Non-Secure. Available in the PAYCOMET product configuration'),
+                    'required' => true
+                ),
+                array(
+                    'col' => 2,
+                    'type' => 'text',
+                    'label' => $this->l('JET ID Non-Secure'),
+                    'name' => 'jetid_ns['.$key.']',
+                    'id' => 'jetid_ns_' . $key,
+                    'class' => 'class_jetid term_ns_container_'.$key,
+                    'hint' => $this->l('Product JET ID Non-Secure. Available in the PAYCOMET product configuration'),
+                    'required' => true
+                ),
+                array(
+                    'col' => 3,
+                    'type' => 'select',
+                    'label' => $this->l('Terminals available'),
+                    'desc' => $this->l('Product Terminals Available.'),
+                    'name' => 'terminales['.$key.']',
+                    'id' => 'terminales_' . $key,
+                    'class' => 'terminales',
+                    'options' => array(
+                        'query' => array(
+                            array(
+                                'id' => 0,
+                                'name' => $this->l('Secure')
+                            ),
+                            array(
+                                'id' => 1,
+                                'name' => $this->l('Non-Secure')
+                            ),
+                            array(
+                                'id' => 2,
+                                'name' => $this->l('Both')
+                            )
+                        ),
+                        'id' => 'id',
+                        'name' => 'name'
+                    )
+                ),
+                array(
+                    'type' => 'select',
+                    'label' => $this->l('Use 3D Secure'),
+                    'name' => 'tdfirst['.$key.']',
+                    'id' => 'tdfirst_' . $key,
+                    'desc' => $this->l('First purchase with 3D Secure.'),
+                    'class' => 'terminales_tdmin',
+                    'options' => array(
+                        'query' => array(
+                            array(
+                                'id' => 0,
+                                'name' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 1,
+                                'name' => $this->l('Yes')
+                            ),
+                        ),
+                        'id' => 'id',
+                        'name' => 'name'
+                    )
+                ),
+                array(
+                    'type' => 'select',
+                    'label' => $this->l('Currency'),
+                    'name' => 'moneda['.$key.']',
+                    'id' => 'moneda_' . $key,
+                    'desc' => '',
+                    'options' => array(
+                        'query' => $arrCurrency,
+                        'id' => 'id',
+                        'name' => 'name'
+                    ),
+                    'desc' => $this->l('PAYCOMET Terminal Currency.'),
+                ),
+                array(
+                    'col' => 1,
+                    'type' => 'text',
+                    'label' => $this->l('Use 3D Secure on purchases over'),
+                    'hint' => $this->l('Value from which purchases are made by 3DSecure. 0 for Not us'),
+                    'name' => 'tdmin['.$key.']',
+                    'id' => 'tdmin_' . $key,
+                )
+            );
+
+            $terminal_form = array(
+                'form' => array(
+                    'legend' => array(
+                        'title' => $this->l('Terminal'),
+                        'icon' => 'icon-cogs terminal',
+                    ),
+                    'input' => $arrTerminal[$key]
+                )
+            );
+
+            if ($key==0) {
+                $terminal_form['form']['buttons'] = array(
+                    array(
+                        'title' => $this->l('Add Terminal'),
+                        'icon' => 'process-icon-new',
+                        'id' => 'addterminal',
+                        'class' => 'addTerminal'
+                    ),
+                    array(
+                        'title' => $this->l('Remove Terminal'),
+                        'icon' => 'process-icon-close',
+                        'id' => 'removeterminal',
+                        'class' => 'hidden removeTerminal'
+                    )
+                );
+            } else {
+                $terminal_form['form']['buttons'] = array(
+                    array(
+                        'title' => $this->l('Remove Terminal'),
+                        'icon' => 'process-icon-cancel',
+                        'id' => 'removeTerminal',
+                        'class' => 'removeTerminal'
+                    )
+                );
+            }
+
+            $arrFields[] = $terminal_form;
+        }
+        
+       
+        $options_form = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('Options'),
+                    'icon' => 'icon-cogs'
+                ),
+                'input' => array(
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Request business password on purchases with stored cards'),
+                        'name' => 'commerce_password',
+                        'desc' => $this->l(''),
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Payment in new Page'),
+                        'name' => 'newpage_payment',
+                        'options' => array(
+                            'query' => array(
+                                array(
+                                    'id' => 0,
+                                    'name' => $this->l('No')
+                                ),
+                                array(
+                                    'id' => 1,
+                                    'name' => $this->l('Yes')
+                                ),
+                                array(
+                                    'id' => 2,
+                                    'name' => $this->l('Yes. PAYCOMET page')
+                                )
+                            ),
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Disable Offer to save card'),
+                        'name' => 'disableoffersavecard',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Remember Card (Unselect)'),
+                        'name' => 'remembercardunselected',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Activate Subscriptions'),
+                        'name' => 'suscriptions',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                )
+            ),
+        );
+        
+        $arrFields[] = $options_form;
+        // Array Score
+        
+        $arrScore = array();
+        for ($i=0; $i <= 100; $i++) {
+            $arrScore[$i]["id"] = $i;
+            $arrScore[$i]["name"] = $i;
+        }
+
+        $arrSessionTime = array(
+            array("id"=>0,"name"=>'00:00'),
+            array("id"=>15,"name"=>'00:15'),
+            array("id"=>30,"name"=>'00:30'),
+            array("id"=>45,"name"=>'00:45'),
+            array("id"=>60,"name"=>'01:00'),
+            array("id"=>90,"name"=>'01:30'),
+            array("id"=>120,"name"=>'02:00'),
+            array("id"=>180,"name"=>'03:00'),
+            array("id"=>240,"name"=>'04:00'),
+            array("id"=>300,"name"=>'05:00'),
+            array("id"=>360,"name"=>'06:00')
+        );
+
+        
+        $arrDestination = array();
+        $id = 0;
+        foreach ($this->countries as $key => $country) {
+            $arrDestination[$id]["id"] = $country["id_country"];
+            $arrDestination[$id]["name"] = $country["name"];
+            $id++;
+        };
+        
+        $scoring_form = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('Scoring'),
+                    'icon' => 'icon-cogs'
+                ),
+                'input' => array(
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('First Purchase'),
+                        'name' => 'firstpurchase_scoring',
+                        'desc' => $this->l(''),
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Score'),
+                        'name' => 'firstpurchase_scoring_score',
+                        'options' => array(
+                            'query' => $arrScore,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Complete Session Time'),
+                        'name' => 'sessiontime_scoring',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Score'),
+                        'name' => 'sessiontime_scoring_score',
+                        'options' => array(
+                            'query' => $arrScore,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Time (hh:mm)'),
+                        'name' => 'sessiontime_scoring_val',
+                        'options' => array(
+                            'query' => $arrSessionTime,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Destination Country'),
+                        'name' => 'dcountry_scoring',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Score'),
+                        'name' => 'dcountry_scoring_score',
+                        'options' => array(
+                            'query' => $arrScore,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Countries'),
+                        'name' => 'dcountry_scoring_val[]',
+                        'multiple' => true,
+                        'options' => array(
+                            'query' => $arrDestination,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('IP Change'),
+                        'name' => 'ip_change_scoring',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Score'),
+                        'name' => 'ip_change_scoring_score',
+                        'options' => array(
+                            'query' => $arrScore,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Browser Unidentified'),
+                        'name' => 'browser_scoring',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Score'),
+                        'name' => 'browser_scoring_score',
+                        'options' => array(
+                            'query' => $arrScore,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Operating System Unidentified'),
+                        'name' => 'so_scoring',
+                        'values' => array(
+                            array(
+                                'id' => 'active_on',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            ),
+                            array(
+                                'id' => 'active_off',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            )
+                        ),
+                    ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Score'),
+                        'name' => 'so_scoring_score',
+                        'options' => array(
+                            'query' => $arrScore,
+                            'id' => 'id',
+                            'name' => 'name'
+                        )
+                    ),
+                )
+            ),
+        );
+        
+        $arrFields[] = $scoring_form;
+        
+        return $arrFields;
+    }
+
+    public function obtenerTerminalesConfigurados()
+    {
+        $terminales = PaytpvTerminal::getTerminals();
+        if (sizeof($terminales) == 0) {
+            $id_currency = (int) (Configuration::get('PS_CURRENCY_DEFAULT'));
+            $currency = new Currency((int) ($id_currency));
+
+            $terminales[0]["idterminal"] = "";
+            $terminales[0]["password"] = "";
+            $terminales[0]["jetid"] = "";
+            $terminales[0]["idterminal_ns"] = "";
+            $terminales[0]["password_ns"] = "";
+            $terminales[0]["jetid_ns"] = "";
+            $terminales[0]["terminales"] = 0;
+            $terminales[0]["tdfirst"] = 1;
+            $terminales[0]["tdmin"] = 0;
+            $terminales[0]["currency_iso_code"] = $currency->iso_code;
+        }
+        
         return $terminales;
     }
 
@@ -1176,7 +1668,7 @@ class Paytpv extends PaymentModule
 
             // Bankstore JET
             if ($paytpv_integration == 1) {
-                $this->context->smarty->assign('js_code', $this->jsMinimizedJet());
+                $this->context->smarty->assign('js_code', '');
             }
 
             return $this->display(__FILE__, 'payment_bsiframe.tpl');
@@ -1184,239 +1676,7 @@ class Paytpv extends PaymentModule
     }
 
 
-    public function jsMinimizedJet()
-    {
-        include_once(_PS_MODULE_DIR_ . '/paytpv/lib/Minifier.php');
-
-        $js_code = "function buildED() {
-		    var t = document.getElementById('expiry_date').value,
-		        n = t.substr(0, 2),
-		        a = t.substr(3, 2);
-		    $('[data-paytpv=\'dateMonth\']').val(n), $('[data-paytpv=\'dateYear\']').val(a)
-		}
-
-		(function() {
-				(function() {
-					var $,
-                    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if
-                        (i in this && this[i] === item) return i; } return -1; };
-
-					$ = jQuery;
-
-		$.fn.validateCreditCard = function(callback, options) {
-            var bind, card, card_type, card_types, get_card_type, is_valid_length, is_valid_luhn, normalize, validate,
-            validate_number, _i, _len, _ref;
-	    	card_types = [
-	      {
-	        name: 'amex',
-	        pattern: /^3[47]/,
-	        valid_length: [15]
-	      }, {
-	        name: 'diners_club_carte_blanche',
-	        pattern: /^30[0-5]/,
-	        valid_length: [14]
-	      }, {
-	        name: 'diners_club_international',
-	        pattern: /^36/,
-	        valid_length: [14]
-	      }, {
-	        name: 'jcb',
-	        pattern: /^35(2[89]|[3-8][0-9])/,
-	        valid_length: [16]
-	      }, {
-	        name: 'laser',
-	        pattern: /^(6304|670[69]|6771)/,
-	        valid_length: [16, 17, 18, 19]
-	      }, {
-	        name: 'visa_electron',
-	        pattern: /^(4026|417500|4508|4844|491(3|7))/,
-	        valid_length: [16]
-	      }, {
-	        name: 'visa',
-	        pattern: /^4/,
-	        valid_length: [16]
-	      }, {
-	        name: 'mastercard',
-	        // 20160603 2U7-GQS-M6X3 Cambiamos el patern ya que MC ha incluido nuevos rangos de bines
-	        pattern: /^(5[1-5]|222|2[3-6]|27[0-1]|2720)/,
-	        // 20160603 2U7-GQS-M6X3 Fin
-	        valid_length: [16]
-	      }, {
-	        name: 'maestro',
-	        pattern: /^(5018|5020|5038|6304|6759|676[1-3])/,
-	        valid_length: [12, 13, 14, 15, 16, 17, 18, 19]
-	      }, {
-	        name: 'discover',
-	        pattern: /^(6011|622(12[6-9]|1[3-9][0-9]|[2-8][0-9]{2}|9[0-1][0-9]|92[0-5]|64[4-9])|65)/,
-	        valid_length: [16]
-	      }
-	    ];
-	    bind = false;
-	    if (callback) {
-	      if (typeof callback === 'object') {
-	        options = callback;
-	        bind = false;
-	        callback = null;
-	      } else if (typeof callback === 'function') {
-	        bind = true;
-	      }
-	    }
-	    if (options === null) {
-	      options = {};
-	    }
-	    if (options.accept === null) {
-	      options.accept = (function() {
-	        var _i, _len, _results;
-	        _results = [];
-	        for (_i = 0, _len = card_types.length; _i < _len; _i++) {
-	          card = card_types[_i];
-	          _results.push(card.name);
-	        }
-	        return _results;
-	      })();
-	    }
-	    _ref = options.accept;
-	    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-	      card_type = _ref[_i];
-	      if (__indexOf.call((function() {
-	        var _j, _len1, _results;
-	        _results = [];
-	        for (_j = 0, _len1 = card_types.length; _j < _len1; _j++) {
-	          card = card_types[_j];
-	          _results.push(card.name);
-	        }
-	        return _results;
-	      })(), card_type) < 0) {
-	        throw '" . $this->l('Credit Card Not Valid') . "';
-	      }
-	    }
-	    get_card_type = function(number) {
-	      var _j, _len1, _ref1;
-	      _ref1 = (function() {
-	        var _k, _len1, _ref1, _results;
-	        _results = [];
-	        for (_k = 0, _len1 = card_types.length; _k < _len1; _k++) {
-	          card = card_types[_k];
-	          if (_ref1 = card.name, __indexOf.call(options.accept, _ref1) >= 0) {
-	            _results.push(card);
-	          }
-	        }
-	        return _results;
-	      })();
-	      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-	        card_type = _ref1[_j];
-	        if (number.match(card_type.pattern)) {
-	          return card_type;
-	        }
-	      }
-	      return null;
-	    };
-	    is_valid_luhn = function(number) {
-	      var digit, n, sum, _j, _len1, _ref1;
-	      sum = 0;
-	      _ref1 = number.split('').reverse();
-	      for (n = _j = 0, _len1 = _ref1.length; _j < _len1; n = ++_j) {
-	        digit = _ref1[n];
-	        digit = +digit;
-	        if (n % 2) {
-	          digit *= 2;
-	          if (digit < 10) {
-	            sum += digit;
-	          } else {
-	            sum += digit - 9;
-	          }
-	        } else {
-	          sum += digit;
-	        }
-	      }
-	      return sum % 10 === 0;
-	    };
-	    is_valid_length = function(number, card_type) {
-	      var _ref1;
-	      return _ref1 = number.length, __indexOf.call(card_type.valid_length, _ref1) >= 0;
-	    };
-	    validate_number = (function(_this) {
-	      return function(number) {
-	        var length_valid, luhn_valid;
-	        card_type = get_card_type(number);
-	        luhn_valid = false;
-	        length_valid = false;
-	        if (card_type !== null) {
-	          luhn_valid = is_valid_luhn(number);
-	          length_valid = is_valid_length(number, card_type);
-	        }
-	        return {
-	          card_type: card_type,
-	          valid: luhn_valid && length_valid,
-	          luhn_valid: luhn_valid,
-	          length_valid: length_valid
-	        };
-	      };
-	    })(this);
-	    validate = (function(_this) {
-	      return function() {
-	        var number;
-	        number = normalize($(_this).val());
-	        return validate_number(number);
-	      };
-	    })(this);
-	    normalize = function(number) {
-	      return number.replace(/[ -]/g, '');
-	    };
-	    if (!bind) {
-	      return validate();
-	    }
-	    this.on('input.jccv', (function(_this) {
-	      return function() {
-	        $(_this).off('keyup.jccv');
-	        return callback.call(_this, validate());
-	      };
-	    })(this));
-	    this.on('keyup.jccv', (function(_this) {
-	      return function() {
-	        return callback.call(_this, validate());
-	      };
-	    })(this));
-		    callback.call(this, validate());
-		    return this;
-		  };
-
-		}).call(this);
-			$(function() {
-				return $('[data-paytpv=\'paNumber\']').validateCreditCard(function(result) {
-		    	$(this).removeClass().addClass('paytpv_merchant_pan');
-					if (result.card_type === null) {
-						return;
-					}
-					$(this).addClass(result.card_type.name);
-					if (result.valid) {
-						return $(this).addClass('valid');
-					} else {
-						return $(this).removeClass('valid');
-					}
-				}, {
-				accept: ['visa', 'visa_electron', 'mastercard', 'maestro', 'discover', 'amex']
-				});
-			});
-		}).call(this);
-
-		$(document).ready(function() {
-			var oldLength = 0;
-			$('#expiry_date').on('input',function(){
-				var curLength = $(this).val().length;
-				if(!$(this).val().match(/[/]/)) {
-					if((curLength === 2) && (oldLength<curLength) ){
-						var newInput = $(this).val();
-						newInput += '/';
-						$(this).val(newInput);
-					}
-				}
-				oldLength = curLength;
-			});
-		})";
-        return Minifier::minify($js_code);
-    }
-
+    
     public function getMerchantData($cart)
     {
         $resp = $cart;
