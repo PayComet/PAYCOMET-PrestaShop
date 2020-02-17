@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.5.7';
+        $this->version = '6.5.8';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -1547,6 +1547,19 @@ class Paytpv extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/paytpv.js');
     }
 
+    public function getPaycometLang($language_code) {
+        $language_data = explode("-", $language_code);                
+        switch ($language_data[0]) {            
+            default:
+                $language = $language_data[0];
+                break;
+            case "da":
+                $language = "dk";
+                break;
+        }
+        return $language;
+    }
+
     public function hookDisplayPayment($params)
     {
 
@@ -1641,8 +1654,7 @@ class Paytpv extends PaymentModule
 
             $this->context->smarty->assign('jet_id', $jetid_sel);
 
-            $language_data = explode("-", $this->context->language->language_code);
-            $language = $language_data[0];
+            $language = $this->getPaycometLang($this->context->language->language_code);
 
             $this->context->smarty->assign('jet_paytpv', $this->jet_paytpv);
             $this->context->smarty->assign('jet_lang', $language);
@@ -1739,9 +1751,8 @@ class Paytpv extends PaymentModule
             $pass_sel = $pass_ns;
         }
 
-
-        $language_data = explode("-", $this->context->language->language_code);
-        $language = $language_data[0];
+        
+        $language = $this->getPaycometLang($this->context->language->language_code);
 
         $score = $this->transactionScore($cart);
         $MERCHANT_SCORING = $score["score"];
@@ -1913,9 +1924,8 @@ class Paytpv extends PaymentModule
             } elseif ($num_pagos == $result['cycles'] && $result['cycles'] > 0) {
                 $status = $this->l('ENDED');
             }
-
-            $language_data = explode("-", $this->context->language->language_code);
-            $language = $language_data[0];
+            
+            $language = $this->getPaycometLang($this->context->language->language_code);
 
             $date_YYYYMMDD = ($language == "es") ?
                 date("d-m-Y", strtotime($result['date'])) : date("Y-m-d", strtotime($result['date']));
@@ -2408,8 +2418,7 @@ class Paytpv extends PaymentModule
                 $status = $this->l('ENDED');
             }
 
-            $language_data = explode("-", $this->context->language->language_code);
-            $language = $language_data[0];
+            $language = $this->getPaycometLang($this->context->language->language_code);
 
             $date_YYYYMMDD = ($language == "es") ?
                 date("d-m-Y", strtotime($result['date'])) : date("Y-m-d", strtotime($result['date']));

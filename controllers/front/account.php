@@ -113,9 +113,8 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
             }
             
             $saved_card = PaytpvCustomer::getCardsCustomer((int)$this->context->customer->id);
-            
-            $language_data = explode("-", $this->context->language->language_code);
-            $language = $language_data[0];
+                        
+            $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
             $suscriptions = PaytpvSuscription::getSuscriptionsCustomer($language, (int)$this->context->customer->id);
 
@@ -125,9 +124,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
             $paytpv_integration = (int)(Configuration::get('PAYTPV_INTEGRATION'));
     
             $URLOK=$URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'account', array(), $ssl);
-
-            $language_data = explode("-", $this->context->language->language_code);
-            $language = $language_data[0];
+            
 
             // Cálculo Firma
             $signature = hash('sha512', $paytpv->clientcode.$idterminal_sel.$operation.$order.md5($pass_sel));
@@ -188,10 +185,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
             $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
             $this->context->smarty->assign('jet_id', $jetid);
-
-            $language_data = explode("-", $this->context->language->language_code);
-            $language = $language_data[0];
-
+            
             $this->context->smarty->assign('jet_lang', $language);
 
             $this->context->smarty->assign('jet_paytpv', $paytpv->jet_paytpv);
