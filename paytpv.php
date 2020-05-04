@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.5.8';
+        $this->version = '6.6.0';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -57,7 +57,7 @@ class Paytpv extends PaymentModule
 
         $this->url_paytpv = "https://api.paycomet.com/gateway/ifr-bankstore";
         $this->endpoint_paytpv = "https://api.paycomet.com/gateway/xml-bankstore";
-        $this->jet_paytpv = "https://api.paycomet.com/gateway/jet-paytpv.js";
+        $this->jet_paytpv = "https://api.paycomet.com/gateway/paycomet.jetiframe.js";
 
 
         if (array_key_exists('PAYTPV_INTEGRATION', $config)) {
@@ -65,9 +65,6 @@ class Paytpv extends PaymentModule
         }
         if (array_key_exists('PAYTPV_CLIENTCODE', $config)) {
             $this->clientcode = $config['PAYTPV_CLIENTCODE'];
-        }
-        if (array_key_exists('PAYTPV_COMMERCEPASSWORD', $config)) {
-            $this->commerce_password = $config['PAYTPV_COMMERCEPASSWORD'];
         }
         if (array_key_exists('PAYTPV_NEWPAGEPAYMENT', $config)) {
             $this->newpage_payment = $config['PAYTPV_NEWPAGEPAYMENT'];
@@ -297,7 +294,6 @@ class Paytpv extends PaymentModule
 
         $arrDatos = array();
         $arrDatos["error"] = 0;
-        
 
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
@@ -373,7 +369,6 @@ class Paytpv extends PaymentModule
         if (Tools::getIsset('btnSubmit')) {
             Configuration::updateValue('PAYTPV_CLIENTCODE', trim(Tools::getValue('clientcode')));
 
-            Configuration::updateValue('PAYTPV_COMMERCEPASSWORD', Tools::getValue('commerce_password'));
             Configuration::updateValue('PAYTPV_NEWPAGEPAYMENT', Tools::getValue('newpage_payment'));
             Configuration::updateValue('PAYTPV_SUSCRIPTIONS', Tools::getValue('suscriptions'));
 
@@ -913,7 +908,6 @@ class Paytpv extends PaymentModule
 
         $arrValues["clientcode"] = $config["PAYTPV_CLIENTCODE"];
         $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
-        $arrValues["commerce_password"] = $config["PAYTPV_COMMERCEPASSWORD"];
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
         $arrValues["suscriptions"] = $config["PAYTPV_SUSCRIPTIONS"];
         $arrValues["reg_estado"] = $config["PAYTPV_REG_ESTADO"];
@@ -979,6 +973,10 @@ class Paytpv extends PaymentModule
                                 array(
                                     'id' => 0,
                                     'name' => $this->l('Bankstore IFRAME/XML')
+                                ),
+                                array(
+                                    'id' => 1,
+                                    'name' => $this->l('Bankstore JET-IFRAME')
                                 )
                             ),
                             'id' => 'id',
@@ -1179,24 +1177,6 @@ class Paytpv extends PaymentModule
                     'icon' => 'icon-cogs'
                 ),
                 'input' => array(
-                    array(
-                        'type' => 'switch',
-                        'label' => $this->l('Request business password on purchases with stored cards'),
-                        'name' => 'commerce_password',
-                        'desc' => $this->l(''),
-                        'values' => array(
-                            array(
-                                'id' => 'active_on',
-                                'value' => 0,
-                                'label' => $this->l('No')
-                            ),
-                            array(
-                                'id' => 'active_off',
-                                'value' => 1,
-                                'label' => $this->l('Yes')
-                            )
-                        ),
-                    ),
                     
                     array(
                         'type' => 'select',
@@ -1645,7 +1625,6 @@ class Paytpv extends PaymentModule
 
             $this->context->smarty->assign('active_suscriptions', $active_suscriptions);
             $this->context->smarty->assign('saved_card', $saved_card);
-            $this->context->smarty->assign('commerce_password', $this->commerce_password);
             $this->context->smarty->assign('id_cart', $params['cart']->id);
 
             $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
@@ -1654,6 +1633,8 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
             $this->context->smarty->assign('jet_id', $jetid_sel);
+
+            $this->context->smarty->assign('account', 0);
 
             $language = $this->getPaycometLang($this->context->language->language_code);
 
@@ -1681,7 +1662,7 @@ class Paytpv extends PaymentModule
 
             // Bankstore JET
             if ($paytpv_integration == 1) {
-                $this->context->smarty->assign('js_code', '');
+                $this->context->controller->addJS($this->_path . 'views/js/paytpv_jet.js');
             }
 
             return $this->display(__FILE__, 'payment_bsiframe.tpl');

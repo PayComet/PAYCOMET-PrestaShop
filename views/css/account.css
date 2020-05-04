@@ -63,6 +63,10 @@
     margin: 15px 0 25px 0;
 }
 
+#storingStep .checkbox{
+    padding-bottom:1em;
+}
+
 #storingStep.box{
     border: 1px solid #e5e5e5;
     padding: 14px 18px 13px;

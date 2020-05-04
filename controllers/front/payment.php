@@ -108,8 +108,12 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
 
         $this->context->smarty->assign('newpage_payment', $newpage_payment);
         $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
+        $this->context->smarty->assign('account', 0);
 
         $this->context->smarty->assign('jet_id', $jetid_sel);
+        
+        $this->context->smarty->assign('jet_paytpv', $paytpv->jet_paytpv);
+
 
         $language_data = explode("-", $this->context->language->language_code);
         $language = $language_data[0];
@@ -127,7 +131,6 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
 
         $this->context->smarty->assign('active_suscriptions', $active_suscriptions);
         $this->context->smarty->assign('saved_card', $saved_card);
-        $this->context->smarty->assign('commerce_password', $this->module->commerce_password);
         $this->context->smarty->assign('id_cart', Context::getContext()->cart->id);
         
         $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
@@ -157,7 +160,7 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
 
         // Bankstore JET
         if ($paytpv_integration==1) {
-            $this->context->smarty->assign('js_code', '');
+            $this->context->controller->addJS($this->module->getPath() . 'views/js/paytpv_jet.js');
         }
         
 

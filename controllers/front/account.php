@@ -184,6 +184,8 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
 
             $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
+            $this->context->smarty->assign('account', 1);
+
             $this->context->smarty->assign('jet_id', $jetid);
             
             $this->context->smarty->assign('jet_lang', $language);
@@ -199,7 +201,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
 
             // Bankstore JET
             if ($paytpv_integration==1) {
-                $this->context->smarty->assign('js_code', "");
+                $this->context->controller->addJS($paytpv_path . 'views/js/paytpv_jet.js');
 
                 $this->context->smarty->assign('this_path', $this->module->getPath());
             }

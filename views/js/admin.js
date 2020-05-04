@@ -48,6 +48,13 @@ function checkterminales(element)
             jQuery("#tdmin_"+cont).parents(".form-group").hide();
             jQuery(".term_ns_container_"+cont).parents(".form-group").hide();
             jQuery(".term_s_container_"+cont).parents(".form-group").show();
+
+            if (jQuery("#integration").val()==1) {
+                jQuery(".class_jetid.term_s_container_"+cont).parents(".form-group").show();
+            }else{                
+                jQuery(".class_jetid.term_s_container_"+cont).parents(".form-group").hide();
+            }
+
             jQuery(element).parents(".panel").find(".terminales_tdmin").parents('.form-group').hide();  
             break;
 
@@ -62,16 +69,28 @@ function checkterminales(element)
             jQuery(".term_s_container_"+cont).parents(".form-group").hide();
             jQuery(".term_ns_container_"+cont).parents(".form-group").show();
             jQuery(element).parents(".panel").find(".terminales_tdmin").parents('.form-group').hide();
+
+            if (jQuery("#integration").val()==1) {
+                jQuery(".class_jetid.term_ns_container_"+cont).parents(".form-group").show();
+            } else {
+                jQuery(".class_jetid.term_ns_container_"+cont).parents(".form-group").hide();
+            }     
             break;
 
         case "2": // AMBOS
             jQuery("#tdmin_"+cont).parents(".form-group").show();
             jQuery(".term_s_container_"+cont).parents(".form-group").show();
             jQuery(".term_ns_container_"+cont).parents(".form-group").show();
+            if (jQuery("#integration").val()==1) {
+                jQuery(".class_jetid.term_s_container_"+cont).parents(".form-group").show();
+                jQuery(".class_jetid.term_ns_container_"+cont).parents(".form-group").show();
+            } else {
+                jQuery(".class_jetid.term_s_container_"+cont).parents(".form-group").hide();
+                jQuery(".class_jetid.term_ns_container_"+cont).parents(".form-group").hide();
+            }
             jQuery(element).parents(".panel").find(".terminales_tdmin").parents('.form-group').show();
             break;
     }
-    checkmode();
 }
 
 function addTerminal()
@@ -140,15 +159,6 @@ function checkaddTerminal()
     }
 }
 
-function checkmode()
-{
-    if (jQuery("#integration").val()==0) {
-        jQuery(".class_jetid").parents(".form-group").hide();        
-    } else {
-        jQuery(".class_jetid").parents(".form-group").hide();
-    }
-
-}
 
 function changeScoring(select)
 {   
@@ -213,12 +223,16 @@ $(document).ready(function()
 {
     checkAllTerminales();
     checkaddTerminal();
-    checkmode();
     checkScoring();
 
     jQuery("input[name$='scoring']").on('change', function()
     {
         checkScoring();
+    })
+
+    jQuery('#integration').on('change', function()
+    {
+        checkAllTerminales();
     })
 
     jQuery('.terminales').live('change', function() 

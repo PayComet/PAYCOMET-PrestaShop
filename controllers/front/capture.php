@@ -49,17 +49,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
         $password_fail = 0;
         $error_msg = "";
-        // Verificar contraseña usuario.
-        if ($paytpv->commerce_password) {
-            if (!$paytpv->validPassword($this->context->cart->id_customer, Tools::getValue('password'))) {
-                $password_fail = 1;
-                $this->context->smarty->assign('password_fail', $password_fail);
-                $this->context->smarty->assign('error_msg', $error_msg);
-                $this->setTemplate('payment_fail.tpl');
-                
-                return;
-            }
-        }
+        
         // $id_currency = (int)(Configuration::get('PS_CURRENCY_DEFAULT'));
         // $currency = new Currency((int)($id_currency));
         $total_pedido = $this->context->cart->getOrderTotal(true, Cart::BOTH);
@@ -76,7 +66,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
         // BANKSTORE JET
         $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
-        $savecard_jet = Tools::getIsset("savecard_jet")?Tools::getValue("savecard_jet"):0;
+        $savecard_jet = Tools::getIsset("savecard")?1:0;
 
 
         $jetPayment = 0;
@@ -185,7 +175,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
             
             $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
-            if ($jetPayment && (Tools::getIsset("suscription") && Tools::getValue("suscription")==1)) {
+            if ($jetPayment && (Tools::getIsset("suscripcion") && Tools::getValue("suscripcion")==1)) {
                 $subscription_startdate = date("Ymd");
                 $susc_periodicity = Tools::getValue("periodicity");
                 $subs_cycles = Tools::getValue("cycles");
@@ -274,7 +264,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);
         
 
-        if ($jetPayment && (Tools::getIsset("suscription") && Tools::getValue("suscription")==1)) {
+        if ($jetPayment && (Tools::getIsset("suscripcion") && Tools::getValue("suscripcion")==1)) {
             $subscription_startdate = date("Y-m-d");
             $susc_periodicity = Tools::getValue("periodicity");
             $subs_cycles = Tools::getValue("cycles");
