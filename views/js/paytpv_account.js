@@ -89,8 +89,8 @@ function alert(msg) {
 }
 
 function vincularTarjeta(){
-    if ($("#savecard").is(':checked')){
-        $('#savecard').attr("disabled", true);
+    if ($("#paytpv_savecard").is(':checked')){
+        $('#paytpv_savecard').attr("disabled", true);
         if ($('#newpage_payment').val()==2)
             window.location = ($("#paytpv_iframe").attr('src'));
         else{
@@ -104,7 +104,7 @@ function vincularTarjeta(){
 }
 
 function close_vincularTarjeta(){
-    $('#savecard').attr("disabled", false);
+    $('#paytpv_savecard').attr("disabled", false);
     $('#nueva_tarjeta').hide();
     $('#close_vincular').hide();
 }
@@ -186,33 +186,6 @@ function cancelSuscription()
     
 };
 
-
-function takingOff() {
-    ShowHidePaymentButton(false);
-    var x = new PAYTPV.Tokenizator();
-    x.getToken(document.forms["paytpvPaymentForm"], boarding);
-    return false;
-};
-
-function boarding(passenger) {
-    document.getElementById("paymentErrorMsg").innerHTML = "";
-    if (passenger.errorID !== 0 || passenger.paytpvToken === "") {
-        document.getElementById("paymentErrorMsg").innerHTML = passenger.errorText;
-    } else {
-        
-        var newInputField = document.createElement("input");
-
-        newInputField.type = "hidden";
-        newInputField.name = "paytpvToken";
-        newInputField.value = passenger.paytpvToken;
-
-        var paytpvPaymentForm = document.forms["paytpvPaymentForm"];
-        paytpvPaymentForm.appendChild(newInputField);
-
-        paytpvPaymentForm.submit();
-        
-    }
-}
 
 function ShowHidePaymentButton(show){
   

@@ -55,15 +55,15 @@
     </ul>
     <div>
         {if (($newpage_payment==1 || $paytpv_integration==0) && $account==0)}
-            <button type="submit" title="{l s='Make Payment' mod='paytpv'}" class="btn btn-primary button-small" id="btnforg">
+            <button type="submit" title="{l s='Make Payment' mod='paytpv'}" class="btn btn-primary button button-medium" id="btnforg">
                 <span>{l s='Make Payment' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
             </button>
         {elseif (($newpage_payment==0 && $paytpv_integration==1) && $account==0)}
-            <button type="submit" title="{l s='Make Payment' mod='paytpv'}" class="btn btn-primary button-small" id="submit_jet">
+            <button type="submit" title="{l s='Make Payment' mod='paytpv'}" class="btn btn-primary button button-medium" id="submit_jet">
             <span>{l s='Make Payment' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
             </button>
         {elseif ($account==1)}
-            <button type="submit" title="{l s='Save Card' mod='paytpv'}" class="btn btn-primary button-small" id="btnforg">
+            <button type="submit" title="{l s='Save Card' mod='paytpv'}" class="btn btn-primary button button-medium" id="btnforg">
                 <span>{l s='Save Card' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
             </button>        
         {/if}

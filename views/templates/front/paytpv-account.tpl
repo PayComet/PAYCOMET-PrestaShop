@@ -48,7 +48,7 @@
 <div class="alert alert-danger">{$error|escape:'htmlall':'UTF-8':FALSE}</div>
 {/if}
 
-<div id="paytpv_block_account">
+<div id="row">
     <h2>{l s='My Cards' mod='paytpv'}</h2>
     {if isset($saved_card[0])}
         <div class="span6" id="div_tarjetas">
@@ -81,8 +81,8 @@
         <p>{l s='Link a card to your account to be able to make all procedures easily and quickly.' mod='paytpv'}</p>
 
         <p class="checkbox">
-            <span class="checked"><input type="checkbox" name="savecard" id="savecard"></span>
-            <label for="savecard">{l s='By linking a card you accept the ' mod='paytpv'}<a id="open_conditions" href="#conditions" class="link"><strong>{l s='terms and conditions of the service' mod='paytpv'}</strong></a></label>
+            <span class="checked"><input type="checkbox" name="paytpv_savecard" id="paytpv_savecard"></span>
+            <label for="paytpv_savecard">{l s='By linking a card you accept the ' mod='paytpv'}<a id="open_conditions" href="#conditions" class="link"><strong>{l s='terms and conditions of the service' mod='paytpv'}</strong></a></label>
         </p>
         <p>
             <a href="javascript:void(0);" onclick="vincularTarjeta();" title="{l s='Link card' mod='paytpv'}" class="button button-small btn btn-default">

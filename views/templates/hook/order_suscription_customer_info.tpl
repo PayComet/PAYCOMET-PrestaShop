@@ -22,7 +22,7 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *}
 
-<p class="alert alert-info">
+<p class="alert">
 	<strong>{$suscription_type|escape:'htmlall':'UTF-8':FALSE}</strong>
 
 	[ {l s='Every' mod='paytpv'} {$periodicity|escape:'htmlall':'UTF-8':FALSE} {l s='days' mod='paytpv'} - {l s='repeat' mod='paytpv'} {$cycles|escape:'htmlall':'UTF-8':FALSE} {l s='times' mod='paytpv'} - {l s='Amount' mod='paytpv'}: {$price|escape:'htmlall':'UTF-8':FALSE} - {l s='Start' mod='paytpv'}: {$date_yyyymmdd|escape:'htmlall':'UTF-8':FALSE} ] 

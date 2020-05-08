@@ -23,10 +23,10 @@
     *}
    
                 
-    <div id="tipo-pago">
-        <div>
-            <span class="checked"><input type="checkbox" name="suscripcion" id="suscripcion" onclick="check_suscription();" value="1"></span>
-            <label for="suscripcion" style="display:inline!important">{l s='Would you like to subscribe to this order?' mod='paytpv'}</label>
+    <div id="tipo-pago" style="padding-right:10px;">
+        <div class="checkbox">
+            <input type="checkbox" name="paytpv_suscripcion" id="paytpv_suscripcion" onclick="check_suscription();" value="1">
+            <label for="paytpv_suscripcion" style="display:inline!important">{l s='Would you like to subscribe to this order?' mod='paytpv'}</label>
         </div>
 
         <div id="div_periodicity" class="suscription_period" style="display:none">
@@ -36,8 +36,8 @@
 
             <div class="form-inline">
                 <div class="form-group">    
-                    <label for="periodicity" class="control-label">{l s='Frequency:' mod='paytpv'} </label>
-                    <select name="periodicity" id="periodicity" onChange="saveOrderInfoJQ(1)" class="form-control" style="min-width:200px;">
+                    <label for="paytpv_periodicity" class="control-label">{l s='Frequency:' mod='paytpv'} </label>
+                    <select name="paytpv_periodicity" id="paytpv_periodicity" onChange="saveOrderInfoJQ(1)" class="form-control" style="min-width:200px;">
                         <option value="7">{l s='7 days (weekly)' mod='paytpv'}</option>
                         <option value="30" selected>{l s='30 days (monthly)' mod='paytpv'}</option>
                         <option value="90">{l s='90 days (quarterly)' mod='paytpv'}</option>
@@ -47,8 +47,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="cycles">{l s='Payments:' mod='paytpv'}</label>
-                    <select name="cycles" id="cycles" class="form-control" onChange="saveOrderInfoJQ(1)" style="min-width:200px;">
+                    <label for="paytpv_cycles">{l s='Payments:' mod='paytpv'}</label>
+                    <select name="paytpv_cycles" id="paytpv_cycles" class="form-control" onChange="saveOrderInfoJQ(1)" style="min-width:200px;">
                         <option value="0" selected>{l s='Permanent' mod='paytpv'}</option>
                         <option value="1">1</option>
                         <option value="2">2</option>

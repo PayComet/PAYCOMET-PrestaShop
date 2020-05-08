@@ -55,7 +55,6 @@ $_MODULE['<{paytpv}prestashop>paytpv_9ee0e5f0da1faaca2654df7c7dcf6089'] = 'El va
 $_MODULE['<{paytpv}prestashop>paytpv_7d792790cba6a5e058c1e5e507b95fb8'] = 'Nuevo Terminal';
 $_MODULE['<{paytpv}prestashop>paytpv_d7ff98327406a5889b5d72ab7147b1d7'] = 'Eliminar Terminal';
 $_MODULE['<{paytpv}prestashop>paytpv_dae8ace18bdcbcc6ae5aece263e14fe8'] = 'Opciones';
-$_MODULE['<{paytpv}prestashop>paytpv_331aa749110c369dd9204558fb003ac1'] = 'Solicitar clave de comercio en compras con tarjeta almacenada';
 $_MODULE['<{paytpv}prestashop>paytpv_b8eb427942eb73e0361757a21a24a6c9'] = 'Pago en nueva página';
 $_MODULE['<{paytpv}prestashop>paytpv_4a3bb96a5981c25bbddc4d056a02c102'] = 'Si. Página de PAYCOMET';
 $_MODULE['<{paytpv}prestashop>paytpv_3f0a0d50746c96d6f725bee13aef7be3'] = 'Deshabilitar Almacenar Tarjetas';
@@ -182,7 +181,7 @@ $_MODULE['<{paytpv}prestashop>inc_payment_conditions_34d59588d02b421bbd6c3b1a883
 $_MODULE['<{paytpv}prestashop>inc_payment_conditions_e413eba49b15917b0c9dbf2620f3e66e'] = 'Recuperación de desastres';
 $_MODULE['<{paytpv}prestashop>inc_payment_conditions_e1010d0a85b8ca4befc1627ce28b9e52'] = 'PAYCOMET tiene sistemas de respaldo alojados en diferentes países para garantizar una seguridad óptima de los sistemas y una alta disponibilidad. También tiene una política completa de continuidad del negocio y recuperación ante desastres.';
 $_MODULE['<{paytpv}prestashop>inc_payment_jetiframe_5e038f03415db5461c13d380469436cb'] = ' Número de tarjeta de crédito';
-$_MODULE['<{paytpv}prestashop>inc_payment_jetiframe_d30fd576bd308f6facc9343ebd031b8e'] = ' Vencimiento';
+$_MODULE['<{paytpv}prestashop>inc_payment_jetiframe_d30fd576bd308f6facc9343ebd031b8e'] = ' Caducidad';
 $_MODULE['<{paytpv}prestashop>inc_payment_jetiframe_16aefbf48d8803216285343472025aed'] = 'MM/YY';
 $_MODULE['<{paytpv}prestashop>inc_payment_jetiframe_c0c1080342c13f720d4b92ae908ce629'] = ' El CVV es un código numérico, generalmente 3 dígitos detrás de la tarjeta.';
 $_MODULE['<{paytpv}prestashop>inc_payment_jetiframe_0bef7cd06cee6711378b85d90ce11527'] = ' Nombre del titular de la tarjeta';

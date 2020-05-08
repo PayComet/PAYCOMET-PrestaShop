@@ -23,9 +23,9 @@
     *}
        
     <div id="cards_paytpv">
-        <div class="form-group" style="width:100%">
+        <div class="select" style="max-width:300px;">
             <label for="card" style="text-align:left">{l s='Card' mod='paytpv'}:</label>
-            <select name="card" id="card" onChange="checkCard()" class="form-control" style="width:60%">
+            <select name="card" id="card" onChange="checkCard()" class="form-control">
                 {section name=card loop=$saved_card }
                     {if ($saved_card[card].url=="0")}
                         {if ($newpage_payment==2)}

@@ -30,10 +30,12 @@
 
     <div class="row">
         <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
+        <input type="hidden" name="paytpv_integration" id="paytpv_integration" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
+
         {if ($newpage_payment==1)}
-            <div class="col-xs-12 col-md-12">
+            <div class="col-xs-12">
         {else}
-            <div class="col-xs-12 col-md-6">
+            <div class="col-xs-12">
         {/if}
         <div class="paytpv">
 
@@ -51,10 +53,7 @@
                 {/if}
                 {if ($active_suscriptions)}
                     {include file='modules/paytpv/views/templates/hook/inc_payment_suscription.tpl'}  
-                {/if}    
-            
-            
-            
+                {/if}            
 
                 {if ($newpage_payment==1)}
                     <div class="operation_data">
@@ -75,7 +74,7 @@
 
                         {if (sizeof($saved_card)>1)}
                             <div id="button_directpay" style="margin-top:10px;">              
-                                <button id="exec_directpay" href="#" class="btn btn-primary center-block exec_directpay paytpv_pay">          
+                                <button id="exec_directpay" href="#" class="btn btn-primary button button-medium center-block exec_directpay paytpv_pay">          
                                     <span>{l s='Pay' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
                                 </button>                        
                                 <img id='clockwait' style="display:none" src="{$base_dir}modules/paytpv/views/img/clockpayblue.gif"></img>
@@ -182,22 +181,6 @@
     </div>
 
     <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$link->getModuleLink('paytpv', 'actions',[], true)|escape:'htmlall':'UTF-8'}">
-
-    <form id="form_paytpv" action="{$base_dir|escape:'htmlall':'UTF-8':FALSE}index.php?controller=order" method="post">
-        <input type="hidden" name="step" value="3">
-        <input type="hidden" name="paytpv_cc" id="paytpv_cc" value="">
-
-        <input type="hidden" name="paytpv_agree" id="paytpv_agree"  value="0">
-        <input type="hidden" name="action_paytpv" id="action_paytpv"  value="">
-
-        <!--SUSCRIPCIONES-->
-        <input type="hidden" name="paytpv_suscripcion" id="paytpv_suscripcion"  value="0">
-        <input type="hidden" name="paytpv_periodicity" id="paytpv_periodicity"  value="0">
-        <input type="hidden" name="paytpv_cycles" id="paytpv_cycles"  value="0">
-
-        <input type="hidden" name="id_cart" id="id_cart"  value="{$id_cart|escape:'htmlall':'UTF-8':FALSE}">
-
-    </form>
 
     <script type="text/javascript">
     paytpv_initialize();
