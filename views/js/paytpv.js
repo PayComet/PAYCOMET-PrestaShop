@@ -34,7 +34,11 @@ $(document).ready(function() {
         $.fancybox.close();
         $(".paytpv_pay").hide();
         $("#clockwait").show();
-        $("#pago_directo").attr("action",$("#card").val());
+        if ($("#paytpv_suscripcion").is(':checked')){
+            $("#pago_directo").attr("action",$("#paytpv_iframe_aux").val());
+        } else {
+            $("#pago_directo").attr("action",$("#card").val());
+        }
         $("#card option,#paytpv_suscripcion").attr("disabled", true);
         $("#pago_directo").submit();
     });
@@ -62,8 +66,9 @@ function check_suscription(){
     if ($("#paytpv_suscripcion").is(':checked')){
         $("#div_periodicity").show();
         suscribeJQ();
-        $("#saved_cards, #storingStep").hide();
-    }else{
+        $("#cards_paytpv, #storingStep").hide();
+    }else{ 
+        $("#cards_paytpv").show();
         $("#div_periodicity,.paytpv_iframe").hide();
         addCardJQ();
         checkCard();
@@ -86,8 +91,11 @@ function checkCard(){
             $("#exec_directpay").show();
         }
     // Pago en pagina de PAYTPV Fullscreen
-    } else if ($("#newpage_payment").val()==2){
-        $("#saved_cards").show();
+    } else if ($("#newpage_payment").val()==2){    
+        $("#saved_cards").show();  
+        if ($("#card option").length==1){              
+            $("#cards_paytpv").hide();
+        }
         // El boton de pagar lo mostramos siempre
         $("#exec_directpay").show();
 
@@ -248,6 +256,7 @@ function suscribeJQ(){
             if (result.error=='0')
             {
                 $("#storingStep").hide();
+                $("#paytpv_iframe_aux").val(result.url);
                 $("#paytpv_iframe").attr("src",result.url).one("load",function() {
                     $("#ajax_loader").hide();
                 });;

@@ -31,6 +31,9 @@
     <div class="row">
         <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
         <input type="hidden" name="paytpv_integration" id="paytpv_integration" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
+        <input type="hidden" name="id_cart" id="id_cart"  value="{$id_cart|escape:'htmlall':'UTF-8':FALSE}">
+        <input type="hidden" name="paytpv_iframe_aux" id="paytpv_iframe_aux"  value="">
+
 
         {if ($newpage_payment==1)}
             <div class="col-xs-12">
@@ -72,14 +75,14 @@
                 <div id="saved_cards" style="display:none">
                     {include file='modules/paytpv/views/templates/hook/inc_payment_cards.tpl'}
 
-                        {if (sizeof($saved_card)>1)}
-                            <div id="button_directpay" style="margin-top:10px;">              
-                                <button id="exec_directpay" href="#" class="btn btn-primary button button-medium center-block exec_directpay paytpv_pay">          
-                                    <span>{l s='Pay' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
-                                </button>                        
-                                <img id='clockwait' style="display:none" src="{$base_dir}modules/paytpv/views/img/clockpayblue.gif"></img>
-                            </div>
-                        {/if}
+                    {if (sizeof($saved_card)>1) || ($newpage_payment==2)}
+                        <div id="button_directpay" style="margin-top:10px;">              
+                            <button id="exec_directpay" href="#" class="btn btn-primary button button-medium center-block exec_directpay paytpv_pay">          
+                                <span>{l s='Pay' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
+                            </button>                        
+                            <img id='clockwait' style="display:none" src="{$base_dir}modules/paytpv/views/img/clockpayblue.gif"></img>
+                        </div>
+                    {/if}
                 </div>
 
                 <div id="paytpv_checkconditions" style="display:none">
@@ -155,24 +158,7 @@
 
     <div style="display: none;">
         <div id="directpay" style="overflow:auto;">
-            <form name="pago_directo" id="pago_directo" action="" method="post">
-                <h1 class="estilo-tit1">{l s='Use Card' mod='paytpv'}</h1>
-                <p>
-                    {l s='Card' mod='paytpv'}:&nbsp;
-                    <strong><span id="datos_tarjeta"></span></strong>
-                </p>
-                <p>
-                    {l s='For security, enter your store user password' mod='paytpv'}
-                </p>
-                <p>
-                    {l s='Password' mod='paytpv'}: <input type="password" name="password" id="password" class="password">
-                </p>
-                <p class="button_left">
-                    <a id="pago_directo" href="#" class="exec_directpay paytpv_pay button button-small btn btn-default">          
-                        <span>{l s='Pay' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
-                    </a>
-                </p>
-            </form>
+            <form name="pago_directo" id="pago_directo" action="" method="post"></form>
         </div>
     </div>
 
