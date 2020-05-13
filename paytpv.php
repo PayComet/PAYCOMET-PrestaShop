@@ -295,8 +295,6 @@ class Paytpv extends PaymentModule
         $arrDatos = array();
         $arrDatos["error"] = 0;
 
-        return $arrDatos;
-
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -341,19 +339,26 @@ class Paytpv extends PaymentModule
                     case 1130:  // No se encuentra el producto
                     case 1003:  // Credenciales inválidas
                     case 127:   // Parámetro no válido.
-                        $arrDatos["error_txt"] = $this->l('Check that the Client Code, Terminal and Password are correct.');
+                        $arrDatos["error_txt"] = $this->l(
+                            'Check that the Client Code, Terminal and Password are correct.'
+                        );
                         break;
                     case 1337:  // Ruta de notificación no configurada
-                        $arrDatos["error_txt"] = $this->l('Notification URL is not defined in the product configuration of your account PAYCOMET account.');
+                        $arrDatos["error_txt"] = $this->l(
+                            'Notification URL is not defined in the product configuration of your account PAYCOMET account.'
+                        );
                         break;
                     case 28:    // Curl
                     case 1338:  // Ruta de notificación no responde correctamente
                         $ssl = Configuration::get('PS_SSL_ENABLED');
-                        $arrDatos["error_txt"] = $this->l('The notification URL defined in the product configuration of your PAYCOMET account does not respond correctly. Verify that it has been defined as: ')
-                         . Context::getContext()->link->getModuleLink($this->name, 'url', array(), $ssl);
+                        $arrDatos["error_txt"] = $this->l(
+                            'The notification URL defined in the product configuration of your PAYCOMET account does not respond correctly. Verify that it has been defined as: '
+                        ) . Context::getContext()->link->getModuleLink($this->name, 'url', array(), $ssl);
                         break;
                     case 1339:  // Configuración de terminales incorrecta
-                        $arrDatos["error_txt"] = $this->l('Your Product in PAYCOMET account is not set up with the Available Terminals option: ') . $terminales_txt;
+                        $arrDatos["error_txt"] = $this->l(
+                            'Your Product in PAYCOMET account is not set up with the Available Terminals option: '
+                        ) . $terminales_txt;
                         break;
                 }
                 return $arrDatos;
@@ -871,14 +876,14 @@ class Paytpv extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/admin.js', 'all');
         $this->context->controller->addCSS($this->_path . 'views/css/admin.css', 'all');
         
-        $this->context->smarty->assign('configform', str_replace('</form>', '', $this->_displayForm()));
+        $this->context->smarty->assign('configform', str_replace('</form>', '', $this->displayForm()));
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/admin.tpl');
         
         return $output;
     }
 
 
-    private function _displayForm()
+    private function displayForm()
     {
         $helper = new PaytpvPaymentsHelperForm();
 
@@ -1007,7 +1012,9 @@ class Paytpv extends PaymentModule
                     'name' => 'term['.$key.']',
                     'id' => 'term_' . $key,
                     'class' => 'term term_s_container_'.$key,
-                    'hint' => $this->l('Product Terminal Number Secure. Available in the PAYCOMET product configuration'),
+                    'hint' => $this->l(
+                        'Product Terminal Number Secure. Available in the PAYCOMET product configuration'
+                    ),
                     'required' => true
                 ),
                 array(
@@ -1017,7 +1024,9 @@ class Paytpv extends PaymentModule
                     'name' => 'pass['.$key.']',
                     'id' => 'pass_' . $key,
                     'class' => 'term_s_container_'.$key,
-                    'hint' => $this->l('Product Password Secure. Available in the PAYCOMET product configuration'),
+                    'hint' => $this->l(
+                        'Product Password Secure. Available in the PAYCOMET product configuration'
+                    ),
                     'required' => true
                 ),
                 array(
@@ -1037,7 +1046,9 @@ class Paytpv extends PaymentModule
                     'name' => 'term_ns['.$key.']',
                     'id' => 'term_ns_' . $key,
                     'class' => 'term_ns_container_'.$key,
-                    'hint' => $this->l('Product Terminal Number Non-Secure. Available in the PAYCOMET product configuration'),
+                    'hint' => $this->l(
+                        'Product Terminal Number Non-Secure. Available in the PAYCOMET product configuration'
+                    ),
                     'required' => true
                 ),
                 array(
@@ -1047,7 +1058,9 @@ class Paytpv extends PaymentModule
                     'name' => 'pass_ns['.$key.']',
                     'id' => 'pass_ns_' . $key,
                     'class' => 'term_ns_container_'.$key,
-                    'hint' => $this->l('Product Password Non-Secure. Available in the PAYCOMET product configuration'),
+                    'hint' => $this->l(
+                        'Product Password Non-Secure. Available in the PAYCOMET product configuration'
+                    ),
                     'required' => true
                 ),
                 array(
@@ -1057,7 +1070,9 @@ class Paytpv extends PaymentModule
                     'name' => 'jetid_ns['.$key.']',
                     'id' => 'jetid_ns_' . $key,
                     'class' => 'class_jetid term_ns_container_'.$key,
-                    'hint' => $this->l('Product JET ID Non-Secure. Available in the PAYCOMET product configuration'),
+                    'hint' => $this->l(
+                        'Product JET ID Non-Secure. Available in the PAYCOMET product configuration'
+                    ),
                     'required' => true
                 ),
                 array(
@@ -2421,12 +2436,8 @@ class Paytpv extends PaymentModule
 
         // Total Refund Template
         if ($order->module == $this->name && $this->canRefund($order->id)) {
-            if (version_compare(_PS_VERSION_, '1.5', '>=')) {
-                $order_state = $order->current_state;
-            } else {
-                $order_state = OrderHistory::getLastOrderState($order->id);
-            }
-
+            $order_state = $order->current_state;
+           
             $total_amount = $order->total_paid;
 
             $amount_returned =  PaytpvRefund::getTotalRefund($order->id);

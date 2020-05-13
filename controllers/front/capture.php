@@ -46,9 +46,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
         $paytpv = $this->module;
 
-
         $password_fail = 0;
-        $error_msg = "";
         
         // $id_currency = (int)(Configuration::get('PS_CURRENCY_DEFAULT'));
         // $currency = new Currency((int)($id_currency));

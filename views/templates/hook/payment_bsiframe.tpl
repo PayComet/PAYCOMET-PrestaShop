@@ -43,7 +43,7 @@
         <div class="paytpv">
 
                 {if ($paytpv_integration==1)}
-                    <form action="{$paytpv_jetid_url}" method="POST" class="paytpv_jet" id="paycometPaymentForm" style="clear:left;">
+                    <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}" method="POST" class="paytpv_jet" id="paycometPaymentForm" style="clear:left;">
                 {/if}
 
 
@@ -80,7 +80,7 @@
                             <button id="exec_directpay" href="#" class="btn btn-primary button button-medium center-block exec_directpay paytpv_pay">          
                                 <span>{l s='Pay' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
                             </button>                        
-                            <img id='clockwait' style="display:none" src="{$base_dir}modules/paytpv/views/img/clockpayblue.gif"></img>
+                            <img id='clockwait' style="display:none" src="{$base_dir|escape:'htmlall':'UTF-8'}modules/paytpv/views/img/clockpayblue.gif"></img>
                         </div>
                     {/if}
                 </div>

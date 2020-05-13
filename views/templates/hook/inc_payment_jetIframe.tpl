@@ -23,7 +23,7 @@
     *}
    
     
-    <input type="hidden" data-paycomet="jetID" value="{$jet_id}">
+    <input type="hidden" data-paycomet="jetID" value="{$jet_id|escape:'htmlall':'UTF-8'}">
     <ul>
         <li>
             <label for="MERCHANT_PAN">{l s='Credit Card Number' mod='paytpv'}:</label>
@@ -69,6 +69,6 @@
         {/if}
     </div>
     <div id="paymentErrorMsg"></div>
-    <script type="text/javascript" src="{$jet_paytpv}?lang={$jet_lang}"></script>
+    <script type="text/javascript" src="{$jet_paytpv|escape:'htmlall':'UTF-8'}?lang={$jet_lang}"></script>
 
-    <input type="hidden" name="paytpv_jetid_url" id="paytpv_jetid_url" value="{$paytpv_jetid_url}">
+    <input type="hidden" name="paytpv_jetid_url" id="paytpv_jetid_url" value="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}">
