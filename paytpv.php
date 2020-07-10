@@ -2504,6 +2504,7 @@ class Paytpv extends PaymentModule
                 array(
                     'base_url' => _PS_BASE_URL_ . __PS_BASE_URI__,
                     'module_name' => $this->name,
+                    'ref_paycomet' => str_pad((int) $order->id_cart, 8, "0", STR_PAD_LEFT),
                     'order_state' => $order_state,
                     'params' => $params,
                     'total_amount' => $total_amount,
