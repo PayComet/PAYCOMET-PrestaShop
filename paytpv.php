@@ -306,8 +306,7 @@ class Paytpv extends PaymentModule
 
         $arrDatos = array();
         $arrDatos["error"] = 0;
-        
-        return $arrDatos;
+                
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];

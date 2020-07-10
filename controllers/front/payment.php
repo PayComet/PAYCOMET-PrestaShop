@@ -102,8 +102,6 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $newpage_payment = (int)(Configuration::get('PAYTPV_NEWPAGEPAYMENT'));
         $paytpv_integration = (int)(Configuration::get('PAYTPV_INTEGRATION'));
 
-        print "Tx:" . $paytpv->iframe_height;
-        exit;
         $iframe_height = $paytpv->iframe_height;
 
 
