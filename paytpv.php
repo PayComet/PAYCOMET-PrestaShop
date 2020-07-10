@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.5.8';
+        $this->version = '6.5.9';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -71,6 +71,11 @@ class Paytpv extends PaymentModule
         }
         if (array_key_exists('PAYTPV_NEWPAGEPAYMENT', $config)) {
             $this->newpage_payment = $config['PAYTPV_NEWPAGEPAYMENT'];
+        }
+        if (array_key_exists('PAYTPV_IFRAME_HEIGHT', $config) && $config['PAYTPV_IFRAME_HEIGHT']>=440) {
+            $this->iframe_height = $config['PAYTPV_IFRAME_HEIGHT'];
+        } else {
+            $this->iframe_height = "440"; // Valor por defecto
         }
         if (array_key_exists('PAYTPV_SUSCRIPTIONS', $config)) {
             $this->suscriptions = $config['PAYTPV_SUSCRIPTIONS'];
@@ -203,6 +208,10 @@ class Paytpv extends PaymentModule
             if (empty(Tools::getValue('pass'))) {
                 $this->postErrors[] = $this->l('User Password required');
             }
+                        
+            if (Tools::getValue('newpage_payment') != 2 && (!filter_var(Tools::getValue('iframe_height'), FILTER_VALIDATE_INT) || Tools::getValue('iframe_height') < 440)) {
+                $this->postErrors[] = $this->l('The height of the iframe must be at least 440');
+            }
 
             // Check Terminal empty fields SECURE
             foreach (Tools::getValue('term') as $key => $term) {
@@ -298,7 +307,7 @@ class Paytpv extends PaymentModule
         $arrDatos = array();
         $arrDatos["error"] = 0;
         
-
+        return $arrDatos;
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -375,6 +384,7 @@ class Paytpv extends PaymentModule
 
             Configuration::updateValue('PAYTPV_COMMERCEPASSWORD', Tools::getValue('commerce_password'));
             Configuration::updateValue('PAYTPV_NEWPAGEPAYMENT', Tools::getValue('newpage_payment'));
+            Configuration::updateValue('PAYTPV_IFRAME_HEIGHT', Tools::getValue('iframe_height'));
             Configuration::updateValue('PAYTPV_SUSCRIPTIONS', Tools::getValue('suscriptions'));
 
             Configuration::updateValue('PAYTPV_INTEGRATION', Tools::getValue('integration'));
@@ -915,6 +925,7 @@ class Paytpv extends PaymentModule
         $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
         $arrValues["commerce_password"] = $config["PAYTPV_COMMERCEPASSWORD"];
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
+        $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
         $arrValues["suscriptions"] = $config["PAYTPV_SUSCRIPTIONS"];
         $arrValues["reg_estado"] = $config["PAYTPV_REG_ESTADO"];
         
@@ -1222,6 +1233,14 @@ class Paytpv extends PaymentModule
                         )
                     ),
                     array(
+                        'col' => 1,                      
+                        'type' => 'text',
+                        'label' => $this->l('Iframe Height (px)'),
+                        'hint' => $this->l('Iframe height in pixels (Min 440)'),
+                        'name' => 'iframe_height',
+                        'id' => 'iframe_height',
+                    ),
+                    array(
                         'type' => 'switch',
                         'label' => $this->l('Disable Offer to save card'),
                         'name' => 'disableoffersavecard',
@@ -1254,7 +1273,7 @@ class Paytpv extends PaymentModule
                                 'label' => $this->l('Yes')
                             )
                         ),
-                    ),
+                    ),                    
                     array(
                         'type' => 'switch',
                         'label' => $this->l('Activate Subscriptions'),
@@ -1566,6 +1585,7 @@ class Paytpv extends PaymentModule
 
         // Check New Page payment
         $newpage_payment = (int) (Configuration::get('PAYTPV_NEWPAGEPAYMENT'));
+        $iframe_height = (int)$this->iframe_height;
         $paytpv_integration = (int) (Configuration::get('PAYTPV_INTEGRATION'));
 
         $disableoffersavecard = Configuration::get('PAYTPV_DISABLEOFFERSAVECARD');
@@ -1576,11 +1596,13 @@ class Paytpv extends PaymentModule
         // Pago en nueva pagina dentro del comercio
         if ($newpage_payment == 1) {
             $this->context->smarty->assign('this_path', $this->_path);
+            $this->context->smarty->assign('iframe_height', $iframe_height);
             return $this->display(__FILE__, 'payment_newpage.tpl');
             // Pago en nueva pagina fullscreen si no tiene tarjetas almacenadas
         } elseif ($newpage_payment == 2 && empty($saved_card) && $disableoffersavecard) {
             $this->context->smarty->assign('this_path', $this->_path);
             $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
+            $this->context->smarty->assign('iframe_height', $iframe_height);
             return $this->display(__FILE__, 'payment_newpage2.tpl');
             // Pago integrado
         } else {
@@ -1651,6 +1673,7 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
 
             $this->context->smarty->assign('newpage_payment', $newpage_payment);
+            $this->context->smarty->assign('iframe_height', $iframe_height);
             $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
             $this->context->smarty->assign('jet_id', $jetid_sel);
@@ -1777,8 +1800,8 @@ class Paytpv extends PaymentModule
             'MERCHANT_ORDER' => $paytpv_order_ref,
             'MERCHANT_AMOUNT' => $importe,
             'MERCHANT_CURRENCY' => $currency_iso_code,
-            'URLOK' => $URLOK,
-            'URLKO' => $URLKO,
+            //'URLOK' => $URLOK,
+            //'URLKO' => $URLKO,
             '3DSECURE' => $secure_pay
         );
 
@@ -1951,7 +1974,7 @@ class Paytpv extends PaymentModule
         return Configuration::getMultiple(
             array(
                 'PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_COMMERCEPASSWORD', 'PAYTPV_NEWPAGEPAYMENT',
-                'PAYTPV_SUSCRIPTIONS', 'PAYTPV_REG_ESTADO', 'PAYTPV_FIRSTPURCHASE_SCORING',
+                'PAYTPV_IFRAME_HEIGHT', 'PAYTPV_SUSCRIPTIONS', 'PAYTPV_REG_ESTADO', 'PAYTPV_FIRSTPURCHASE_SCORING',
                 'PAYTPV_FIRSTPURCHASE_SCORING_SCO', 'PAYTPV_SESSIONTIME_SCORING', 'PAYTPV_SESSIONTIME_SCORING_VAL',
                 'PAYTPV_SESSIONTIME_SCORING_SCORE', 'PAYTPV_DCOUNTRY_SCORING', 'PAYTPV_DCOUNTRY_SCORING_VAL',
                 'PAYTPV_DCOUNTRY_SCORING_SCORE', 'PAYTPV_IPCHANGE_SCORING', 'PAYTPV_IPCHANGE_SCORING_SCORE',
@@ -2274,8 +2297,8 @@ class Paytpv extends PaymentModule
 
         // Refund amount of transaction
         $result = $client->executeRefund(
-            $paytpv_iduser,
-            $paytpv_tokenuser,
+            '',
+            '',
             $paytpv_order_ref,
             $currency_iso_code,
             $authcode,
@@ -2300,8 +2323,8 @@ class Paytpv extends PaymentModule
             );
 
             $result = $client->executeRefund(
-                $paytpv_iduser,
-                $paytpv_tokenuser,
+                '',
+                '',
                 $paytpv_order_ref,
                 $currency_iso_code,
                 $authcode,
@@ -2317,8 +2340,8 @@ class Paytpv extends PaymentModule
             $paytpv_order_ref .= "[" . $paytpv_iduser . "]" . $paytpv_date;
             // Refund amount of transaction
             $result = $client->executeRefund(
-                $paytpv_iduser,
-                $paytpv_tokenuser,
+                '',
+                '',
                 $paytpv_order_ref,
                 $currency_iso_code,
                 $authcode,

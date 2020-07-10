@@ -102,11 +102,16 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $newpage_payment = (int)(Configuration::get('PAYTPV_NEWPAGEPAYMENT'));
         $paytpv_integration = (int)(Configuration::get('PAYTPV_INTEGRATION'));
 
+        print "Tx:" . $paytpv->iframe_height;
+        exit;
+        $iframe_height = $paytpv->iframe_height;
+
 
         $disableoffersavecard = Configuration::get('PAYTPV_DISABLEOFFERSAVECARD');
         $remembercardunselected = Configuration::get('PAYTPV_REMEMBERCARDUNSELECTED');
 
         $this->context->smarty->assign('newpage_payment', $newpage_payment);
+        $this->context->smarty->assign('iframe_height', $iframe_height);
         $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
         $this->context->smarty->assign('jet_id', $jetid_sel);
