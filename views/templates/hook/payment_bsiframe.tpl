@@ -23,7 +23,7 @@
     *}
 
     {capture name=path}
-    <a href="{$link->getPageLink('order', true)|escape:'html'}">{l s='Cart' mod='paytpv'}</a>
+    <a href="{$link->getPageLink('order', true)|escape:'htmlall':'UTF-8'}">{l s='Cart' mod='paytpv'}</a>
     <span class="navigation-pipe">{$navigationPipe|escape:'htmlall':'UTF-8':FALSE}</span>
     {l s='Pay with Card' mod='paytpv'}</a>
     {/capture}
@@ -156,9 +156,8 @@
             </div>
 
             {if (!$disableoffersavecard==1)}
-                <div id="storingStep" class="alert alert-info {if (sizeof($saved_card))>1}hidden{/if}" style="clear:left;">
-                    <h6>{l s='STREAMLINE YOUR FUTURE PURCHASES!' mod='paytpv'}</h6>
-                    <label class="checkbox"><input type="checkbox" name="savecard" id="savecard" onChange="saveOrderInfoJQ(0)" {if (!$remembercardunselected==1)} checked="true"{/if}>{l s='Yes, remember my card accepting the ' mod='paytpv'}<a id="open_conditions" href="#conditions">{l s='terms and conditions of the service' mod='paytpv'}</a>.</label>
+                <div id="storingStep" class="alert alert-info {if (sizeof($saved_card))>1}hidden{/if}" style="clear:left;">                   
+                    <p class="checkbox"><label for="savecard" class="checkbox"><input type="checkbox" name="savecard" id="savecard" onChange="saveOrderInfoJQ(0)">{l s='Save card for future purchases' mod='paytpv'}.<span class="paytpv-pci">{l s='Card data is protected by the Payment Card Industry Data Security Standard (PCI DSS)' mod='paytpv'}.</span></label></p>
                 </div>
             {/if}
                 
@@ -182,7 +181,7 @@
                             <img id='ajax_loader' src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/clockpayblue.gif"></img>
                             {l s='Loading payment form...' mod='paytpv'}
                         </p>
-                        <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 670px; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: {$iframe_height}px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                        <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 670px; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: {$iframe_height|escape:'htmlall':'UTF-8'}px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
                     {else}
                         <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8':FALSE}" method="POST" class="paytpv_jet" id="paytpvPaymentForm" onsubmit="return takingOff();" style="clear:left;">
                         <ul>

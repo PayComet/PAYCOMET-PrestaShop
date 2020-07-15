@@ -129,11 +129,7 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_DISABLEOFFERSAVECARD', $config)) {
             $this->disableoffersavecard = $config['PAYTPV_DISABLEOFFERSAVECARD'];
         }
-
-        if (array_key_exists('PAYTPV_REMEMBERCARDUNSELECTED', $config)) {
-            $this->remembercardunselected = $config['PAYTPV_REMEMBERCARDUNSELECTED'];
-        }
-
+        
         parent::__construct();
         $this->page = basename(__FILE__, '.php');
 
@@ -209,7 +205,10 @@ class Paytpv extends PaymentModule
                 $this->postErrors[] = $this->l('User Password required');
             }
                         
-            if (Tools::getValue('newpage_payment') != 2 && (!filter_var(Tools::getValue('iframe_height'), FILTER_VALIDATE_INT) || Tools::getValue('iframe_height') < 440)) {
+            if (Tools::getValue('newpage_payment') != 2
+                && (!filter_var(Tools::getValue('iframe_height'), FILTER_VALIDATE_INT) ||
+                Tools::getValue('iframe_height') < 440)
+            ) {
                 $this->postErrors[] = $this->l('The height of the iframe must be at least 440');
             }
 
@@ -306,7 +305,7 @@ class Paytpv extends PaymentModule
 
         $arrDatos = array();
         $arrDatos["error"] = 0;
-                
+                                
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -351,19 +350,26 @@ class Paytpv extends PaymentModule
                     case 1130:  // No se encuentra el producto
                     case 1003:  // Credenciales inválidas
                     case 127:   // Parámetro no válido.
-                        $arrDatos["error_txt"] = $this->l('Check that the Client Code, Terminal and Password are correct.');
+                        $arrDatos["error_txt"] = $this->l(
+                            'Check that the Client Code, Terminal and Password are correct.'
+                        );
                         break;
                     case 1337:  // Ruta de notificación no configurada
-                        $arrDatos["error_txt"] = $this->l('Notification URL is not defined in the product configuration of your account PAYCOMET account.');
+                        $arrDatos["error_txt"] = $this->l(
+                            'Notification URL is not defined in the product configuration of your account PAYCOMET account.'
+                        );
                         break;
                     case 28:    // Curl
                     case 1338:  // Ruta de notificación no responde correctamente
                         $ssl = Configuration::get('PS_SSL_ENABLED');
-                        $arrDatos["error_txt"] = $this->l('The notification URL defined in the product configuration of your PAYCOMET account does not respond correctly. Verify that it has been defined as: ')
-                         . Context::getContext()->link->getModuleLink($this->name, 'url', array(), $ssl);
+                        $arrDatos["error_txt"] = $this->l(
+                            'The notification URL defined in the product configuration of your PAYCOMET account does not respond correctly. Verify that it has been defined as: '
+                        ) . Context::getContext()->link->getModuleLink($this->name, 'url', array(), $ssl);
                         break;
                     case 1339:  // Configuración de terminales incorrecta
-                        $arrDatos["error_txt"] = $this->l('Your Product in PAYCOMET account is not set up with the Available Terminals option: ') . $terminales_txt;
+                        $arrDatos["error_txt"] = $this->l(
+                            'Your Product in PAYCOMET account is not set up with the Available Terminals option: '
+                        ) . $terminales_txt;
                         break;
                 }
                 return $arrDatos;
@@ -438,10 +444,7 @@ class Paytpv extends PaymentModule
             Configuration::updateValue('PAYTPV_BROWSER_SCORING_SCORE', Tools::getValue('browser_scoring_score'));
             Configuration::updateValue('PAYTPV_SO_SCORING', Tools::getValue('so_scoring'));
             Configuration::updateValue('PAYTPV_SO_SCORING_SCORE', Tools::getValue('so_scoring_score'));
-
             Configuration::updateValue('PAYTPV_DISABLEOFFERSAVECARD', Tools::getValue('disableoffersavecard'));
-            Configuration::updateValue('PAYTPV_REMEMBERCARDUNSELECTED', Tools::getValue('remembercardunselected'));
-
 
             return '<div class="bootstrap"><div class="alert alert-success">' . $this->l('Configuration updated')
                 . '</div></div>';
@@ -883,14 +886,14 @@ class Paytpv extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/admin.js', 'all');
         $this->context->controller->addCSS($this->_path . 'views/css/admin.css', 'all');
         
-        $this->context->smarty->assign('configform', str_replace('</form>', '', $this->_displayForm()));
+        $this->context->smarty->assign('configform', str_replace('</form>', '', $this->displayForm()));
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/admin.tpl');
         
         return $output;
     }
 
 
-    private function _displayForm()
+    private function displayForm()
     {
         $helper = new PaytpvPaymentsHelperForm();
 
@@ -945,8 +948,6 @@ class Paytpv extends PaymentModule
         $arrValues["so_scoring"] = $config["PAYTPV_SO_SCORING"];
         $arrValues["so_scoring_score"] = $config["PAYTPV_SO_SCORING_SCORE"];
         $arrValues["disableoffersavecard"] = $config["PAYTPV_DISABLEOFFERSAVECARD"];
-        $arrValues["remembercardunselected"] = $config["PAYTPV_REMEMBERCARDUNSELECTED"];
-                
 
         foreach ($this->terminales_paytpv as $key => $term) {
             $arrValues["term[".$key."]"] = $term["idterminal"];
@@ -1017,7 +1018,9 @@ class Paytpv extends PaymentModule
                     'name' => 'term['.$key.']',
                     'id' => 'term_' . $key,
                     'class' => 'term term_s_container_'.$key,
-                    'hint' => $this->l('Product Terminal Number Secure. Available in the PAYCOMET product configuration'),
+                    'hint' => $this->l(
+                        'Product Terminal Number Secure. Available in the PAYCOMET product configuration'
+                    ),
                     'required' => true
                 ),
                 array(
@@ -1232,7 +1235,7 @@ class Paytpv extends PaymentModule
                         )
                     ),
                     array(
-                        'col' => 1,                      
+                        'col' => 1,
                         'type' => 'text',
                         'label' => $this->l('Iframe Height (px)'),
                         'hint' => $this->l('Iframe height in pixels (Min 440)'),
@@ -1256,23 +1259,6 @@ class Paytpv extends PaymentModule
                             )
                         ),
                     ),
-                    array(
-                        'type' => 'switch',
-                        'label' => $this->l('Remember Card (Unselect)'),
-                        'name' => 'remembercardunselected',
-                        'values' => array(
-                            array(
-                                'id' => 'active_on',
-                                'value' => 0,
-                                'label' => $this->l('No')
-                            ),
-                            array(
-                                'id' => 'active_off',
-                                'value' => 1,
-                                'label' => $this->l('Yes')
-                            )
-                        ),
-                    ),                    
                     array(
                         'type' => 'switch',
                         'label' => $this->l('Activate Subscriptions'),
@@ -1588,7 +1574,6 @@ class Paytpv extends PaymentModule
         $paytpv_integration = (int) (Configuration::get('PAYTPV_INTEGRATION'));
 
         $disableoffersavecard = Configuration::get('PAYTPV_DISABLEOFFERSAVECARD');
-        $remembercardunselected = Configuration::get('PAYTPV_REMEMBERCARDUNSELECTED');
 
         $saved_card = PaytpvCustomer::getCardsCustomer((int) $this->context->customer->id);
 
@@ -1688,8 +1673,6 @@ class Paytpv extends PaymentModule
             );
 
             $this->context->smarty->assign('disableoffersavecard', $disableoffersavecard);
-            $this->context->smarty->assign('remembercardunselected', $remembercardunselected);
-
 
             $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
 
@@ -1799,8 +1782,8 @@ class Paytpv extends PaymentModule
             'MERCHANT_ORDER' => $paytpv_order_ref,
             'MERCHANT_AMOUNT' => $importe,
             'MERCHANT_CURRENCY' => $currency_iso_code,
-            //'URLOK' => $URLOK,
-            //'URLKO' => $URLKO,
+            'URLOK' => $URLOK,
+            'URLKO' => $URLKO,
             '3DSECURE' => $secure_pay
         );
 
@@ -1978,7 +1961,7 @@ class Paytpv extends PaymentModule
                 'PAYTPV_SESSIONTIME_SCORING_SCORE', 'PAYTPV_DCOUNTRY_SCORING', 'PAYTPV_DCOUNTRY_SCORING_VAL',
                 'PAYTPV_DCOUNTRY_SCORING_SCORE', 'PAYTPV_IPCHANGE_SCORING', 'PAYTPV_IPCHANGE_SCORING_SCORE',
                 'PAYTPV_BROWSER_SCORING', 'PAYTPV_BROWSER_SCORING_SCORE', 'PAYTPV_SO_SCORING',
-                'PAYTPV_SO_SCORING_SCORE', 'PAYTPV_DISABLEOFFERSAVECARD', 'PAYTPV_REMEMBERCARDUNSELECTED'
+                'PAYTPV_SO_SCORING_SCORE', 'PAYTPV_DISABLEOFFERSAVECARD'
             )
         );
     }
@@ -2232,7 +2215,6 @@ class Paytpv extends PaymentModule
 
         $paytpv_date = date("Ymd", strtotime($paytpv_order['date']));
         $paytpv_iduser = $paytpv_order["paytpv_iduser"];
-        $paytpv_tokenuser = $paytpv_order["paytpv_tokenuser"];
 
         $id_currency = $order->id_currency;
         $currency = new Currency((int) ($id_currency));
@@ -2253,7 +2235,6 @@ class Paytpv extends PaymentModule
         $response = $this->makeRefund(
             $params['order'],
             $paytpv_iduser,
-            $paytpv_tokenuser,
             $order->id,
             $paytpv_order_ref,
             $paytpv_date,
@@ -2272,7 +2253,6 @@ class Paytpv extends PaymentModule
     private function makeRefund(
         $order,
         $paytpv_iduser,
-        $paytpv_tokenuser,
         $order_id,
         $paytpv_order_ref,
         $paytpv_date,
@@ -2293,7 +2273,7 @@ class Paytpv extends PaymentModule
                 'pass' => $arrTerminal["password"]
             )
         );
-
+        
         // Refund amount of transaction
         $result = $client->executeRefund(
             '',
@@ -2329,7 +2309,7 @@ class Paytpv extends PaymentModule
                 $authcode,
                 $amount
             );
-            // $refund_txt = $this->l('OK');
+
             $response["error"] = 0;
             $response["txt"] = $this->l('OK');
         }
@@ -2346,7 +2326,7 @@ class Paytpv extends PaymentModule
                 $authcode,
                 $amount
             );
-            // $refund_txt = $this->l('OK');
+
             $response["error"] = 0;
             $response["txt"] = $this->l('OK');
         }
@@ -2569,7 +2549,6 @@ class Paytpv extends PaymentModule
 
             $paytpv_date = date("Ymd", strtotime($paytpv_order['date']));
             $paytpv_iduser = $paytpv_order["paytpv_iduser"];
-            $paytpv_tokenuser = $paytpv_order["paytpv_tokenuser"];
 
             $id_currency = $order->id_currency;
             $currency = new Currency((int) ($id_currency));
@@ -2584,7 +2563,6 @@ class Paytpv extends PaymentModule
             $response = $this->makeRefund(
                 $order,
                 $paytpv_iduser,
-                $paytpv_tokenuser,
                 $order->id,
                 $paytpv_order_ref,
                 $paytpv_date,
@@ -2635,7 +2613,6 @@ class Paytpv extends PaymentModule
 
         $paytpv_date = date("Ymd", strtotime($paytpv_order['date']));
         $paytpv_iduser = $paytpv_order["paytpv_iduser"];
-        $paytpv_tokenuser = $paytpv_order["paytpv_tokenuser"];
 
         $id_currency = $order->id_currency;
         $currency = new Currency((int) ($id_currency));
@@ -2654,7 +2631,6 @@ class Paytpv extends PaymentModule
         $response = $this->makeRefund(
             $order,
             $paytpv_iduser,
-            $paytpv_tokenuser,
             $order->id,
             $paytpv_order_ref,
             $paytpv_date,

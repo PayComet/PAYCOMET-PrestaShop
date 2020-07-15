@@ -423,7 +423,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                 }
                 // NO ORDER
             } else {
-
                 $displayName = $paytpv->displayName;
                 if (Tools::getIsset('MethodName')) {
                     $displayName .= " [" . Tools::getValue('MethodName') . "]";
@@ -444,10 +443,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                 $id_order = Order::getOrderByCartId((int) ($id_cart));
                 $id_suscription = 0;
 
-                $disableoffersavecard = $paytpv->disableoffersavecard;
-                $remembercardunselected = $paytpv->remembercardunselected;
-
-                $defaultsavecard = ($disableoffersavecard != 1 && $remembercardunselected != 1) ? 1 : 0;
+                $defaultsavecard = 0;
                 $datos_order = PaytpvOrderInfo::getOrderInfo($cart->id_customer, $id_cart, $defaultsavecard);
 
                 // BANKSTORE: Si hay notificacion

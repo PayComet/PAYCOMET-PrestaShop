@@ -37,7 +37,7 @@
     var url_savedesc = "{$url_savedesc|escape:'htmlall':'UTF-8':FALSE}";
     var msg_cancelsuscription = "{l s='Cancel Subscription' mod='paytpv'}"
     var msg_removecard = "{l s='Remove Card' mod='paytpv'}";
-    var msg_accept = "{l s='You must accept the terms and conditions of the service' mod='paytpv'}";
+    var msg_accept = "{l s='You must accept save card to continue' mod='paytpv'}";
     var msg_savedesc = "{l s='Save description' mod='paytpv'}";
     var msg_descriptionsaved = "{l s='Description saved' mod='paytpv'}";
     var status_canceled = "{$status_canceled|escape:'htmlall':'UTF-8':FALSE}";
@@ -76,13 +76,10 @@
         <p class="warning">{l s='You still have no card associated.' mod='paytpv'}</p>
     {/if}
 
-    <div id="storingStep" class="box">
-        <h4>{l s='STREAMLINE YOUR FUTURE PURCHASES!' mod='paytpv'}</h4>
-        <p>{l s='Link a card to your account to be able to make all procedures easily and quickly.' mod='paytpv'}</p>
-
+    <div id="storingStep" class="box">        
         <p class="checkbox">
             <span class="checked"><input type="checkbox" name="savecard" id="savecard"></span>
-            <label for="savecard">{l s='By linking a card you accept the ' mod='paytpv'}<a id="open_conditions" href="#conditions" class="link"><strong>{l s='terms and conditions of the service' mod='paytpv'}</strong></a></label>
+            <label for="savecard">{l s='Save card for future purchases' mod='paytpv'}.<span class="paytpv-pci">{l s='Card data is protected by the Payment Card Industry Data Security Standard (PCI DSS)' mod='paytpv'}.</span></label>
         </p>
         <p>
             <a href="javascript:void(0);" onclick="vincularTarjeta();" title="{l s='Link card' mod='paytpv'}" class="button button-small btn btn-default">
@@ -150,7 +147,7 @@
             <ul>
                 {section name=suscription loop=$suscriptions} 
                     <li class="suscriptionCard" id="suscription_{$suscriptions[suscription].ID_SUSCRIPTION|escape:'htmlall':'UTF-8':FALSE}">  
-                        <a href="{$link->getPageLink('order-detail',true,null,"id_order={$suscriptions[suscription].ID_ORDER}")|escape:'html'}">{l s='Order' mod='paytpv'}: {$suscriptions[suscription].ORDER_REFERENCE}</a>
+                        <a href="{$link->getPageLink('order-detail',true,null,"id_order={$suscriptions[suscription].ID_ORDER|escape:'htmlall':'UTF-8':FALSE}")|escape:'htmlall':'UTF-8'}">{l s='Order' mod='paytpv'}: {$suscriptions[suscription].ORDER_REFERENCE|escape:'htmlall':'UTF-8':FALSE}</a>
                         <br>
                         {l s='Every' mod='paytpv'} {$suscriptions[suscription].PERIODICITY|escape:'htmlall':'UTF-8':FALSE} {l s='days' mod='paytpv'} - {l s='repeat' mod='paytpv'} {$suscriptions[suscription].CYCLES|escape:'htmlall':'UTF-8':FALSE} {l s='times' mod='paytpv'} - {l s='Amount' mod='paytpv'}: {$suscriptions[suscription].PRICE|escape:'htmlall':'UTF-8':FALSE} - {l s='Start' mod='paytpv'}: {$suscriptions[suscription].DATE_YYYYMMDD|escape:'htmlall':'UTF-8':FALSE}
                         <label class="button_del">
@@ -173,7 +170,7 @@
                             <ul >
                                 {section name=suscription_pay loop=$suscription_pay}
                                 <li class="suscription_pay" id="suscription_pay{$suscription_pay[suscription_pay].ID_SUSCRIPTION|escape:'htmlall':'UTF-8':FALSE}">
-                                     <a href="{$link->getPageLink('order-detail',true,null,"id_order={$suscription_pay[suscription_pay].ID_ORDER}")|escape:'html'}">{l s='Order' mod='paytpv'}: {$suscription_pay[suscription_pay].ORDER_REFERENCE}</a>
+                                     <a href="{$link->getPageLink('order-detail',true,null,"id_order={$suscription_pay[suscription_pay].ID_ORDER|escape:'htmlall':'UTF-8':FALSE}")|escape:'htmlall':'UTF-8'}">{l s='Order' mod='paytpv'}: {$suscription_pay[suscription_pay].ORDER_REFERENCE|escape:'htmlall':'UTF-8':FALSE}</a>
                                      {l s='Amount' mod='paytpv'}: {$suscription_pay[suscription_pay].PRICE|escape:'htmlall':'UTF-8':FALSE} - {l s='Date' mod='paytpv'}: {$suscription_pay[suscription_pay].DATE_YYYYMMDD|escape:'htmlall':'UTF-8':FALSE}
 
                                 </li>

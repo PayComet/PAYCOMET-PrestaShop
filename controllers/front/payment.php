@@ -104,9 +104,7 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
 
         $iframe_height = $paytpv->iframe_height;
 
-
         $disableoffersavecard = Configuration::get('PAYTPV_DISABLEOFFERSAVECARD');
-        $remembercardunselected = Configuration::get('PAYTPV_REMEMBERCARDUNSELECTED');
 
         $this->context->smarty->assign('newpage_payment', $newpage_payment);
         $this->context->smarty->assign('iframe_height', $iframe_height);
@@ -151,10 +149,7 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
 
         $this->context->smarty->assign('total_amount', $importe_tienda);
         $this->context->smarty->assign('currency_symbol', $currency->sign);
-
         $this->context->smarty->assign('disableoffersavecard', $disableoffersavecard);
-        $this->context->smarty->assign('remembercardunselected', $remembercardunselected);
-
 
         $this->context->smarty->assign('paytpv_iframe', $this->module->paytpvIframeURL());
 
