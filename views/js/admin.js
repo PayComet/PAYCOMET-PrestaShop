@@ -169,6 +169,15 @@ function changeScoring(select)
 
 }
 
+function changeNewPage()
+{   
+    if (jQuery("#newpage_payment").val()==2) {
+        jQuery("#iframe_height").parents(".form-group").hide();        
+    } else {
+        jQuery("#iframe_height").parents(".form-group").show();
+    }
+}
+
 function checkScoring() 
 {
     firstPurchase = jQuery("#firstpurchase_scoring_off")    
@@ -219,11 +228,14 @@ function checkScoring()
     }
 }
 
+
+
 $(document).ready(function()
 {
     checkAllTerminales();
     checkaddTerminal();
     checkScoring();
+    changeNewPage();
 
     jQuery("input[name$='scoring']").on('change', function()
     {
@@ -246,5 +258,10 @@ $(document).ready(function()
     jQuery('.removeTerminal').live('click', function() 
     {               
         removeTerminal(this);
+    })
+
+    jQuery("#newpage_payment").on('change', function()
+    {
+        changeNewPage();
     })
 });

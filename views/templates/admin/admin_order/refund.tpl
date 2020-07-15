@@ -30,7 +30,11 @@
 			<div class="panel-heading"><img src="{$base_url|escape:'htmlall':'UTF-8':FALSE}modules/{$module_name|escape:'htmlall':'UTF-8':FALSE}/logo.gif" alt="" /> {l s='PAYCOMET Refund' mod='paytpv'}</div>
 			<form method="post"  class="form-inline" action="{$smarty.server.REQUEST_URI|escape:'htmlall':'UTF-8':FALSE}">
 				<input type="hidden" name="id_order" value="{$params.id_order|intval}" />				
+<<<<<<< HEAD
 				<p><b>{l s='Information:' mod='paytpv'}</b> {l s='Payment accepted' mod='paytpv'} [{$ref_paycomet}]</p>
+=======
+				<p><b>{l s='Information:' mod='paytpv'}</b> {l s='Payment accepted' mod='paytpv'} [{$ref_paycomet|escape:'htmlall':'UTF-8':FALSE}]</p>
+>>>>>>> features/HESK-3034_Iframe
 				<ul>
 					<li>
 					{l s='"Standard refund" or "Return Products": performs a partial Refund in the Customer\'s credit card unless you select "Create a voucher"' mod='paytpv'}</li>

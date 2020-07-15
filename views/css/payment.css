@@ -108,3 +108,8 @@
 .hidden{
     display:none;
 }
+
+.paytpv-pci{
+    font-size: 0.8em;
+    display: block;
+}

@@ -23,7 +23,7 @@
     *}
 
     {capture name=path}
-    <a href="{$link->getPageLink('order', true)|escape:'html'}">{l s='Cart' mod='paytpv'}</a>
+    <a href="{$link->getPageLink('order', true)|escape:'htmlall':'UTF-8'}">{l s='Cart' mod='paytpv'}</a>
     <span class="navigation-pipe">{$navigationPipe|escape:'htmlall':'UTF-8':FALSE}</span>
     {l s='Pay with Card' mod='paytpv'}</a>
     {/capture}

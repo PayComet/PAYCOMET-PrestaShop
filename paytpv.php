@@ -69,6 +69,11 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_NEWPAGEPAYMENT', $config)) {
             $this->newpage_payment = $config['PAYTPV_NEWPAGEPAYMENT'];
         }
+        if (array_key_exists('PAYTPV_IFRAME_HEIGHT', $config) && $config['PAYTPV_IFRAME_HEIGHT']>=440) {
+            $this->iframe_height = $config['PAYTPV_IFRAME_HEIGHT'];
+        } else {
+            $this->iframe_height = "440"; // Valor por defecto
+        }
         if (array_key_exists('PAYTPV_SUSCRIPTIONS', $config)) {
             $this->suscriptions = $config['PAYTPV_SUSCRIPTIONS'];
         }
@@ -121,11 +126,7 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_DISABLEOFFERSAVECARD', $config)) {
             $this->disableoffersavecard = $config['PAYTPV_DISABLEOFFERSAVECARD'];
         }
-
-        if (array_key_exists('PAYTPV_REMEMBERCARDUNSELECTED', $config)) {
-            $this->remembercardunselected = $config['PAYTPV_REMEMBERCARDUNSELECTED'];
-        }
-
+        
         parent::__construct();
         $this->page = basename(__FILE__, '.php');
 
@@ -199,6 +200,13 @@ class Paytpv extends PaymentModule
             }
             if (empty(Tools::getValue('pass'))) {
                 $this->postErrors[] = $this->l('User Password required');
+            }
+                        
+            if (Tools::getValue('newpage_payment') != 2
+                && (!filter_var(Tools::getValue('iframe_height'), FILTER_VALIDATE_INT) ||
+                Tools::getValue('iframe_height') < 440)
+            ) {
+                $this->postErrors[] = $this->l('The height of the iframe must be at least 440');
             }
 
             // Check Terminal empty fields SECURE
@@ -294,7 +302,8 @@ class Paytpv extends PaymentModule
 
         $arrDatos = array();
         $arrDatos["error"] = 0;
-
+        
+                                
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -377,6 +386,7 @@ class Paytpv extends PaymentModule
             Configuration::updateValue('PAYTPV_CLIENTCODE', trim(Tools::getValue('clientcode')));
 
             Configuration::updateValue('PAYTPV_NEWPAGEPAYMENT', Tools::getValue('newpage_payment'));
+            Configuration::updateValue('PAYTPV_IFRAME_HEIGHT', Tools::getValue('iframe_height'));
             Configuration::updateValue('PAYTPV_SUSCRIPTIONS', Tools::getValue('suscriptions'));
 
             Configuration::updateValue('PAYTPV_INTEGRATION', Tools::getValue('integration'));
@@ -431,10 +441,7 @@ class Paytpv extends PaymentModule
             Configuration::updateValue('PAYTPV_BROWSER_SCORING_SCORE', Tools::getValue('browser_scoring_score'));
             Configuration::updateValue('PAYTPV_SO_SCORING', Tools::getValue('so_scoring'));
             Configuration::updateValue('PAYTPV_SO_SCORING_SCORE', Tools::getValue('so_scoring_score'));
-
             Configuration::updateValue('PAYTPV_DISABLEOFFERSAVECARD', Tools::getValue('disableoffersavecard'));
-            Configuration::updateValue('PAYTPV_REMEMBERCARDUNSELECTED', Tools::getValue('remembercardunselected'));
-
 
             return '<div class="bootstrap"><div class="alert alert-success">' . $this->l('Configuration updated')
                 . '</div></div>';
@@ -916,6 +923,7 @@ class Paytpv extends PaymentModule
         $arrValues["clientcode"] = $config["PAYTPV_CLIENTCODE"];
         $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
+        $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
         $arrValues["suscriptions"] = $config["PAYTPV_SUSCRIPTIONS"];
         $arrValues["reg_estado"] = $config["PAYTPV_REG_ESTADO"];
         
@@ -936,8 +944,6 @@ class Paytpv extends PaymentModule
         $arrValues["so_scoring"] = $config["PAYTPV_SO_SCORING"];
         $arrValues["so_scoring_score"] = $config["PAYTPV_SO_SCORING_SCORE"];
         $arrValues["disableoffersavecard"] = $config["PAYTPV_DISABLEOFFERSAVECARD"];
-        $arrValues["remembercardunselected"] = $config["PAYTPV_REMEMBERCARDUNSELECTED"];
-                
 
         foreach ($this->terminales_paytpv as $key => $term) {
             $arrValues["term[".$key."]"] = $term["idterminal"];
@@ -1219,26 +1225,17 @@ class Paytpv extends PaymentModule
                         )
                     ),
                     array(
-                        'type' => 'switch',
-                        'label' => $this->l('Disable Offer to save card'),
-                        'name' => 'disableoffersavecard',
-                        'values' => array(
-                            array(
-                                'id' => 'active_on',
-                                'value' => 0,
-                                'label' => $this->l('No')
-                            ),
-                            array(
-                                'id' => 'active_off',
-                                'value' => 1,
-                                'label' => $this->l('Yes')
-                            )
-                        ),
+                        'col' => 1,
+                        'type' => 'text',
+                        'label' => $this->l('Iframe Height (px)'),
+                        'hint' => $this->l('Iframe height in pixels (Min 440)'),
+                        'name' => 'iframe_height',
+                        'id' => 'iframe_height',
                     ),
                     array(
                         'type' => 'switch',
-                        'label' => $this->l('Remember Card (Unselect)'),
-                        'name' => 'remembercardunselected',
+                        'label' => $this->l('Disable Offer to save card'),
+                        'name' => 'disableoffersavecard',
                         'values' => array(
                             array(
                                 'id' => 'active_on',
@@ -1563,21 +1560,23 @@ class Paytpv extends PaymentModule
 
         // Check New Page payment
         $newpage_payment = (int) (Configuration::get('PAYTPV_NEWPAGEPAYMENT'));
+        $iframe_height = (int)$this->iframe_height;
         $paytpv_integration = (int) (Configuration::get('PAYTPV_INTEGRATION'));
 
         $disableoffersavecard = Configuration::get('PAYTPV_DISABLEOFFERSAVECARD');
-        $remembercardunselected = Configuration::get('PAYTPV_REMEMBERCARDUNSELECTED');
 
         $saved_card = PaytpvCustomer::getCardsCustomer((int) $this->context->customer->id);
 
         // Pago en nueva pagina dentro del comercio
         if ($newpage_payment == 1) {
             $this->context->smarty->assign('this_path', $this->_path);
+            $this->context->smarty->assign('iframe_height', $iframe_height);
             return $this->display(__FILE__, 'payment_newpage.tpl');
             // Pago en nueva pagina fullscreen si no tiene tarjetas almacenadas
         } elseif ($newpage_payment == 2 && empty($saved_card) && $disableoffersavecard) {
             $this->context->smarty->assign('this_path', $this->_path);
             $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
+            $this->context->smarty->assign('iframe_height', $iframe_height);
             return $this->display(__FILE__, 'payment_newpage2.tpl');
             // Pago integrado
         } else {
@@ -1647,6 +1646,7 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
 
             $this->context->smarty->assign('newpage_payment', $newpage_payment);
+            $this->context->smarty->assign('iframe_height', $iframe_height);
             $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
             $this->context->smarty->assign('jet_id', $jetid_sel);
@@ -1664,8 +1664,6 @@ class Paytpv extends PaymentModule
             );
 
             $this->context->smarty->assign('disableoffersavecard', $disableoffersavecard);
-            $this->context->smarty->assign('remembercardunselected', $remembercardunselected);
-
 
             $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
 
@@ -1949,12 +1947,12 @@ class Paytpv extends PaymentModule
         return Configuration::getMultiple(
             array(
                 'PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_COMMERCEPASSWORD', 'PAYTPV_NEWPAGEPAYMENT',
-                'PAYTPV_SUSCRIPTIONS', 'PAYTPV_REG_ESTADO', 'PAYTPV_FIRSTPURCHASE_SCORING',
+                'PAYTPV_IFRAME_HEIGHT', 'PAYTPV_SUSCRIPTIONS', 'PAYTPV_REG_ESTADO', 'PAYTPV_FIRSTPURCHASE_SCORING',
                 'PAYTPV_FIRSTPURCHASE_SCORING_SCO', 'PAYTPV_SESSIONTIME_SCORING', 'PAYTPV_SESSIONTIME_SCORING_VAL',
                 'PAYTPV_SESSIONTIME_SCORING_SCORE', 'PAYTPV_DCOUNTRY_SCORING', 'PAYTPV_DCOUNTRY_SCORING_VAL',
                 'PAYTPV_DCOUNTRY_SCORING_SCORE', 'PAYTPV_IPCHANGE_SCORING', 'PAYTPV_IPCHANGE_SCORING_SCORE',
                 'PAYTPV_BROWSER_SCORING', 'PAYTPV_BROWSER_SCORING_SCORE', 'PAYTPV_SO_SCORING',
-                'PAYTPV_SO_SCORING_SCORE', 'PAYTPV_DISABLEOFFERSAVECARD', 'PAYTPV_REMEMBERCARDUNSELECTED'
+                'PAYTPV_SO_SCORING_SCORE', 'PAYTPV_DISABLEOFFERSAVECARD'
             )
         );
     }
@@ -2208,7 +2206,6 @@ class Paytpv extends PaymentModule
 
         $paytpv_date = date("Ymd", strtotime($paytpv_order['date']));
         $paytpv_iduser = $paytpv_order["paytpv_iduser"];
-        $paytpv_tokenuser = $paytpv_order["paytpv_tokenuser"];
 
         $id_currency = $order->id_currency;
         $currency = new Currency((int) ($id_currency));
@@ -2229,7 +2226,6 @@ class Paytpv extends PaymentModule
         $response = $this->makeRefund(
             $params['order'],
             $paytpv_iduser,
-            $paytpv_tokenuser,
             $order->id,
             $paytpv_order_ref,
             $paytpv_date,
@@ -2248,7 +2244,6 @@ class Paytpv extends PaymentModule
     private function makeRefund(
         $order,
         $paytpv_iduser,
-        $paytpv_tokenuser,
         $order_id,
         $paytpv_order_ref,
         $paytpv_date,
@@ -2269,11 +2264,11 @@ class Paytpv extends PaymentModule
                 'pass' => $arrTerminal["password"]
             )
         );
-
+        
         // Refund amount of transaction
         $result = $client->executeRefund(
-            $paytpv_iduser,
-            $paytpv_tokenuser,
+            '',
+            '',
             $paytpv_order_ref,
             $currency_iso_code,
             $authcode,
@@ -2298,14 +2293,14 @@ class Paytpv extends PaymentModule
             );
 
             $result = $client->executeRefund(
-                $paytpv_iduser,
-                $paytpv_tokenuser,
+                '',
+                '',
                 $paytpv_order_ref,
                 $currency_iso_code,
                 $authcode,
                 $amount
             );
-            // $refund_txt = $this->l('OK');
+
             $response["error"] = 0;
             $response["txt"] = $this->l('OK');
         }
@@ -2315,14 +2310,14 @@ class Paytpv extends PaymentModule
             $paytpv_order_ref .= "[" . $paytpv_iduser . "]" . $paytpv_date;
             // Refund amount of transaction
             $result = $client->executeRefund(
-                $paytpv_iduser,
-                $paytpv_tokenuser,
+                '',
+                '',
                 $paytpv_order_ref,
                 $currency_iso_code,
                 $authcode,
                 $amount
             );
-            // $refund_txt = $this->l('OK');
+
             $response["error"] = 0;
             $response["txt"] = $this->l('OK');
         }
@@ -2541,7 +2536,6 @@ class Paytpv extends PaymentModule
 
             $paytpv_date = date("Ymd", strtotime($paytpv_order['date']));
             $paytpv_iduser = $paytpv_order["paytpv_iduser"];
-            $paytpv_tokenuser = $paytpv_order["paytpv_tokenuser"];
 
             $id_currency = $order->id_currency;
             $currency = new Currency((int) ($id_currency));
@@ -2556,7 +2550,6 @@ class Paytpv extends PaymentModule
             $response = $this->makeRefund(
                 $order,
                 $paytpv_iduser,
-                $paytpv_tokenuser,
                 $order->id,
                 $paytpv_order_ref,
                 $paytpv_date,
@@ -2607,7 +2600,6 @@ class Paytpv extends PaymentModule
 
         $paytpv_date = date("Ymd", strtotime($paytpv_order['date']));
         $paytpv_iduser = $paytpv_order["paytpv_iduser"];
-        $paytpv_tokenuser = $paytpv_order["paytpv_tokenuser"];
 
         $id_currency = $order->id_currency;
         $currency = new Currency((int) ($id_currency));
@@ -2626,7 +2618,6 @@ class Paytpv extends PaymentModule
         $response = $this->makeRefund(
             $order,
             $paytpv_iduser,
-            $paytpv_tokenuser,
             $order->id,
             $paytpv_order_ref,
             $paytpv_date,
