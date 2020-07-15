@@ -135,13 +135,10 @@ class PaytpvSuscription extends ObjectModel
             
             $status = $row['status'];
             if ($row['status']==1) {
-                $status = $row['status'];
-            } // CANCELADA
-            elseif ($num_pagos==$row['cycles'] && $row['cycles']>0) {
-                $status = 2;
-            } // FINALIZADO
-                            
-
+                $status = $row['status']; // CANCELADA
+            } elseif ($num_pagos==$row['cycles'] && $row['cycles']>0) {
+                $status = 2; // FINALIZADO
+            }
 
             $res[$key]['STATUS'] = $status;
         }
