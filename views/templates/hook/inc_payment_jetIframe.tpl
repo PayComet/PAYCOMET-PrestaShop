@@ -69,6 +69,6 @@
         {/if}
     </div>
     <div id="paymentErrorMsg"></div>
-    <script type="text/javascript" src="{$jet_paytpv|escape:'htmlall':'UTF-8'}?lang={$jet_lang}"></script>
+    <script type="text/javascript" src="{$jet_paytpv|escape:'htmlall':'UTF-8'}?lang={$jet_lang|escape:'htmlall':'UTF-8'}"></script>
 
     <input type="hidden" name="paytpv_jetid_url" id="paytpv_jetid_url" value="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}">
