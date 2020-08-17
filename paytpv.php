@@ -35,6 +35,7 @@ include_once dirname(__FILE__) . '/classes/PaytpvCustomer.php';
 include_once dirname(__FILE__) . '/classes/PaytpvSuscription.php';
 include_once dirname(__FILE__) . '/classes/PaytpvRefund.php';
 include_once dirname(__FILE__) . '/classes/PaytpvPaymentsHelperForm.php';
+include_once dirname(__FILE__) . '/classes/PaycometApiRest.php';
 
 class Paytpv extends PaymentModule
 {
@@ -65,6 +66,9 @@ class Paytpv extends PaymentModule
         }
         if (array_key_exists('PAYTPV_CLIENTCODE', $config)) {
             $this->clientcode = $config['PAYTPV_CLIENTCODE'];
+        }
+        if (array_key_exists('PAYTPV_APIKEY', $config)) {
+            $this->apikey = $config['PAYTPV_APIKEY'];
         }
         if (array_key_exists('PAYTPV_NEWPAGEPAYMENT', $config)) {
             $this->newpage_payment = $config['PAYTPV_NEWPAGEPAYMENT'];
@@ -302,8 +306,7 @@ class Paytpv extends PaymentModule
 
         $arrDatos = array();
         $arrDatos["error"] = 0;
-        
-                                
+
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -378,6 +381,7 @@ class Paytpv extends PaymentModule
         // Update databse configuration
         if (Tools::getIsset('btnSubmit')) {
             Configuration::updateValue('PAYTPV_CLIENTCODE', trim(Tools::getValue('clientcode')));
+            Configuration::updateValue('PAYTPV_APIKEY', trim(Tools::getValue('apikey')));
 
             Configuration::updateValue('PAYTPV_NEWPAGEPAYMENT', Tools::getValue('newpage_payment'));
             Configuration::updateValue('PAYTPV_IFRAME_HEIGHT', Tools::getValue('iframe_height'));
@@ -915,6 +919,7 @@ class Paytpv extends PaymentModule
         $arrValues = array();
 
         $arrValues["clientcode"] = $config["PAYTPV_CLIENTCODE"];
+        $arrValues["apikey"] = $config["PAYTPV_APIKEY"];
         $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
         $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
@@ -997,6 +1002,14 @@ class Paytpv extends PaymentModule
                         'name' => 'clientcode',
                         'hint' => $this->l('Client Code. Available in the PAYCOMET product configuration'),
                         'required' => true
+                    ),
+                    array(
+                        'col' => 1,
+                        'type' => 'text',
+                        'label' => $this->l('API KEY'),
+                        'name' => 'apikey',
+                        'hint' => $this->l('API KEY. Available in the PAYCOMET product configuration'),
+                        'required' => false
                     ),
                 )
             )
@@ -1940,7 +1953,7 @@ class Paytpv extends PaymentModule
     {
         return Configuration::getMultiple(
             array(
-                'PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_NEWPAGEPAYMENT',
+                'PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_APIKEY', 'PAYTPV_NEWPAGEPAYMENT',
                 'PAYTPV_IFRAME_HEIGHT', 'PAYTPV_SUSCRIPTIONS', 'PAYTPV_REG_ESTADO', 'PAYTPV_FIRSTPURCHASE_SCORING',
                 'PAYTPV_FIRSTPURCHASE_SCORING_SCO', 'PAYTPV_SESSIONTIME_SCORING', 'PAYTPV_SESSIONTIME_SCORING_VAL',
                 'PAYTPV_SESSIONTIME_SCORING_SCORE', 'PAYTPV_DCOUNTRY_SCORING', 'PAYTPV_DCOUNTRY_SCORING_VAL',
@@ -1984,16 +1997,26 @@ class Paytpv extends PaymentModule
             $pass_sel = $pass_ns;
         }
 
-        $client = new WSClient(
-            array(
-                'endpoint_paytpv' => $this->endpoint_paytpv,
-                'clientcode' => $this->clientcode,
-                'term' => $idterminal_sel,
-                'pass' => $pass_sel
-            )
-        );
+        if($this->apikey != '') {
+            $apiRest = new PaycometApiRest($this->apikey);
+            $result = $apiRest->removeUser(
+                $idterminal_sel,
+                $paytpv_iduser,
+                $paytpv_tokenuser
+            );
+        } else {
+            $client = new WSClient(
+                array(
+                    'endpoint_paytpv' => $this->endpoint_paytpv,
+                    'clientcode' => $this->clientcode,
+                    'term' => $idterminal_sel,
+                    'pass' => $pass_sel
+                )
+            );
+    
+            $result = $client->removeUser($paytpv_iduser, $paytpv_tokenuser);
+        }
 
-        $result = $client->removeUser($paytpv_iduser, $paytpv_tokenuser);
         return $result;
     }
 
@@ -2080,18 +2103,43 @@ class Paytpv extends PaymentModule
             $paytpv_iduser = $result["paytpv_iduser"];
             $paytpv_tokenuser = $result["paytpv_tokenuser"];
 
-            $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+            if($this->apikey != '') {
+                $apiRest = new PaycometApiRest($this->apikey);
+                $removeSubscriptionResponse = $apiRest->removeSubscription(
+                    $arrTerminal["idterminal_ns"],
+                    $id_suscription,
+                    $paytpv_iduser,
+                    $paytpv_tokenuser
+                );
+
+                $result['DS_RESPONSE'] = $removeSubscriptionResponse->errorCode;
+            } else {
+                $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+            }
 
             if ((int) $result['DS_RESPONSE'] != 1 && $arrTerminal["idterminal_ns"] > 0) {
-                $client = new WSClient(
-                    array(
-                        'endpoint_paytpv' => $this->endpoint_paytpv,
-                        'clientcode' => $this->clientcode,
-                        'term' => $arrTerminal["idterminal_ns"],
-                        'pass' => $arrTerminal["password_ns"]
-                    )
-                );
-                $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+                if($this->apikey != '') {
+                    $apiRest = new PaycometApiRest($this->apikey);
+                    $removeSubscriptionResponse = $apiRest->removeSubscription(
+                        $arrTerminal["idterminal_ns"],
+                        $id_suscription,
+                        $paytpv_iduser,
+                        $paytpv_tokenuser
+                    );
+
+                $result['DS_RESPONSE'] = $removeSubscriptionResponse->errorCode;
+                } else {
+                    $client = new WSClient(
+                        array(
+                            'endpoint_paytpv' => $this->endpoint_paytpv,
+                            'clientcode' => $this->clientcode,
+                            'term' => $arrTerminal["idterminal_ns"],
+                            'pass' => $arrTerminal["password_ns"]
+                        )
+                    );
+
+                    $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+                }
             }
 
             if ((int) $result['DS_RESPONSE'] == 1) {

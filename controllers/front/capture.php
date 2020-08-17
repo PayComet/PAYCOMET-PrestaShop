@@ -28,6 +28,7 @@
  */
 
 include_once(_PS_MODULE_DIR_.'/paytpv/classes/WSClient.php');
+include_once(_PS_MODULE_DIR_.'/paytpv/classes/PaycometApiRest.php');
 class PaytpvCaptureModuleFrontController extends ModuleFrontController
 {
     public $display_column_left = false;
@@ -66,7 +67,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
         $savecard_jet = Tools::getIsset("paytpv_savecard")?1:0;
 
-
+        
         $jetPayment = 0;
         if ($token && Tools::strlen($token) == 64) {
             // PAGO SEGURO
@@ -87,18 +88,35 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $jetid_sel = $jetid_ns;
             }
 
-            $client = new WSClient(
-                array(
-                    'endpoint_paytpv' => $paytpv->endpoint_paytpv,
-                    'clientcode' => $paytpv->clientcode,
-                    'term' => $idterminal_sel,
-                    'pass' => $pass_sel,
-                    'jetid' => $jetid_sel
-                )
-            );
+            if($paytpv->apikey != '') {
+                $apiRest = new PaycometApiRest($paytpv->apikey);
+                
+                $addUserResponse = $apiRest->addUser(
+                    $idterminal_sel,
+                    $token,
+                    $this->context->cart->id
+                );
+                $addUserResponseErrorCode = $addUserResponse->errorCode;
+                $idUser = $addUserResponse->idUser;
+                $tokenUser = $addUserResponse->tokenUser;
+            } else {
+                $client = new WSClient(
+                    array(
+                        'endpoint_paytpv' => $paytpv->endpoint_paytpv,
+                        'clientcode' => $paytpv->clientcode,
+                        'term' => $idterminal_sel,
+                        'pass' => $pass_sel,
+                        'jetid' => $jetid_sel
+                    )
+                );
 
-            $addUserResponse = $client->addUserToken($token);
-            if (( int ) $addUserResponse[ 'DS_ERROR_ID' ] > 0) {
+                $addUserResponse = $client->addUserToken($token);
+                $addUserResponseErrorCode = $addUserResponse[ 'DS_ERROR_ID' ];
+                $idUser = $addUserResponse["DS_IDUSER"];
+                $tokenUser = $addUserResponse["DS_TOKEN_USER"];
+            }
+
+            if ((int) $addUserResponseErrorCode > 0) {
                 $this->context->smarty->assign(
                     'error_msg',
                     $paytpv->l('Cannot operate with given credit card', 'capture')
@@ -109,9 +127,9 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 return;
             } else {
                 $data = array();
-
-                $data["IDUSER"] = $addUserResponse["DS_IDUSER"];
-                $data["TOKEN_USER"] = $addUserResponse["DS_TOKEN_USER"];
+                
+                $data["IDUSER"] = $idUser;
+                $data["TOKEN_USER"] = $tokenUser;
 
                 $jetPayment = 1;
             }
@@ -177,48 +195,26 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
             
             $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
-            if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
-                $subscription_startdate = date("Ymd");
-                $susc_periodicity = $periodicity;
-                $subs_cycles = $cycles;
+            $subscription_startdate = date("Ymd");
+            $susc_periodicity = $periodicity;
+            $subs_cycles = $cycles;
 
-                // Si es indefinido, ponemos como fecha tope la fecha + 10 años.
-                if ($subs_cycles==0) {
-                    $subscription_enddate = date("Y")+5 . date("m") . date("d");
-                } else {
-                    // Dias suscripcion
-                    $dias_subscription = $subs_cycles * $susc_periodicity;
-                    $subscription_enddate = date('Ymd', strtotime("+".$dias_subscription." days"));
-                }
-                $OPERATION = "110";
-                $signature = hash('sha512', $paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.
-                $OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
-
-
-                $fields = array(
-                    'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
-                    'MERCHANT_TERMINAL' => $idterminal_sel,
-                    'OPERATION' => $OPERATION,
-                    'LANGUAGE' => $language,
-                    'MERCHANT_MERCHANTSIGNATURE' => $signature,
-                    'MERCHANT_ORDER' => $paytpv_order_ref,
-                    'MERCHANT_AMOUNT' => $importe,
-                    'MERCHANT_CURRENCY' => $currency_iso_code,
-                    'SUBSCRIPTION_STARTDATE' => $subscription_startdate,
-                    'SUBSCRIPTION_ENDDATE' => $subscription_enddate,
-                    'SUBSCRIPTION_PERIODICITY' => $susc_periodicity,
-                    'IDUSER' => $data["IDUSER"],
-                    'TOKEN_USER' => $data['TOKEN_USER'],
-                    'URLOK' => $URLOK,
-                    'URLKO' => $URLKO,
-                    '3DSECURE' => $secure_pay
-                );
+            // Si es indefinido, ponemos como fecha tope la fecha + 10 años.
+            if ($subs_cycles==0) {
+                $subscription_enddate = date("Y")+5 . date("m") . date("d");
             } else {
-                $OPERATION = "109"; //exec_purchase_token
-                $signature = hash('sha512', $paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.
-                $OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
-        
-                $fields = array(
+                // Dias suscripcion
+                $dias_subscription = $subs_cycles * $susc_periodicity;
+                $subscription_enddate = date('Ymd', strtotime("+".$dias_subscription." days"));
+            }
+
+            if ($paytpv->apikey == '') {
+                if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
+                    $OPERATION = "110";
+                    $signature = hash('sha512', $paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.
+                    $OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
+    
+                    $fields = array(
                         'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
                         'MERCHANT_TERMINAL' => $idterminal_sel,
                         'OPERATION' => $OPERATION,
@@ -227,30 +223,90 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         'MERCHANT_ORDER' => $paytpv_order_ref,
                         'MERCHANT_AMOUNT' => $importe,
                         'MERCHANT_CURRENCY' => $currency_iso_code,
+                        'SUBSCRIPTION_STARTDATE' => $subscription_startdate,
+                        'SUBSCRIPTION_ENDDATE' => $subscription_enddate,
+                        'SUBSCRIPTION_PERIODICITY' => $susc_periodicity,
                         'IDUSER' => $data["IDUSER"],
                         'TOKEN_USER' => $data['TOKEN_USER'],
-                        '3DSECURE' => $secure_pay,
                         'URLOK' => $URLOK,
-                        'URLKO' => $URLKO
+                        'URLKO' => $URLKO,
+                        '3DSECURE' => $secure_pay
                     );
-            }
-
-            if ($MERCHANT_SCORING!=null) {
-                $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
-            }
-            if ($MERCHANT_DATA!=null) {
-                $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
-            }
+                } else {
+                    $OPERATION = "109"; //exec_purchase_token
+                    $signature = hash('sha512', $paytpv->clientcode.$data["IDUSER"].$data['TOKEN_USER'].$idterminal_sel.
+                    $OPERATION.$paytpv_order_ref.$importe.$currency_iso_code.md5($pass_sel));
             
-            $query = http_build_query($fields);
+                    $fields = array(
+                            'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
+                            'MERCHANT_TERMINAL' => $idterminal_sel,
+                            'OPERATION' => $OPERATION,
+                            'LANGUAGE' => $language,
+                            'MERCHANT_MERCHANTSIGNATURE' => $signature,
+                            'MERCHANT_ORDER' => $paytpv_order_ref,
+                            'MERCHANT_AMOUNT' => $importe,
+                            'MERCHANT_CURRENCY' => $currency_iso_code,
+                            'IDUSER' => $data["IDUSER"],
+                            'TOKEN_USER' => $data['TOKEN_USER'],
+                            '3DSECURE' => $secure_pay,
+                            'URLOK' => $URLOK,
+                            'URLKO' => $URLKO
+                        );
+                }
+    
+                if ($MERCHANT_SCORING!=null) {
+                    $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
+                }
+                if ($MERCHANT_DATA!=null) {
+                    $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
+                }
+                
+                $query = http_build_query($fields);
+                
+                $vhash = hash('sha512', md5($query.md5($pass_sel)));
+                
+                $salida = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
+            } else {
+                if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
+                    $createSubscriptionResponse = $apiRest->createSubscription(
+                        $subscription_startdate,
+                        $subscription_enddate,
+                        $susc_periodicity,
+                        $idterminal_sel,
+                        '1',
+                        $paytpv_order_ref,
+                        $importe,
+                        $currency_iso_code,
+                        $_SERVER['REMOTE_ADDR'],
+                        $data["IDUSER"],
+                        $data['TOKEN_USER'],
+                        $secure_pay,
+                        $URLOK,
+                        $URLKO
+                    );
 
-            $vhash = hash('sha512', md5($query.md5($pass_sel)));
+                    $salida = $createSubscriptionResponse->challengeUrl;
+                } else {
+                    $executePurchaseResponse = $apiRest->executePurchase(
+                        $idterminal_sel,
+                        $paytpv_order_ref,
+                        $importe,
+                        $currency_iso_code,
+                        '1',
+                        $_SERVER['REMOTE_ADDR'],
+                        $secure_pay,
+                        $data["IDUSER"],
+                        $data['TOKEN_USER'],
+                        $URLOK,
+                        $URLKO
+                    );
 
-            $salida = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
-            
+                    $salida = $executePurchaseResponse->challengeUrl;
+                }
+            }
+
             Tools::redirect($salida);
-
-
+    
             exit;
         }
         /* FIN AÑADIDO */
@@ -326,7 +382,18 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 );
 
                 if ($savecard_jet==1) {
-                    $result = $client->infoUser($data['IDUSER'], $data['TOKEN_USER']);
+                    if ($paytpv->apikey != '') {
+                        $infoUserResponse = $apiRest->infoUser(
+                            $data['IDUSER'],
+                            $data['TOKEN_USER'],
+                            $idterminal_sel
+                        );
+
+                        $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
+                        $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
+                    } else {
+                        $result = $client->infoUser($data['IDUSER'], $data['TOKEN_USER']);
+                    }
                     $result = $paytpv->saveCard(
                         $this->context->cart->id_customer,
                         $data['IDUSER'],
