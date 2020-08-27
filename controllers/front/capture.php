@@ -258,7 +258,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                     $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
                 }
                 if ($MERCHANT_DATA!=null) {
-                    $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
+                    // En principio sólo por REST
+                    // $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
                 }
                 
                 $query = http_build_query($fields);
@@ -297,8 +298,18 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         $secure_pay,
                         $data["IDUSER"],
                         $data['TOKEN_USER'],
-                        $URLOK,
-                        $URLKO
+                        // $URLOK,
+                        // $URLKO,
+                        'https://www.marca.com',
+                        'https://www.marca.com',
+                        '',
+                        '',
+                        '',
+                        1,
+                        [],
+                        '',
+                        '',
+                        $MERCHANT_DATA
                     );
 
                     $salida = $executePurchaseResponse->challengeUrl;
@@ -319,8 +330,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 'pass' => $pass_sel,
             )
         );
+
         $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);
-        
 
         if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
             $subscription_startdate = date("Y-m-d");

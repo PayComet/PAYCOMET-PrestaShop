@@ -32,6 +32,26 @@ class PaycometApiRest
         $this->apiKey = $apiKey;
     }
 
+    public function form(
+        $operationType,
+        $language = 'ES',
+        $terminal = '',
+        $productDescription = '',
+        $payment = [],
+        $subscription = []
+    ) {
+        $params = [
+            "operationType" => (int) $operationType,
+            "language" => (string) $language,
+            "terminal" => (int) $terminal,
+            "productDescription" => (string) $productDescription,
+            "payment" => $payment,
+            "subscription" => $subscription
+        ];
+
+        return $this->executeRequest('https://rest.paycomet.com/v1/form', $params);
+    }
+
     public function addUser(
         $terminal,
         $jetToken,
@@ -86,8 +106,8 @@ class PaycometApiRest
         $methodId,
         $originalIp,
         $secure,
-        $idUser,
-        $tokenUser,
+        $idUser = '',
+        $tokenUser= '',
         $urlOk = '',
         $ulrKo = '',
         $scoring = '0',
@@ -97,7 +117,7 @@ class PaycometApiRest
         $escrowTargets = [],
         $trxType = '',
         $SCAException = '',
-        $merchantData = ''
+        $merchantData = []
     ) {
         $params = ["payment" => [
                 'terminal' => (int) $terminal,
@@ -118,7 +138,7 @@ class PaycometApiRest
                 'SCAException' => (string) $SCAException,
                 'urlOk' => (string) $urlOk,
                 'ulrKo' => (string) $ulrKo,
-                'merchantData' => $merchantData,
+                'merchantData' => $merchantData
             ]
         ];
 
@@ -147,7 +167,7 @@ class PaycometApiRest
         $escrowTargets = [],
         $trxType = '',
         $SCAException = '',
-        $merchantData = ''
+        $merchantData = []
     ) {
         $params = ["subscription" => [
                     "startDate" => (string) $startDate,
@@ -198,6 +218,31 @@ class PaycometApiRest
         return $this->executeRequest('https://rest.paycomet.com/v1/subscription/' . $order . '/remove', $params);
     }
 
+    public function executeRefund(
+        $order,
+        $terminal,
+        $amount,
+        $currency,
+        $authCode,
+        $originalIp,
+        $tokenUser = '',
+        $idUser = ''
+    ) {
+        $params = [
+            "payment" => [
+                'terminal' => (int) $terminal,
+                'amount' => (string) $amount,
+                'currency' => (string) $currency,
+                'authCode' => (string) $authCode,
+                'originalIp' => (string) $originalIp,
+                'tokenUser' => (string) $tokenUser = '',
+                'idUser' => (int) $idUser = ''
+            ]
+        ];
+
+        return $this->executeRequest('https://rest.paycomet.com/v1/payments/' . $order . '/refund', $params);
+    }
+
     private function executeRequest($endpoint, $params)
     {
         $jsonParams = json_encode($params);
@@ -226,5 +271,4 @@ class PaycometApiRest
 
         return json_decode($response);
     }
-
 }

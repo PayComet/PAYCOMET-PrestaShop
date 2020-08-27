@@ -307,6 +307,8 @@ class Paytpv extends PaymentModule
         $arrDatos = array();
         $arrDatos["error"] = 0;
 
+        return $arrDatos;
+
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -1690,19 +1692,19 @@ class Paytpv extends PaymentModule
             return $this->display(__FILE__, 'payment_bsiframe.tpl');
         }
     }
-
-
     
     public function getMerchantData($cart)
     {
-        $resp = $cart;
-        $resp = null;
-        return $resp;
+        // $resp = $cart;
+        // $resp = null;
+        // return $resp;
 
-        // $MERCHANT_EMV3DS = $this->getEMV3DS($cart);
-        // $SHOPPING_CART = $this->getShoppingCart($cart);
+        $MERCHANT_EMV3DS = $this->getEMV3DS($cart);
+        $SHOPPING_CART = $this->getShoppingCart($cart);
 
-        // $datos = array_merge($MERCHANT_EMV3DS,$SHOPPING_CART);
+        $datos = array_merge($MERCHANT_EMV3DS,$SHOPPING_CART);
+
+        return $datos;
 
         // return urlencode(base64_encode(json_encode($datos)));
     }
@@ -1755,48 +1757,66 @@ class Paytpv extends PaymentModule
             $pass_sel = $pass_ns;
         }
 
-        
         $language = $this->getPaycometLang($this->context->language->language_code);
 
         $score = $this->transactionScore($cart);
         $MERCHANT_SCORING = $score["score"];
         $MERCHANT_DATA = $this->getMerchantData($cart);
 
-
         $OPERATION = "1";
-        // Cálculo Firma
-        $signature = hash(
-            'sha512',
-            $this->clientcode . $idterminal_sel . $OPERATION . $paytpv_order_ref
-            . $importe . $currency_iso_code . md5($pass_sel)
-        );
+        if ($this->apikey != '') {
+            $apiRest = new PaycometApiRest($this->apikey);
+            $formResponse = $apiRest->form(
+                $OPERATION,
+                $language,
+                $idterminal_sel,
+                '',
+                [
+                    'terminal' => (int) $idterminal_sel,
+                    'order' => (string) $paytpv_order_ref,
+                    'amount' => (string) $importe,
+                    'currency' => (string) $currency_iso_code
+                ]
+            );
 
-        $fields = array(
-            'MERCHANT_MERCHANTCODE' => $this->clientcode,
-            'MERCHANT_TERMINAL' => $idterminal_sel,
-            'OPERATION' => $OPERATION,
-            'LANGUAGE' => $language,
-            'MERCHANT_MERCHANTSIGNATURE' => $signature,
-            'MERCHANT_ORDER' => $paytpv_order_ref,
-            'MERCHANT_AMOUNT' => $importe,
-            'MERCHANT_CURRENCY' => $currency_iso_code,
-            'URLOK' => $URLOK,
-            'URLKO' => $URLKO,
-            '3DSECURE' => $secure_pay
-        );
+            $url_paytpv = $formResponse->challengeUrl;
 
-        if ($MERCHANT_SCORING != null) {
-            $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
+        } else {
+            // Cálculo Firma
+            $signature = hash(
+                'sha512',
+                $this->clientcode . $idterminal_sel . $OPERATION . $paytpv_order_ref
+                . $importe . $currency_iso_code . md5($pass_sel)
+            );
+    
+            $fields = array(
+                'MERCHANT_MERCHANTCODE' => $this->clientcode,
+                'MERCHANT_TERMINAL' => $idterminal_sel,
+                'OPERATION' => $OPERATION,
+                'LANGUAGE' => $language,
+                'MERCHANT_MERCHANTSIGNATURE' => $signature,
+                'MERCHANT_ORDER' => $paytpv_order_ref,
+                'MERCHANT_AMOUNT' => $importe,
+                'MERCHANT_CURRENCY' => $currency_iso_code,
+                'URLOK' => $URLOK,
+                'URLKO' => $URLKO,
+                '3DSECURE' => $secure_pay
+            );
+    
+            if ($MERCHANT_SCORING != null) {
+                $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
+            }
+            if ($MERCHANT_DATA != null) {
+                // En principio sólo se enviará por REST
+                // $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
+            }
+    
+            $query = http_build_query($fields);
+    
+            $vhash = hash('sha512', md5($query . md5($pass_sel)));
+    
+            $url_paytpv = $this->url_paytpv . "?" . $query . "&VHASH=" . $vhash;
         }
-        if ($MERCHANT_DATA != null) {
-            $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
-        }
-
-        $query = http_build_query($fields);
-
-        $vhash = hash('sha512', md5($query . md5($pass_sel)));
-
-        $url_paytpv = $this->url_paytpv . "?" . $query . "&VHASH=" . $vhash;
 
         return $url_paytpv;
     }
