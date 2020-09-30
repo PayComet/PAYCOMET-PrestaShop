@@ -268,6 +268,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 
                 $salida = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
             } else {
+                $apiRest = new PaycometApiRest($paytpv->apikey);
                 if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
                     $createSubscriptionResponse = $apiRest->createSubscription(
                         $subscription_startdate,
@@ -298,10 +299,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         $secure_pay,
                         $data["IDUSER"],
                         $data['TOKEN_USER'],
-                        // $URLOK,
-                        // $URLKO,
-                        'https://www.marca.com',
-                        'https://www.marca.com',
+                        $URLOK,
+                        $URLKO,
                         '',
                         '',
                         '',
@@ -360,24 +359,52 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $paytpv_order_ref
             );
         } else {
-            $charge = $client->executePurchase(
-                $data['IDUSER'],
-                $data['TOKEN_USER'],
-                $idterminal_sel,
-                $importe,
-                $MERCHANT_SCORING,
-                $MERCHANT_DATA,
-                $currency_iso_code,
-                $paytpv_order_ref
-            );
+            if ($paytpv->apikey == '') {
+                $apiRest = new PaycometApiRest($paytpv->apikey);
+                $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
+                $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);
+
+                $executePurchaseResponse = $apiRest->executePurchase(
+                    $idterminal_sel,
+                    $paytpv_order_ref,
+                    $importe,
+                    $currency_iso_code,
+                    '1',
+                    $_SERVER['REMOTE_ADDR'],
+                    $secure_pay,
+                    $data["IDUSER"],
+                    $data['TOKEN_USER'],
+                    $URLOK,
+                    $URLKO,
+                    '',
+                    '',
+                    '',
+                    1,
+                    [],
+                    '',
+                    '',
+                    $MERCHANT_DATA
+                );
+
+                $charge['DS_ERROR_ID'] = $executePurchaseResponse->errorCode;
+            } else {
+                $charge = $client->executePurchase(
+                    $data['IDUSER'],
+                    $data['TOKEN_USER'],
+                    $idterminal_sel,
+                    $importe,
+                    $MERCHANT_SCORING,
+                    $MERCHANT_DATA,
+                    $currency_iso_code,
+                    $paytpv_order_ref
+                );
+            }
         }
         
-        if ((array_key_exists('DS_RESPONSE', $charge) && ( int )$charge[ 'DS_RESPONSE' ] == 1) ||
-        $charge[ 'DS_ERROR_ID' ] == 0) {
+        if ((array_key_exists('DS_RESPONSE', $charge) && ( int )$charge['DS_RESPONSE'] == 1) || $charge['DS_ERROR_ID'] == 0) {
             //Esperamos a que la notificación genere el pedido
             sleep(3);
             $id_order = Order::getOrderByCartId((int)($this->context->cart->id));
-
 
             if ($jetPayment) {
                 $importe_ps  = number_format($importe / 100, 2, ".", "");
@@ -393,6 +420,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 );
 
                 if ($savecard_jet==1) {
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
+
                     if ($paytpv->apikey != '') {
                         $infoUserResponse = $apiRest->infoUser(
                             $data['IDUSER'],

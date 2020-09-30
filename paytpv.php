@@ -307,8 +307,6 @@ class Paytpv extends PaymentModule
         $arrDatos = array();
         $arrDatos["error"] = 0;
 
-        return $arrDatos;
-
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
             $term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
@@ -2059,31 +2057,41 @@ class Paytpv extends PaymentModule
         }
 
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
-
-        $client = new WSClient(
-            array(
-                'endpoint_paytpv' => $this->endpoint_paytpv,
-                'clientcode' => $this->clientcode,
-                'term' => $idterminal_sel,
-                'pass' => $pass_sel
-            )
-        );
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
 
         $result = PaytpvCustomer::getCustomerIduser($paytpv_iduser);
+
         if (empty($result) === true) {
             return false;
         } else {
             $paytpv_iduser = $result["paytpv_iduser"];
             $paytpv_tokenuser = $result["paytpv_tokenuser"];
 
-            $result = $client->removeUser($paytpv_iduser, $paytpv_tokenuser);
-            PaytpvCustomer::removeCustomerIduser((int) $this->context->customer->id, $paytpv_iduser);
+            if($this->apikey != '') {
+                $apiRest = new PaycometApiRest($this->apikey);
+                $result = $apiRest->removeUser(
+                    $idterminal_sel,
+                    $paytpv_iduser,
+                    $paytpv_tokenuser
+                );
+            } else {
+                $client = new WSClient(
+                    array(
+                        'endpoint_paytpv' => $this->endpoint_paytpv,
+                        'clientcode' => $this->clientcode,
+                        'term' => $idterminal_sel,
+                        'pass' => $pass_sel
+                    )
+                );
+        
+                $result = $client->removeUser($paytpv_iduser, $paytpv_tokenuser);
+            }
 
+            PaytpvCustomer::removeCustomerIduser((int) $this->context->customer->id, $paytpv_iduser);
 
             return true;
         }
     }
-
 
     public function removeSuscription($id_suscription)
     {
@@ -2103,6 +2111,7 @@ class Paytpv extends PaymentModule
         }
 
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
 
         $client = new WSClient(
             array(
@@ -2189,6 +2198,7 @@ class Paytpv extends PaymentModule
         }
 
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
 
         $client = new WSClient(
             array(
@@ -2206,17 +2216,27 @@ class Paytpv extends PaymentModule
             $paytpv_iduser = $result["paytpv_iduser"];
             $paytpv_tokenuser = $result["paytpv_tokenuser"];
 
-            $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
             if ((int) $result['DS_RESPONSE'] != 1 && $arrTerminal["idterminal_ns"] > 0) {
-                $client = new WSClient(
-                    array(
-                        'endpoint_paytpv' => $this->endpoint_paytpv,
-                        'clientcode' => $this->clientcode,
-                        'term' => $arrTerminal["idterminal_ns"],
-                        'pass' => $arrTerminal["password_ns"]
-                    )
-                );
-                $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+                if($this->apikey != '') {
+                    $apiRest = new PaycometApiRest($this->apikey);
+                    $removeSubscriptionResponse = $apiRest->removeSubscription(
+                        $arrTerminal["idterminal_ns"],
+                        $id_suscription,
+                        $paytpv_iduser,
+                        $paytpv_tokenuser
+                    );
+                    $result['DS_RESPONSE'] = $removeSubscriptionResponse->errorCode;
+                } else {
+                    $client = new WSClient(
+                        array(
+                            'endpoint_paytpv' => $this->endpoint_paytpv,
+                            'clientcode' => $this->clientcode,
+                            'term' => $arrTerminal["idterminal_ns"],
+                            'pass' => $arrTerminal["password_ns"]
+                        )
+                    );
+                    $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+                }
             }
             $response = array();
 
@@ -2315,9 +2335,11 @@ class Paytpv extends PaymentModule
         $type
     ) {
         $arrTerminal = PaytpvTerminal::getTerminalByCurrency($currency_iso_code, $order->id_shop);
-
+        
         // Refund amount
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
+        
         $client = new WSClient(
             array(
                 'endpoint_paytpv' => $this->endpoint_paytpv,
@@ -2328,14 +2350,29 @@ class Paytpv extends PaymentModule
         );
         
         // Refund amount of transaction
-        $result = $client->executeRefund(
-            '',
-            '',
-            $paytpv_order_ref,
-            $currency_iso_code,
-            $authcode,
-            $amount
-        );
+        if($this->apiKey != '') {
+            $apiRest = new PayCometApiRest($this->apiKey);
+            $executeRefundReponse = $apiRest->executeRefund(
+                $paytpv_order_ref,
+                $arrTerminal["idterminal"],
+                $amount,
+                $currency_iso_code,
+                $authcode,
+                $ip
+            );
+            
+            $result['DS_RESPONSE'] = $executeRefundReponse->errorCode;
+            $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+        } else {
+            $result = $client->executeRefund(
+                '',
+                '',
+                $paytpv_order_ref,
+                $currency_iso_code,
+                $authcode,
+                $amount
+            );
+        }
 
         // $refund_txt = $this->l('OK');
         $response = array();
@@ -2345,23 +2382,39 @@ class Paytpv extends PaymentModule
 
         // If idterminal_ns is not null make refund by other terminal
         if ($result['DS_ERROR_ID'] == 130 && $arrTerminal["idterminal_ns"] > 0) {
-            $client = new WSClient(
-                array(
-                    'endpoint_paytpv' => $this->endpoint_paytpv,
-                    'clientcode' => $this->clientcode,
-                    'term' => $arrTerminal["idterminal_ns"],
-                    'pass' => $arrTerminal["password_ns"]
-                )
-            );
-
-            $result = $client->executeRefund(
-                '',
-                '',
-                $paytpv_order_ref,
-                $currency_iso_code,
-                $authcode,
-                $amount
-            );
+            
+            if($this->apiKey != '') {
+                $apiRest = new PayCometApiRest($this->apiKey);
+                $executeRefundReponse = $apiRest->executeRefund(
+                    $paytpv_order_ref,
+                    $arrTerminal["idterminal"],
+                    $amount,
+                    $currency_iso_code,
+                    $authcode,
+                    $ip
+                );
+                
+                $result['DS_RESPONSE'] = $executeRefundReponse->errorCode;
+                $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+            } else {
+                $client = new WSClient(
+                    array(
+                        'endpoint_paytpv' => $this->endpoint_paytpv,
+                        'clientcode' => $this->clientcode,
+                        'term' => $arrTerminal["idterminal_ns"],
+                        'pass' => $arrTerminal["password_ns"]
+                    )
+                );
+                
+                $result = $client->executeRefund(
+                    '',
+                    '',
+                    $paytpv_order_ref,
+                    $currency_iso_code,
+                    $authcode,
+                    $amount
+                );
+            }
 
             $response["error"] = 0;
             $response["txt"] = $this->l('OK');
@@ -2371,14 +2424,30 @@ class Paytpv extends PaymentModule
         if ($result['DS_ERROR_ID'] == 130) {
             $paytpv_order_ref .= "[" . $paytpv_iduser . "]" . $paytpv_date;
             // Refund amount of transaction
-            $result = $client->executeRefund(
-                '',
-                '',
-                $paytpv_order_ref,
-                $currency_iso_code,
-                $authcode,
-                $amount
-            );
+
+            if($this->apiKey != '') {
+                $apiRest = new PayCometApiRest($this->apiKey);
+                $executeRefundReponse = $apiRest->executeRefund(
+                    $paytpv_order_ref,
+                    $arrTerminal["idterminal"],
+                    $amount,
+                    $currency_iso_code,
+                    $authcode,
+                    $ip
+                );
+                
+                $result['DS_RESPONSE'] = $executeRefundReponse->errorCode;
+                $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+            } else {
+                $result = $client->executeRefund(
+                    '',
+                    '',
+                    $paytpv_order_ref,
+                    $currency_iso_code,
+                    $authcode,
+                    $amount
+                );
+            }
 
             $response["error"] = 0;
             $response["txt"] = $this->l('OK');
@@ -2675,7 +2744,6 @@ class Paytpv extends PaymentModule
         $amount = number_format($total_pending * 100, 0, '.', '');
 
         $paytpv_order_ref = str_pad((int) $order->id_cart, 8, "0", STR_PAD_LEFT);
-
 
         $response = $this->makeRefund(
             $order,

@@ -82,30 +82,56 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
 
             if ($token && Tools::strlen($token) == 64) {
                 include_once(_PS_MODULE_DIR_.'/paytpv/classes/WSClient.php');
+                include_once(_PS_MODULE_DIR_.'/paytpv/classes/PaycometApiRest.php');
 
-                $client = new WSClient(
-                    array(
-                        'endpoint_paytpv' => $paytpv->endpoint_paytpv,
-                        'clientcode' => $paytpv->clientcode,
-                        'term' => $idterminal_sel,
-                        'pass' => $pass_sel,
-                        'jetid' => $jetid_sel
-                    )
-                );
+                if($paytpv->apikey != '') {
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
+                    
+                    $addUserResponse = $apiRest->addUser(
+                        $idterminal_sel,
+                        $token,
+                        $this->context->cart->id
+                    );
+                    $addUserResponseErrorCode = $addUserResponse->errorCode;
+                    $idUser = $addUserResponse->idUser;
+                    $tokenUser = $addUserResponse->tokenUser;
+                } else {
+                    $client = new WSClient(
+                        array(
+                            'endpoint_paytpv' => $paytpv->endpoint_paytpv,
+                            'clientcode' => $paytpv->clientcode,
+                            'term' => $idterminal_sel,
+                            'pass' => $pass_sel,
+                            'jetid' => $jetid_sel
+                        )
+                    );
+    
+                    $addUserResponse = $client->addUserToken($token);
+                    $addUserResponseErrorCode = $addUserResponse['DS_ERROR_ID'];
+                    $idUser = $addUserResponse["DS_IDUSER"];
+                    $tokenUser = $addUserResponse["DS_TOKEN_USER"];
+                }
 
-                $addUserResponse = $client->addUserToken($token);
-                if (( int ) $addUserResponse[ 'DS_ERROR_ID' ] > 0) {
+                if (( int ) $addUserResponseErrorCode > 0) {
                     $error = $paytpv->l('Cannot operate with given credit card');
                 } else {
-                    $data = array();
+                    if ($paytpv->apikey != '') {
+                        $apiRest = new PaycometApiRest($paytpv->apikey);
+                        $infoUserResponse = $apiRest->infoUser(
+                            $idUser,
+                            $tokenUser,
+                            $idterminal_sel
+                        );
+                        $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
+                        $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
+                    } else {
+                        $result = $client->infoUser($idUser, $tokenUser);
+                    }
 
-                    $data["IDUSER"] = $addUserResponse["DS_IDUSER"];
-                    $data["TOKEN_USER"] = $addUserResponse["DS_TOKEN_USER"];
-                    $result = $client->infoUser($data["IDUSER"], $data["TOKEN_USER"]);
                     $paytpv->saveCard(
                         (int)$this->context->customer->id,
-                        $data["IDUSER"],
-                        $data["TOKEN_USER"],
+                        $idUser,
+                        $tokenUser,
                         $result['DS_MERCHANT_PAN'],
                         $result['DS_CARD_BRAND']
                     );
