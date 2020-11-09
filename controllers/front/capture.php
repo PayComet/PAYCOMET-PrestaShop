@@ -89,14 +89,18 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
             }
 
             if($paytpv->apikey != '') {
-                $apiRest = new PaycometApiRest($paytpv->apikey);
-                
+
+                $notify = 2; // No notificar HTTP
+
+                $apiRest = new PaycometApiRest($paytpv->apikey);                
                 $addUserResponse = $apiRest->addUser(
                     $idterminal_sel,
                     $token,
-                    $this->context->cart->id
+                    $this->context->cart->id,
+                    $notify
                 );
                 $addUserResponseErrorCode = $addUserResponse->errorCode;
+                
                 $idUser = $addUserResponse->idUser;
                 $tokenUser = $addUserResponse->tokenUser;
             } else {
@@ -133,10 +137,10 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
                 $jetPayment = 1;
             }
-            // TOKENIZED CARD
+        // TOKENIZED CARD
         } else {
             $data =
-            PaytpvCustomer::getCardTokenCustomer(Tools::getValue("TOKEN_USER"), $this->context->cart->id_customer);
+            PaytpvCustomer::getCardTokenCustomer(Tools::getValue("TOKEN_USER"), $this->context->cart->id_customer);            
 
             if (!array_key_exists("IDUSER", $data)) {
                 $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
@@ -178,17 +182,18 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         // Si tiene un terminal NO Seguro ó ambos, el segundo pago siempre lo mandamos por NO Seguro
 
         $score = $paytpv->transactionScore($this->context->cart);
-        $MERCHANT_SCORING = $score["score"];
-        $MERCHANT_DATA = $paytpv->getMerchantData($this->context->cart);
-            
+        $MERCHANT_SCORING = $scoring = $score["score"];
+        
+        $values = array(
+            'id_cart' => (int)$this->context->cart->id,
+            'key' => Context::getContext()->customer->secure_key
+        );
+        $ssl = Configuration::get('PS_SSL_ENABLED');
+        
+        
+        /* INICIO PAGO SEGURO */
         if ($secure_pay) {
-            $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);
-
-            $values = array(
-                'id_cart' => (int)$this->context->cart->id,
-                'key' => Context::getContext()->customer->secure_key
-            );
-            $ssl = Configuration::get('PS_SSL_ENABLED');
+            $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);           
             
             $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
             $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);
@@ -257,10 +262,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 if ($MERCHANT_SCORING!=null) {
                     $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
                 }
-                if ($MERCHANT_DATA!=null) {
-                    // En principio sólo por REST
-                    // $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
-                }
+                
                 
                 $query = http_build_query($fields);
                 
@@ -268,23 +270,37 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 
                 $salida = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
             } else {
-                $apiRest = new PaycometApiRest($paytpv->apikey);
+
+                $merchantData = $paytpv->getMerchantData($this->context->cart);
+                $userInteraction = '1';
+                $methodId = '1';
+            
+                $apiRest = new PaycometApiRest($paytpv->apikey);            
                 if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
                     $createSubscriptionResponse = $apiRest->createSubscription(
                         $subscription_startdate,
                         $subscription_enddate,
                         $susc_periodicity,
                         $idterminal_sel,
-                        '1',
+                        $methodId,
                         $paytpv_order_ref,
                         $importe,
                         $currency_iso_code,
-                        $_SERVER['REMOTE_ADDR'],
+                        Tools::getRemoteAddr(),
                         $data["IDUSER"],
                         $data['TOKEN_USER'],
                         $secure_pay,
                         $URLOK,
-                        $URLKO
+                        $URLKO,
+                        $scoring,
+                        '',
+                        '',
+                        $userInteraction,
+                        [],
+                        '',
+                        '',
+                        $merchantData
+
                     );
 
                     $salida = $createSubscriptionResponse->challengeUrl;
@@ -294,21 +310,21 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         $paytpv_order_ref,
                         $importe,
                         $currency_iso_code,
-                        '1',
-                        $_SERVER['REMOTE_ADDR'],
+                        $methodId,
+                        Tools::getRemoteAddr(),
                         $secure_pay,
                         $data["IDUSER"],
                         $data['TOKEN_USER'],
                         $URLOK,
                         $URLKO,
+                        $scoring,
                         '',
                         '',
-                        '',
-                        1,
+                        $userInteraction,
                         [],
                         '',
                         '',
-                        $MERCHANT_DATA
+                        $merchantData
                     );
 
                     $salida = $executePurchaseResponse->challengeUrl;
@@ -319,8 +335,9 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
     
             exit;
         }
-        /* FIN AÑADIDO */
-        
+        /* FIN PAGO SEGURO */
+
+        /* INICIO PAGO NO SEGURO */        
         $client = new WSClient(
             array(
                 'endpoint_paytpv' => $paytpv->endpoint_paytpv,
@@ -332,6 +349,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
         $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);
 
+        // INICIO PAGO NO SEGURO SUSCRIPCION 
         if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
             $subscription_startdate = date("Y-m-d");
             $susc_periodicity = $periodicity;
@@ -346,57 +364,126 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $subscription_enddate = date('Y-m-d', strtotime("+".$dias_subscription." days"));
             }
             
-            $charge = $client->createSubscriptionToken(
-                $data['IDUSER'],
-                $data['TOKEN_USER'],
-                $importe,
-                $subscription_startdate,
-                $subscription_enddate,
-                $susc_periodicity,
-                $MERCHANT_SCORING,
-                $MERCHANT_DATA,
-                $currency_iso_code,
-                $paytpv_order_ref
-            );
+            if ($paytpv->apikey == '') {                    
+                $charge = $client->createSubscriptionToken(
+                    $data['IDUSER'],
+                    $data['TOKEN_USER'],
+                    $importe,
+                    $subscription_startdate,
+                    $subscription_enddate,
+                    $susc_periodicity,
+                    $MERCHANT_SCORING,
+                    null,
+                    $currency_iso_code,
+                    $paytpv_order_ref
+                );
+
+            } else {                
+                $apiRest = new PaycometApiRest($paytpv->apikey);
+
+                $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
+                $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);                
+                
+                $userInteraction = '1';
+                $methodId = '1';
+                $merchantData = $paytpv->getMerchantData($this->context->cart);
+
+                $createSubscriptionResponse = $apiRest->createSubscription(
+                    $subscription_startdate,
+                    $subscription_enddate,
+                    $susc_periodicity,
+                    $idterminal_sel,
+                    $methodId,
+                    $paytpv_order_ref,
+                    $importe,
+                    $currency_iso_code,
+                    Tools::getRemoteAddr(),
+                    $data["IDUSER"],
+                    $data['TOKEN_USER'],
+                    $secure_pay,
+                    $URLOK,
+                    $URLKO,
+                    $scoring,
+                    '',
+                    '',
+                    $userInteraction,
+                    [],
+                    '',
+                    '',
+                    $merchantData
+
+                );
+
+                if ($createSubscriptionResponse->challengeUrl != "") {
+                    Tools::redirect($createSubscriptionResponse->challengeUrl);
+                    exit;
+                } else {
+                    $charge = array();
+                    $charge["DS_RESPONSE"] = ($createSubscriptionResponse->errorCode > 0)? 0 : 1;
+                    $charge['DS_ERROR_ID'] = $createSubscriptionResponse->errorCode;                    
+                }
+
+            }
+        // INICIO PAGO NO SEGURO AUTORIZACION
         } else {
-            if ($paytpv->apikey == '') {
+            // REST
+            if ($paytpv->apikey != '') {
                 $apiRest = new PaycometApiRest($paytpv->apikey);
                 $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
                 $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);
 
-                $executePurchaseResponse = $apiRest->executePurchase(
-                    $idterminal_sel,
-                    $paytpv_order_ref,
-                    $importe,
-                    $currency_iso_code,
-                    '1',
-                    $_SERVER['REMOTE_ADDR'],
-                    $secure_pay,
-                    $data["IDUSER"],
-                    $data['TOKEN_USER'],
-                    $URLOK,
-                    $URLKO,
-                    '',
-                    '',
-                    '',
-                    1,
-                    [],
-                    '',
-                    '',
-                    $MERCHANT_DATA
-                );
+                $userInteraction = '1';
+                $methodId = '1';
+                $merchantData = $paytpv->getMerchantData($this->context->cart);
 
-                $charge['DS_ERROR_ID'] = $executePurchaseResponse->errorCode;
+                try {
+
+                    $executePurchaseResponse = $apiRest->executePurchase(
+                        $idterminal_sel,
+                        $paytpv_order_ref,
+                        $importe,
+                        $currency_iso_code,
+                        $methodId,
+                        Tools::getRemoteAddr(),
+                        $secure_pay,
+                        $data["IDUSER"],
+                        $data['TOKEN_USER'],
+                        $URLOK,
+                        $URLKO,
+                        '',
+                        '',
+                        '',
+                        $userInteraction,
+                        [],
+                        '',
+                        '',
+                        $merchantData
+                    );
+
+                    $charge = array();
+                    $charge["DS_RESPONSE"] = ($executePurchaseResponse->errorCode > 0)? 0 : 1;
+                    $charge['DS_ERROR_ID'] = $executePurchaseResponse->errorCode;
+                    
+                    if ($executePurchaseResponse->challengeUrl != "") {
+                        Tools::redirect($executePurchaseResponse->challengeUrl);    
+                        exit;
+                    }
+                } catch (exception $e) {
+                    $charge = array();
+                    $charge["DS_RESPONSE"] = ($executePurchaseResponse->errorCode > 0)? 0 : 1;
+                    $charge['DS_ERROR_ID'] = $executePurchaseResponse->errorCode;        
+                }                
+
             } else {
                 $charge = $client->executePurchase(
                     $data['IDUSER'],
                     $data['TOKEN_USER'],
                     $idterminal_sel,
-                    $importe,
-                    $MERCHANT_SCORING,
-                    $MERCHANT_DATA,
                     $currency_iso_code,
-                    $paytpv_order_ref
+                    $importe,
+                    $paytpv_order_ref,
+                    $MERCHANT_SCORING,
+                    null                       
                 );
             }
         }
@@ -462,6 +549,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $charge[ 'DS_RESPONSE' ]
             );
         }
+
+        /* FIN PAGO NO SEGURO */
                 
         $this->context->smarty->assign('error_msg', $paytpv->l('Cannot operate with given credit card', 'capture'));
         $this->context->smarty->assign('password_fail', $password_fail);

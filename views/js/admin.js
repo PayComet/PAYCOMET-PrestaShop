@@ -34,9 +34,7 @@ function checkAllTerminales()
 function checkterminales(element)
 {    
     cont = jQuery(element).attr('id').replace('terminales_','');
-
-    // Si solo tiene terminal seguro o tiene los dos la primera compra va por seguro
-    // Seguro
+        
     switch (jQuery(element).val()) {
         case "0": // SEGURO            
             var $radios = jQuery(element).parents(".panel").find('#tdfirst\\[\\]_on');
@@ -46,9 +44,9 @@ function checkterminales(element)
                 $radios.prop('checked', true);
             }
             jQuery("#tdmin_"+cont).parents(".form-group").hide();
-            jQuery(".term_ns_container_"+cont).parents(".form-group").hide();
-            jQuery(".term_s_container_"+cont).parents(".form-group").show();
-
+            jQuery(".term_ns_container_"+cont).parents(".form-group").hide();            
+            jQuery(".term_s_container_"+cont).parents(".form-group").show();            
+            
             if (jQuery("#integration").val()==1) {
                 jQuery(".class_jetid.term_s_container_"+cont).parents(".form-group").show();
             }else{                
@@ -69,12 +67,12 @@ function checkterminales(element)
             jQuery(".term_s_container_"+cont).parents(".form-group").hide();
             jQuery(".term_ns_container_"+cont).parents(".form-group").show();
             jQuery(element).parents(".panel").find(".terminales_tdmin").parents('.form-group').hide();
-
+            
             if (jQuery("#integration").val()==1) {
                 jQuery(".class_jetid.term_ns_container_"+cont).parents(".form-group").show();
             } else {
                 jQuery(".class_jetid.term_ns_container_"+cont).parents(".form-group").hide();
-            }     
+            }           
             break;
 
         case "2": // AMBOS
@@ -90,7 +88,7 @@ function checkterminales(element)
             }
             jQuery(element).parents(".panel").find(".terminales_tdmin").parents('.form-group').show();
             break;
-    }
+    }    
 }
 
 function addTerminal()
@@ -158,6 +156,7 @@ function checkaddTerminal()
         jQuery("#addterminal").hide()
     }
 }
+
 
 
 function changeScoring(select)
@@ -228,10 +227,8 @@ function checkScoring()
     }
 }
 
-
-
 $(document).ready(function()
-{
+{       
     checkAllTerminales();
     checkaddTerminal();
     checkScoring();
@@ -264,4 +261,5 @@ $(document).ready(function()
     {
         changeNewPage();
     })
+
 });

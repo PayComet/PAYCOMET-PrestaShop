@@ -130,7 +130,7 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_DISABLEOFFERSAVECARD', $config)) {
             $this->disableoffersavecard = $config['PAYTPV_DISABLEOFFERSAVECARD'];
         }
-        
+
         parent::__construct();
         $this->page = basename(__FILE__, '.php');
 
@@ -205,7 +205,7 @@ class Paytpv extends PaymentModule
             if (empty(Tools::getValue('pass'))) {
                 $this->postErrors[] = $this->l('User Password required');
             }
-                        
+
             if (Tools::getValue('newpage_payment') != 2
                 && (!filter_var(Tools::getValue('iframe_height'), FILTER_VALIDATE_INT) ||
                 Tools::getValue('iframe_height') < 440)
@@ -288,7 +288,7 @@ class Paytpv extends PaymentModule
             }
 
             // Si no hay errores previos se contrastan los datos
-            
+
             if (!sizeof($this->postErrors)) {
                 $arrValidatePaycomet = $this->validatePaycomet();
                 if ($arrValidatePaycomet["error"] != 0) {
@@ -305,7 +305,7 @@ class Paytpv extends PaymentModule
         $api = new PaytpvApi();
 
         $arrDatos = array();
-        $arrDatos["error"] = 0;
+        $arrDatos["error"] = 0;        
 
         // Validación de los datos en Paycomet
         foreach (array_keys(Tools::getValue("term")) as $key) {
@@ -321,7 +321,7 @@ class Paytpv extends PaymentModule
                         Tools::getValue("pass")[$key],
                         "CES"
                     );
-                    
+
                     break;
                 case 1: // No Seguro
                     $terminales_txt = $this->l('Non-Secure');
@@ -343,7 +343,7 @@ class Paytpv extends PaymentModule
                     break;
             }
 
-            
+
             if ($resp["DS_RESPONSE"] != 1) {
                 $arrDatos["error"] = 1;
                 switch ($resp["DS_ERROR_ID"]) {
@@ -377,7 +377,7 @@ class Paytpv extends PaymentModule
 
     private function postProcess()
     {
-       
+
         // Update databse configuration
         if (Tools::getIsset('btnSubmit')) {
             Configuration::updateValue('PAYTPV_CLIENTCODE', trim(Tools::getValue('clientcode')));
@@ -391,13 +391,13 @@ class Paytpv extends PaymentModule
 
             // Save Paytpv Terminals
             PaytpvTerminal::removeTerminals();
-           
+
             foreach (array_keys(Tools::getValue("term")) as $key) {
                 $aux_tdmin = (Tools::getValue('tdmin')[$key] == ''|| Tools::getValue("terminales")[$key] != 2) ?
                 0 : Tools::getValue('tdmin')[$key];
                 $aux_term = (Tools::getValue('term')[$key] == '') ? "" : Tools::getValue('term')[$key];
                 $aux_term_ns = (Tools::getValue('term_ns')[$key] == '') ? "" : Tools::getValue('term_ns')[$key];
-                
+
                 PaytpvTerminal::addTerminal(
                     $key + 1,
                     trim($aux_term),
@@ -412,7 +412,7 @@ class Paytpv extends PaymentModule
                     $aux_tdmin
                 );
             }
-           
+
 
             // Datos Scoring
 
@@ -840,7 +840,7 @@ class Paytpv extends PaymentModule
         } else {
             $errorMessage = '';
         }
-       
+
         if (Tools::isSubmit('id_cart')) {
             $this->validateOrder(
                 Tools::getValue('id_cart'),
@@ -854,7 +854,7 @@ class Paytpv extends PaymentModule
         if (Tools::isSubmit('id_registro')) {
             ClassRegistro::remove(Tools::getValue('id_registro'));
         }
-        
+
         $this->currency_array = Currency::getCurrenciesByIdShop(Context::getContext()->shop->id);
 
         if (Configuration::get('PS_RESTRICT_DELIVERED_COUNTRIES')) {
@@ -865,10 +865,10 @@ class Paytpv extends PaymentModule
 
         $ssl = Configuration::get('PS_SSL_ENABLED');
         // Set the smarty env
-        
+
         $this->context->smarty->assign('displayName', Tools::safeOutput($this->displayName));
         $this->context->smarty->assign('description', Tools::safeOutput($this->description));
-                       
+
         $this->context->smarty->assign('errorMessage', $errorMessage);
 
         $this->context->smarty->assign(
@@ -877,13 +877,13 @@ class Paytpv extends PaymentModule
         );
 
         $this->terminales_paytpv = $this->obtenerTerminalesConfigurados();
-                
+
         $this->context->controller->addJS($this->_path . 'views/js/admin.js', 'all');
         $this->context->controller->addCSS($this->_path . 'views/css/admin.css', 'all');
-        
+
         $this->context->smarty->assign('configform', str_replace('</form>', '', $this->displayForm()));
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/admin.tpl');
-        
+
         return $output;
     }
 
@@ -897,7 +897,7 @@ class Paytpv extends PaymentModule
         $helper->module = $this;
         $helper->default_form_language = $this->context->language->id;
         $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
-        
+
         $helper->identifier = $this->identifier;
         $helper->submit_action = 'submitPaytpvpaymentsModule';
         $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
@@ -909,10 +909,10 @@ class Paytpv extends PaymentModule
             'languages' => $this->context->controller->getLanguages(),
             'id_language' => $this->context->language->id
         );
-               
+
         return $helper->generatePaytpvForm($this->context->smarty, $this->getConfigForm());
     }
-    
+
     public function getConfigFormValues()
     {
         $config = $this->getConfigValues();
@@ -925,7 +925,7 @@ class Paytpv extends PaymentModule
         $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
         $arrValues["suscriptions"] = $config["PAYTPV_SUSCRIPTIONS"];
         $arrValues["reg_estado"] = $config["PAYTPV_REG_ESTADO"];
-        
+
         $arrValues["firstpurchase_scoring"] = $config["PAYTPV_FIRSTPURCHASE_SCORING"];
         $arrValues["firstpurchase_scoring_score"] = $config["PAYTPV_FIRSTPURCHASE_SCORING_SCO"];
         $arrValues["sessiontime_scoring"] = $config["PAYTPV_SESSIONTIME_SCORING"];
@@ -958,10 +958,10 @@ class Paytpv extends PaymentModule
         }
         return $arrValues;
     }
-    
+
     public function getConfigForm()
     {
-       
+
         $arrCurrency = array();
         foreach ($this->currency_array as $key => $datos) {
             $arrCurrency[$key]["id"] = $datos["iso_code"];
@@ -1004,11 +1004,11 @@ class Paytpv extends PaymentModule
                         'required' => true
                     ),
                     array(
-                        'col' => 1,
+                        'col' => 3,
                         'type' => 'text',
                         'label' => $this->l('API KEY'),
                         'name' => 'apikey',
-                        'hint' => $this->l('API KEY. Available in the PAYCOMET product configuration'),
+                        'hint' => $this->l('API KEY. You can create an API KEY in your PAYCOMET cliente area'),
                         'required' => false
                     ),
                 )
@@ -1198,8 +1198,8 @@ class Paytpv extends PaymentModule
 
             $arrFields[] = $terminal_form;
         }
-        
-       
+
+
         $options_form = array(
             'form' => array(
                 'legend' => array(
@@ -1207,7 +1207,7 @@ class Paytpv extends PaymentModule
                     'icon' => 'icon-cogs'
                 ),
                 'input' => array(
-                    
+
                     array(
                         'type' => 'select',
                         'label' => $this->l('Payment in new Page'),
@@ -1276,10 +1276,10 @@ class Paytpv extends PaymentModule
                 )
             ),
         );
-        
+
         $arrFields[] = $options_form;
         // Array Score
-        
+
         $arrScore = array();
         for ($i=0; $i <= 100; $i++) {
             $arrScore[$i]["id"] = $i;
@@ -1300,7 +1300,7 @@ class Paytpv extends PaymentModule
             array("id"=>360,"name"=>'06:00')
         );
 
-        
+
         $arrDestination = array();
         $id = 0;
         foreach ($this->countries as $key => $country) {
@@ -1308,7 +1308,7 @@ class Paytpv extends PaymentModule
             $arrDestination[$id]["name"] = $country["name"];
             $id++;
         };
-        
+
         $scoring_form = array(
             'form' => array(
                 'legend' => array(
@@ -1344,7 +1344,7 @@ class Paytpv extends PaymentModule
                             'name' => 'name'
                         )
                     ),
-                    
+
                     array(
                         'type' => 'switch',
                         'label' => $this->l('Complete Session Time'),
@@ -1504,9 +1504,9 @@ class Paytpv extends PaymentModule
                 )
             ),
         );
-        
+
         $arrFields[] = $scoring_form;
-        
+
         return $arrFields;
     }
 
@@ -1528,7 +1528,7 @@ class Paytpv extends PaymentModule
             $terminales[0]["tdmin"] = 0;
             $terminales[0]["currency_iso_code"] = $currency->iso_code;
         }
-        
+
         return $terminales;
     }
 
@@ -1690,21 +1690,15 @@ class Paytpv extends PaymentModule
             return $this->display(__FILE__, 'payment_bsiframe.tpl');
         }
     }
-    
+
     public function getMerchantData($cart)
     {
-        // $resp = $cart;
-        // $resp = null;
-        // return $resp;
-
         $MERCHANT_EMV3DS = $this->getEMV3DS($cart);
         $SHOPPING_CART = $this->getShoppingCart($cart);
 
         $datos = array_merge($MERCHANT_EMV3DS,$SHOPPING_CART);
 
         return $datos;
-
-        // return urlencode(base64_encode(json_encode($datos)));
     }
 
     public function paytpvIframeURL()
@@ -1758,26 +1752,46 @@ class Paytpv extends PaymentModule
         $language = $this->getPaycometLang($this->context->language->language_code);
 
         $score = $this->transactionScore($cart);
-        $MERCHANT_SCORING = $score["score"];
-        $MERCHANT_DATA = $this->getMerchantData($cart);
+        $scoring = $score["score"];
+
 
         $OPERATION = "1";
         if ($this->apikey != '') {
-            $apiRest = new PaycometApiRest($this->apikey);
-            $formResponse = $apiRest->form(
-                $OPERATION,
-                $language,
-                $idterminal_sel,
-                '',
-                [
+
+            $userInteraction = '1';
+            $merchantData = $this->getMerchantData($cart);
+
+            try {
+
+                $apiRest = new PaycometApiRest($this->apikey);
+
+                $payment =  [
                     'terminal' => (int) $idterminal_sel,
                     'order' => (string) $paytpv_order_ref,
                     'amount' => (string) $importe,
-                    'currency' => (string) $currency_iso_code
-                ]
-            );
+                    'currency' => (string) $currency_iso_code,
+                    'userInteraction' => (string) $userInteraction,
+                    'secure' => $secure_pay,                        
+                    'merchantData' => $merchantData,
+                    'urlOk' => $URLOK,
+                    'urlKo' => $URLKO
+                ];
 
-            $url_paytpv = $formResponse->challengeUrl;
+                if ($scoring != null)
+                    $payment['scoring'] = (int) $scoring;
+                    
+                $formResponse = $apiRest->form(
+                    $OPERATION,
+                    $language,
+                    $idterminal_sel,
+                    '',
+                    $payment
+                );
+                
+                $url_paytpv = $formResponse->challengeUrl;
+            } catch (exception $e){
+                $url_paytpv = "";
+            }
 
         } else {
             // Cálculo Firma
@@ -1786,7 +1800,7 @@ class Paytpv extends PaymentModule
                 $this->clientcode . $idterminal_sel . $OPERATION . $paytpv_order_ref
                 . $importe . $currency_iso_code . md5($pass_sel)
             );
-    
+
             $fields = array(
                 'MERCHANT_MERCHANTCODE' => $this->clientcode,
                 'MERCHANT_TERMINAL' => $idterminal_sel,
@@ -1800,19 +1814,15 @@ class Paytpv extends PaymentModule
                 'URLKO' => $URLKO,
                 '3DSECURE' => $secure_pay
             );
-    
-            if ($MERCHANT_SCORING != null) {
-                $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
+
+            if ($scoring != null) {
+                $fields["MERCHANT_SCORING"] = $scoring;
             }
-            if ($MERCHANT_DATA != null) {
-                // En principio sólo se enviará por REST
-                // $fields["MERCHANT_DATA"] = $MERCHANT_DATA;
-            }
-    
+
             $query = http_build_query($fields);
-    
+
             $vhash = hash('sha512', md5($query . md5($pass_sel)));
-    
+
             $url_paytpv = $this->url_paytpv . "?" . $query . "&VHASH=" . $vhash;
         }
 
@@ -1826,13 +1836,13 @@ class Paytpv extends PaymentModule
     {
 
         // Si hay un terminal definido para la moneda del usuario devolvemos ese.
-        $result = PaytpvTerminal::getterminalCurrency($this->context->currency->iso_code, $cart->id_shop);
+        $result = PaytpvTerminal::getTerminalCurrency($this->context->currency->iso_code, $cart->id_shop);
         // Not exists terminal in user currency
         if (empty($result) === true) {
             // Search for terminal in merchant default currency
             $id_currency = (int) (Configuration::get('PS_CURRENCY_DEFAULT'));
             $currency = new Currency($id_currency);
-            $result = PaytpvTerminal::getterminalCurrency($currency->iso_code, $cart->id_shop);
+            $result = PaytpvTerminal::getTerminalCurrency($currency->iso_code, $cart->id_shop);
 
             // If not exists terminal in default currency. Select first terminal defined
             if (empty($result) === true) {
@@ -1856,7 +1866,7 @@ class Paytpv extends PaymentModule
 
     public function isSecureTransaction($idterminal, $importe, $card)
     {
-        
+
         $arrTerminal = PaytpvTerminal::getTerminalByIdTerminal($idterminal);
 
         $terminales = $arrTerminal["terminales"];
@@ -1946,7 +1956,7 @@ class Paytpv extends PaymentModule
             } elseif ($num_pagos == $result['cycles'] && $result['cycles'] > 0) {
                 $status = $this->l('ENDED');
             }
-            
+
             $language = $this->getPaycometLang($this->context->language->language_code);
 
             $date_YYYYMMDD = ($language == "es") ?
@@ -1998,45 +2008,6 @@ class Paytpv extends PaymentModule
     }
 
 
-    public function removeUser($paytpv_iduser, $paytpv_tokenuser)
-    {
-        $arrTerminal =
-            PaytpvTerminal::getTerminalByCurrency($this->context->currency->iso_code, $this->context->shop->id);
-
-        $idterminal = $arrTerminal["idterminal"];
-        $idterminal_ns = $arrTerminal["idterminal_ns"];
-        $pass = $arrTerminal["password"];
-        $pass_ns = $arrTerminal["password_ns"];
-        if ($idterminal > 0) {
-            $idterminal_sel = $idterminal;
-            $pass_sel = $pass;
-        } else {
-            $idterminal_sel = $idterminal_ns;
-            $pass_sel = $pass_ns;
-        }
-
-        if($this->apikey != '') {
-            $apiRest = new PaycometApiRest($this->apikey);
-            $result = $apiRest->removeUser(
-                $idterminal_sel,
-                $paytpv_iduser,
-                $paytpv_tokenuser
-            );
-        } else {
-            $client = new WSClient(
-                array(
-                    'endpoint_paytpv' => $this->endpoint_paytpv,
-                    'clientcode' => $this->clientcode,
-                    'term' => $idterminal_sel,
-                    'pass' => $pass_sel
-                )
-            );
-    
-            $result = $client->removeUser($paytpv_iduser, $paytpv_tokenuser);
-        }
-
-        return $result;
-    }
 
 
     public function removeCard($paytpv_iduser)
@@ -2057,7 +2028,7 @@ class Paytpv extends PaymentModule
         }
 
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
-        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
         $result = PaytpvCustomer::getCustomerIduser($paytpv_iduser);
 
@@ -2083,7 +2054,7 @@ class Paytpv extends PaymentModule
                         'pass' => $pass_sel
                     )
                 );
-        
+
                 $result = $client->removeUser($paytpv_iduser, $paytpv_tokenuser);
             }
 
@@ -2111,7 +2082,7 @@ class Paytpv extends PaymentModule
         }
 
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
-        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
         $client = new WSClient(
             array(
@@ -2135,13 +2106,12 @@ class Paytpv extends PaymentModule
             if($this->apikey != '') {
                 $apiRest = new PaycometApiRest($this->apikey);
                 $removeSubscriptionResponse = $apiRest->removeSubscription(
-                    $arrTerminal["idterminal_ns"],
-                    $id_suscription,
+                    $idterminal_sel,
                     $paytpv_iduser,
                     $paytpv_tokenuser
                 );
 
-                $result['DS_RESPONSE'] = $removeSubscriptionResponse->errorCode;
+                $result["DS_RESPONSE"] = ($removeSubscriptionResponse->errorCode > 0)? 0 : 1;
             } else {
                 $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
             }
@@ -2151,12 +2121,11 @@ class Paytpv extends PaymentModule
                     $apiRest = new PaycometApiRest($this->apikey);
                     $removeSubscriptionResponse = $apiRest->removeSubscription(
                         $arrTerminal["idterminal_ns"],
-                        $id_suscription,
                         $paytpv_iduser,
                         $paytpv_tokenuser
                     );
 
-                $result['DS_RESPONSE'] = $removeSubscriptionResponse->errorCode;
+                    $result["DS_RESPONSE"] = ($removeSubscriptionResponse->errorCode > 0)? 0 : 1;
                 } else {
                     $client = new WSClient(
                         array(
@@ -2198,7 +2167,7 @@ class Paytpv extends PaymentModule
         }
 
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
-        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
         $client = new WSClient(
             array(
@@ -2216,27 +2185,28 @@ class Paytpv extends PaymentModule
             $paytpv_iduser = $result["paytpv_iduser"];
             $paytpv_tokenuser = $result["paytpv_tokenuser"];
 
-            if ((int) $result['DS_RESPONSE'] != 1 && $arrTerminal["idterminal_ns"] > 0) {
-                if($this->apikey != '') {
-                    $apiRest = new PaycometApiRest($this->apikey);
+            if($this->apikey != '') {
+                $apiRest = new PaycometApiRest($this->apikey);
+                try {                    
                     $removeSubscriptionResponse = $apiRest->removeSubscription(
                         $arrTerminal["idterminal_ns"],
-                        $id_suscription,
                         $paytpv_iduser,
                         $paytpv_tokenuser
-                    );
-                    $result['DS_RESPONSE'] = $removeSubscriptionResponse->errorCode;
-                } else {
-                    $client = new WSClient(
-                        array(
-                            'endpoint_paytpv' => $this->endpoint_paytpv,
-                            'clientcode' => $this->clientcode,
-                            'term' => $arrTerminal["idterminal_ns"],
-                            'pass' => $arrTerminal["password_ns"]
-                        )
-                    );
-                    $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
+                    );                    
+                    $result["DS_RESPONSE"] = (!isset($removeSubscriptionResponse) || $removeSubscriptionResponse->errorCode > 0)? 0 : 1;
+                } catch (exception $e) {
+                    $result["DS_RESPONSE"] = 0;                   
                 }
+            } else {
+                $client = new WSClient(
+                    array(
+                        'endpoint_paytpv' => $this->endpoint_paytpv,
+                        'clientcode' => $this->clientcode,
+                        'term' => $arrTerminal["idterminal_ns"],
+                        'pass' => $arrTerminal["password_ns"]
+                    )
+                );
+                $result = $client->removeSubscription($paytpv_iduser, $paytpv_tokenuser);
             }
             $response = array();
 
@@ -2304,7 +2274,7 @@ class Paytpv extends PaymentModule
         $amount = number_format($amt * 100, 0, '.', '');
 
         $paytpv_order_ref = str_pad((int) $order->id_cart, 8, "0", STR_PAD_LEFT);
-
+        
         $response = $this->makeRefund(
             $params['order'],
             $paytpv_iduser,
@@ -2334,12 +2304,14 @@ class Paytpv extends PaymentModule
         $amount,
         $type
     ) {
-        $arrTerminal = PaytpvTerminal::getTerminalByCurrency($currency_iso_code, $order->id_shop);
+
         
+        $arrTerminal = PaytpvTerminal::getTerminalByCurrency($currency_iso_code, $order->id_shop);
+
         // Refund amount
         include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
-        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
-        
+        include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
+
         $client = new WSClient(
             array(
                 'endpoint_paytpv' => $this->endpoint_paytpv,
@@ -2348,20 +2320,26 @@ class Paytpv extends PaymentModule
                 'pass' => $arrTerminal["password"]
             )
         );
-        
+
+        $ip = Tools::getRemoteAddr();
+
         // Refund amount of transaction
-        if($this->apiKey != '') {
-            $apiRest = new PayCometApiRest($this->apiKey);
+        if($this->apikey != '') {
+            $notifyDirectPayment = 2;
+            $apiRest = new PaycometApiRest($this->apikey);
+            
             $executeRefundReponse = $apiRest->executeRefund(
                 $paytpv_order_ref,
                 $arrTerminal["idterminal"],
                 $amount,
                 $currency_iso_code,
                 $authcode,
-                $ip
+                $ip,
+                $notifyDirectPayment
             );
-            
-            $result['DS_RESPONSE'] = $executeRefundReponse->errorCode;
+
+            $result["DS_RESPONSE"] = ($executeRefundReponse->errorCode > 0)? 0 : 1;
+            $result['DS_ERROR_ID'] = $executeRefundReponse->errorCode;
             $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
         } else {
             $result = $client->executeRefund(
@@ -2382,19 +2360,23 @@ class Paytpv extends PaymentModule
 
         // If idterminal_ns is not null make refund by other terminal
         if ($result['DS_ERROR_ID'] == 130 && $arrTerminal["idterminal_ns"] > 0) {
-            
-            if($this->apiKey != '') {
-                $apiRest = new PayCometApiRest($this->apiKey);
+
+            if($this->apikey != '') {
+                $notifyDirectPayment = 2;
+
+                $apiRest = new PaycometApiRest($this->apikey);
                 $executeRefundReponse = $apiRest->executeRefund(
                     $paytpv_order_ref,
-                    $arrTerminal["idterminal"],
+                    $arrTerminal["idterminal_ns"],
                     $amount,
                     $currency_iso_code,
                     $authcode,
-                    $ip
+                    $ip,
+                    $notifyDirectPayment
                 );
-                
-                $result['DS_RESPONSE'] = $executeRefundReponse->errorCode;
+
+                $result["DS_RESPONSE"] = ($executeRefundReponse->errorCode > 0)? 0 : 1;
+                $result['DS_ERROR_ID'] = $executeRefundReponse->errorCode;
                 $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
             } else {
                 $client = new WSClient(
@@ -2405,7 +2387,7 @@ class Paytpv extends PaymentModule
                         'pass' => $arrTerminal["password_ns"]
                     )
                 );
-                
+
                 $result = $client->executeRefund(
                     '',
                     '',
@@ -2425,18 +2407,23 @@ class Paytpv extends PaymentModule
             $paytpv_order_ref .= "[" . $paytpv_iduser . "]" . $paytpv_date;
             // Refund amount of transaction
 
-            if($this->apiKey != '') {
-                $apiRest = new PayCometApiRest($this->apiKey);
+            if($this->apikey != '') {
+
+                $notifyDirectPayment = 2;
+                
+                $apiRest = new PaycometApiRest($this->apikey);
                 $executeRefundReponse = $apiRest->executeRefund(
                     $paytpv_order_ref,
                     $arrTerminal["idterminal"],
                     $amount,
                     $currency_iso_code,
                     $authcode,
-                    $ip
+                    $ip,
+                    $notifyDirectPayment
                 );
-                
-                $result['DS_RESPONSE'] = $executeRefundReponse->errorCode;
+
+                $result["DS_RESPONSE"] = ($executeRefundReponse->errorCode > 0)? 0 : 1;
+                $result['DS_ERROR_ID'] = $executeRefundReponse->errorCode;
                 $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
             } else {
                 $result = $client->executeRefund(
@@ -2563,7 +2550,7 @@ class Paytpv extends PaymentModule
         // Total Refund Template
         if ($order->module == $this->name && $this->canRefund($order->id)) {
             $order_state = $order->current_state;
-           
+
             $total_amount = $order->total_paid;
 
             $amount_returned =  PaytpvRefund::getTotalRefund($order->id);
@@ -2677,7 +2664,7 @@ class Paytpv extends PaymentModule
             $amount = number_format($amt * 100, 0, '.', '');
 
             $paytpv_order_ref = str_pad((int) $order->id_cart, 8, "0", STR_PAD_LEFT);
-
+            
             $response = $this->makeRefund(
                 $order,
                 $paytpv_iduser,
@@ -2701,6 +2688,7 @@ class Paytpv extends PaymentModule
 
     private function doTotalRefund($id_order)
     {
+        
         $paytpv_order = PaytpvOrder::getOrder((int) $id_order);
         if (empty($paytpv_order)) {
             return false;
@@ -2744,7 +2732,7 @@ class Paytpv extends PaymentModule
         $amount = number_format($total_pending * 100, 0, '.', '');
 
         $paytpv_order_ref = str_pad((int) $order->id_cart, 8, "0", STR_PAD_LEFT);
-
+        
         $response = $this->makeRefund(
             $order,
             $paytpv_iduser,

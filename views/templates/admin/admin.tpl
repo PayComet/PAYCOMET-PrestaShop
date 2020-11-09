@@ -27,7 +27,7 @@
 </script>
 
 
-<div class="alert">
+<div class="alert alert-info">
     <img src="../modules/paytpv/logo.png" width="46" style="float:left; margin-right:15px;">
     <p><strong>{l s='This module allows you to accept secure payments by PAYCOMET.' mod='paytpv'}</strong></p>
     <p>{l s='If the customer chooses this payment method, they will be able to make payments automatically' mod='paytpv'}</p>

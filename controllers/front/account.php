@@ -77,7 +77,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
             }
         
 
-            // BANKSTORE JET
+            // SAVE BANKSTORE JET 
             $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
 
             if ($token && Tools::strlen($token) == 64) {
@@ -85,12 +85,13 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                 include_once(_PS_MODULE_DIR_.'/paytpv/classes/PaycometApiRest.php');
 
                 if($paytpv->apikey != '') {
-                    $apiRest = new PaycometApiRest($paytpv->apikey);
-                    
+                    $notify = '2'; 
+                    $apiRest = new PaycometApiRest($paytpv->apikey);                    
                     $addUserResponse = $apiRest->addUser(
                         $idterminal_sel,
                         $token,
-                        $this->context->cart->id
+                        $this->context->cart->id,
+                        $notify
                     );
                     $addUserResponseErrorCode = $addUserResponse->errorCode;
                     $idUser = $addUserResponse->idUser;
@@ -137,40 +138,67 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                     );
                 }
             }
+            // FIN SAVE BANKSTORE JET 
             
             $saved_card = PaytpvCustomer::getCardsCustomer((int)$this->context->customer->id);
                         
             $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
-            $suscriptions = PaytpvSuscription::getSuscriptionsCustomer($language, (int)$this->context->customer->id);
+            $suscriptions = PaytpvSuscription::getSuscriptionCustomer($language, (int)$this->context->customer->id);
 
             $order = Context::getContext()->customer->id . "_" . Context::getContext()->shop->id;
             $operation = 107;
             $ssl = Configuration::get('PS_SSL_ENABLED');
             $paytpv_integration = (int)(Configuration::get('PAYTPV_INTEGRATION'));
-    
+                
             $URLOK=$URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'account', array(), $ssl);
-            
 
-            // Cálculo Firma
-            $signature = hash('sha512', $paytpv->clientcode.$idterminal_sel.$operation.$order.md5($pass_sel));
-            $fields = array(
-                'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
-                'MERCHANT_TERMINAL' => $idterminal_sel,
-                'OPERATION' => $operation,
-                'LANGUAGE' => $language,
-                'MERCHANT_MERCHANTSIGNATURE' => $signature,
-                'MERCHANT_ORDER' => $order,
-                'URLOK' => $URLOK,
-                'URLKO' => $URLKO,
-                '3DSECURE' => $secure_pay
-            );
+            if ($paytpv->apikey != '') {
+                
+                try {
 
-            $query = http_build_query($fields);
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
+                    $formResponse = $apiRest->form(
+                        $operation,
+                        $language,
+                        $idterminal_sel,
+                        '',
+                        [
+							'terminal' => (int) $idterminal_sel,
+							'order' => (string) $order,
+							'urlOk' => (string) $URLOK,
+							'urlKo' => (string) $URLKO,
+						],
+                        []
+                    );
+                    
+                    $url_paytpv = $formResponse->challengeUrl;
+                } catch (exception $e){
+                    $url_paytpv = "";
+                }
+                
+            } else {
+                // Cálculo Firma
+                $signature = hash('sha512', $paytpv->clientcode.$idterminal_sel.$operation.$order.md5($pass_sel));
+                $fields = array(
+                    'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
+                    'MERCHANT_TERMINAL' => $idterminal_sel,
+                    'OPERATION' => $operation,
+                    'LANGUAGE' => $language,
+                    'MERCHANT_MERCHANTSIGNATURE' => $signature,
+                    'MERCHANT_ORDER' => $order,
+                    'URLOK' => $URLOK,
+                    'URLKO' => $URLKO,
+                    '3DSECURE' => $secure_pay
+                );
 
-            $vhash = hash('sha512', md5($query.md5($pass_sel)));
 
-            $url_paytpv = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
+                $query = http_build_query($fields);
+
+                $vhash = hash('sha512', md5($query.md5($pass_sel)));
+
+                $url_paytpv = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
+            }
 
             $paytpv_path = Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$paytpv->name.'/';
             

@@ -29,15 +29,6 @@ function buildED() {
     $('[data-paycomet=\'dateMonth\']').val(n), $('[data-paycomet=\'dateYear\']').val(a);
 }
     
-function ShowHidePaymentButton(show){
-    if (show){
-      $("#clockwait_jet").hide();
-      $("#btnforg").show();
-    }else{
-      $("#btnforg").hide();
-      $("#clockwait_jet").show();
-    }
-  }
 
 $(document).ready(function() {
 

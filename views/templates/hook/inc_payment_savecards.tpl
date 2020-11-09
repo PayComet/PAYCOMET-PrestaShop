@@ -24,8 +24,8 @@
 
     <div id="storingStep" class="alert {if (sizeof($saved_card))>1}hidden{/if}" style="clear:left;">
         <p class="checkbox">
-            <label for="savecard" class="checkbox">
-                <input type="checkbox" name="savecard" id="savecard" onChange="saveOrderInfoJQ(0)">{l s='Save card for future purchases' mod='paytpv'}.
+            <label for="paytpv_savecard" class="checkbox">
+                <input type="checkbox" name="paytpv_savecard" id="paytpv_savecard" onChange="saveOrderInfoJQ(0)">{l s='Save card for future purchases' mod='paytpv'}.
                 <span class="paytpv-pci">{l s='Card data is protected by the Payment Card Industry Data Security Standard (PCI DSS)' mod='paytpv'}.</span>
             </label>
         </p>
