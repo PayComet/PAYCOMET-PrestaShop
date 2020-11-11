@@ -83,11 +83,7 @@
                             <img id='clockwait' style="display:none" src="{$base_dir|escape:'htmlall':'UTF-8'}modules/paytpv/views/img/clockpayblue.gif"></img>
                         </div>
                     {/if}
-                </div>
-
-                <div id="paytpv_checkconditions" style="display:none">
-                    <strong>{l s='You must accept the license terms to continue' mod='paytpv'}</strong>
-                </div>   
+                </div>                
 
                 {if (!$disableoffersavecard==1)}
                     {include file='modules/paytpv/views/templates/hook/inc_payment_savecards.tpl'}
@@ -160,11 +156,7 @@
             <form name="pago_directo" id="pago_directo" action="" method="post"></form>
         </div>
     </div>
-
-    <div style="display: none;">
-            {include file='modules/paytpv/views/templates/hook/inc_payment_conditions.tpl'}
-    </div>
-
+    
     <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$link->getModuleLink('paytpv', 'actions',[], true)|escape:'htmlall':'UTF-8'}">
 
     <script type="text/javascript">

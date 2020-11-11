@@ -23,11 +23,7 @@
 */
 
 
-$(document).ready(function() {
-    $("#open_conditions,#open_conditions2").fancybox({
-            autoSize:false,
-            'width':parseInt($(window).width() * 0.7)
-        });   
+$(document).ready(function() {    
 
     $("body").on("click",".exec_directpay",function(event) {
         event.preventDefault();
