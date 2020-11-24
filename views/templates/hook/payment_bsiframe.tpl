@@ -46,9 +46,10 @@
                     <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}" method="POST" class="paytpv_jet" id="paycometPaymentForm" style="clear:left;">
                 {/if}
 
-
-                <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135"></a>
-                <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/tarjetas.png">
+                <div class="paytpv_title">
+                    <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135"></a>                    
+                    {l s='Pay with Card' mod='paytpv'}
+                </div>
                 {if ($msg_paytpv!="")}
                 <p>
                     <span class="message">{$msg_paytpv|escape:'htmlall':'UTF-8':FALSE}</span>
