@@ -114,7 +114,14 @@
     display: block;
 }
 
-
 .paytpv_title {
     padding: 10px 0px;
+}
+
+.checkbox #savecard {
+    appearance: auto!important;
+}
+
+#storingStep .checkbox {
+    display: block!important;
 }
