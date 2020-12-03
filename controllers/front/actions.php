@@ -176,56 +176,50 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
             0
         )) {
             $OPERATION = "1";
-            
+
             if ($paytpv->apikey != '') {
-                
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
-               
                 $userInteraction = '1';
                 $merchantData = $paytpv->getMerchantData($cart);
 
                 $score = $paytpv->transactionScore($cart);
                 $scoring = $score["score"];
-               
+
                 try {
-                    
-                    $apiRest = new PaycometApiRest($paytpv->apikey);                    
-                     
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
                     $payment =  [
                         'terminal' => (int) $idterminal_sel,
                         'order' => (string) $paytpv_order_ref,
                         'amount' => (string) $importe,
                         'currency' => (string) $currency_iso_code,
-                        'userInteraction' => (string) $userInteraction,
-                        'secure' => $secure_pay,                        
+                        'userInteraction' => (int) $userInteraction,
+                        'secure' => (int) $secure_pay,
                         'merchantData' => $merchantData,
                         'urlOk' => $URLOK,
                         'urlKo' => $URLKO
                     ];
-                    
-                    if ($scoring != null)
-                        $payment['scoring'] = (int) $scoring;                    
-                        
+
+                    if ($scoring != null) {
+                        $payment['scoring'] = (int) $scoring;
+                    }
+
                     $formResponse = $apiRest->form(
                         $OPERATION,
                         $language,
                         $idterminal_sel,
                         '',
                         $payment
-                    );                    
+                    );
 
                     $url_paytpv = $formResponse->challengeUrl;
-                    
-                } catch (exception $e){                    
+                } catch (exception $e) {
                     $url_paytpv = "";
                 }
-    
             } else {
-
                 // Cálculo Firma
                 $signature = hash('sha512', $paytpv->clientcode . $idterminal_sel . $OPERATION . $paytpv_order_ref .
-                $importe . $currency_iso_code . md5($pass_sel));                           
+                $importe . $currency_iso_code . md5($pass_sel));
 
                 $score = $paytpv->transactionScore($cart);
                 $MERCHANT_SCORING = $score["score"];
@@ -269,8 +263,6 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
         print json_encode($arrReturn);
     }
 
-
-
     /**
      * save Card
      */
@@ -302,9 +294,6 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
 
         print json_encode($arrReturn);
     }
-
-
-
 
     /**
      * add Card
@@ -390,7 +379,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                 // Dias suscripcion
                 $dias_subscription = $subs_cycles * $susc_periodicity;
                 $subscription_enddate = date('Ymd', strtotime("+" . $dias_subscription . " days"));
-            }            
+            }
 
             $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
@@ -398,37 +387,32 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
             $MERCHANT_SCORING = $scoring = $score["score"];
 
             if ($paytpv->apikey != '') {
-                
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
-                $merchantData = $paytpv->getMerchantData($cart);                
-                
+                $merchantData = $paytpv->getMerchantData($cart);
                 $userInteraction = '1';
-                
+
                 try {
-                    $apiRest = new PaycometApiRest($paytpv->apikey);                
-                        
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
                     $payment =  [
                         'terminal' => (int) $idterminal_sel,
                         'order' => (string) $paytpv_order_ref,
                         'amount' => (string) $importe,
                         'currency' => (string) $currency_iso_code,
-                        'userInteraction' => (string) $userInteraction,
-                        'secure' => $secure_pay,                        
+                        'userInteraction' => (int) $userInteraction,
+                        'secure' => (int) $secure_pay,
                         'merchantData' => $merchantData,
                         'urlOk' => $URLOK,
                         'urlKo' => $URLKO
                     ];
-                    
-                    if ($scoring != null)
-                        $payment['scoring'] = (int) $scoring;        
-                    
+                    if ($scoring != null) {
+                        $payment['scoring'] = (int) $scoring;
+                    }
                     $subscription =  [
                         'startDate' => (string) $subscription_startdate,
                         'endDate' => (string) $subscription_enddate,
                         'periodicity' => $susc_periodicity
                         ];
-                        
                     $formResponse = $apiRest->form(
                         $OPERATION,
                         $language,
@@ -436,17 +420,15 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                         '',
                         $payment,
                         $subscription
-                    );       
-                 
-                    $url_paytpv = $formResponse->challengeUrl;
-                } catch (exception $e){                    
-                    $url_paytpv = "";
-                }                
-            
-            } else {
+                    );
 
+                    $url_paytpv = $formResponse->challengeUrl;
+                } catch (exception $e) {
+                    $url_paytpv = "";
+                }
+            } else {
                 $signature = hash('sha512', $paytpv->clientcode . $idterminal_sel . $OPERATION . $paytpv_order_ref .
-                $importe . $currency_iso_code . md5($pass_sel));                
+                $importe . $currency_iso_code . md5($pass_sel));
 
                 $fields = array(
                     'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
@@ -468,8 +450,8 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                 if ($MERCHANT_SCORING != null) {
                     $fields["MERCHANT_SCORING"] = $MERCHANT_SCORING;
                 }
-                
-                $query = http_build_query($fields);                
+
+                $query = http_build_query($fields);
 
                 $vhash = hash('sha512', md5($query . md5($pass_sel)));
 

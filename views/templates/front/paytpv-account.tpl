@@ -95,7 +95,7 @@
                     {include file='modules/paytpv/views/templates/hook/inc_payment_jetIframe.tpl'}
                 </form>
             {/if}
-            <input type="hidden" name="add_url" id="add_url" value="{$url_paytpv}">
+            <input type="hidden" name="add_url" id="add_url" value="{$url_paytpv|escape:'htmlall':'UTF-8'}">
         </div>
     </div>   
     {if isset($suscriptions[0])}
@@ -155,7 +155,7 @@
         <input type="hidden" name="paytpv_iduser" id="paytpv_iduser">
         <input type="hidden" name="id_suscription" id="id_suscription">
         <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
-        <input type="hidden" name="paytpv_integration" id="paytpv_integration" value="{$paytpv_integration}">
+        <input type="hidden" name="paytpv_integration" id="paytpv_integration" value="{$paytpv_integration|escape:'htmlall':'UTF-8':FALSE}">
     </div>    
     
 </div>

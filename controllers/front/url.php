@@ -157,7 +157,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                 $result = array();
                 $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
                 $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
-
             } else {
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/WSClient.php');
                 $client = new WSClient(
@@ -288,9 +287,8 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                         exit;
                     } elseif (!$new_cart['success']) {
                         // Refund amount
-                        if($paytpv->apikey != '') {
+                        if ($paytpv->apikey != '') {
                             include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
-                            
                             $ip = Tools::getRemoteAddr();
                             if ($ip=="::1" || $ip=="") {
                                 $ip = "127.0.0.1";
