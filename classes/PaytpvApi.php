@@ -668,7 +668,7 @@ class PaytpvApi
                 }
             }
         }
-        //$browser_number = $_SERVER["REMOTE_ADDR"];
+        //$browser_number = Tools::getRemoteAddr();
         /**
         This is where you return values based on what parameter you used to call the function
         $which_test is the passed parameter in the initial browserDetection('os') for example returns

@@ -80,8 +80,7 @@ class PaytpvCustomer extends ObjectModel
 
         $sql = 'SELECT paytpv_iduser,paytpv_tokenuser,paytpv_cc FROM '._DB_PREFIX_.'paytpv_customer WHERE
         paytpv_tokenuser="'.pSQL($token).'" and id_customer = '.(int)$customer_id;
-
-        Db::getInstance()->executeS($sql);
+        
         if ($row = Db::getInstance()->getRow($sql)) {
             $res['IDUSER']= $row['paytpv_iduser'];
             $res['TOKEN_USER']= $row['paytpv_tokenuser'];

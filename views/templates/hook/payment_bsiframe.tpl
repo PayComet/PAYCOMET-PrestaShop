@@ -46,9 +46,10 @@
                     <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}" method="POST" class="paytpv_jet" id="paycometPaymentForm" style="clear:left;">
                 {/if}
 
-
-                <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135"></a>
-                <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/tarjetas.png">
+                <div class="paytpv_title">
+                    <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135"></a>                    
+                    {l s='Pay with Card' mod='paytpv'}
+                </div>
                 {if ($msg_paytpv!="")}
                 <p>
                     <span class="message">{$msg_paytpv|escape:'htmlall':'UTF-8':FALSE}</span>
@@ -83,11 +84,7 @@
                             <img id='clockwait' style="display:none" src="{$base_dir|escape:'htmlall':'UTF-8'}modules/paytpv/views/img/clockpayblue.gif"></img>
                         </div>
                     {/if}
-                </div>
-
-                <div id="paytpv_checkconditions" style="display:none">
-                    <strong>{l s='You must accept the license terms to continue' mod='paytpv'}</strong>
-                </div>   
+                </div>                
 
                 {if (!$disableoffersavecard==1)}
                     {include file='modules/paytpv/views/templates/hook/inc_payment_savecards.tpl'}
@@ -113,7 +110,7 @@
                                 <img id='ajax_loader' src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/clockpayblue.gif"></img>
                                 {l s='Loading payment form...' mod='paytpv'}
                             </p>
-                            <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 100%; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: {$iframe_height}px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                            <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 100%; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: {$iframe_height|escape:'htmlall':'UTF-8}px; " marginheight="0" marginwidth="0" scrolling="no"></iframe>
                         {else}
 
                             {include file='modules/paytpv/views/templates/hook/inc_payment_jetIframe.tpl'}
@@ -160,11 +157,7 @@
             <form name="pago_directo" id="pago_directo" action="" method="post"></form>
         </div>
     </div>
-
-    <div style="display: none;">
-            {include file='modules/paytpv/views/templates/hook/inc_payment_conditions.tpl'}
-    </div>
-
+    
     <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$link->getModuleLink('paytpv', 'actions',[], true)|escape:'htmlall':'UTF-8'}">
 
     <script type="text/javascript">

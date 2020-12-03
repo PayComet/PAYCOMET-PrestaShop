@@ -23,11 +23,7 @@
 */
 
 
-$(document).ready(function() {
-    $("#open_conditions,#open_conditions2").fancybox({
-            autoSize:false,
-            'width':parseInt($(window).width() * 0.7)
-        });   
+$(document).ready(function() {    
 
     $("body").on("click",".exec_directpay",function(event) {
         event.preventDefault();
@@ -64,6 +60,8 @@ function paytpv_initialize(){
 
 function check_suscription(){
     if ($("#paytpv_suscripcion").is(':checked')){
+        if ($("#newpage_payment").val()!=2)  
+            $("#exec_directpay").hide();        
         $("#div_periodicity").show();
         suscribeJQ();
         $("#cards_paytpv, #storingStep").hide();
@@ -118,19 +116,20 @@ function checkCard(){
 }
 
 
-function validateSuscription(element){ 
+function validateSuscription(element){     
     switch (element.attr("id")){
-        case 'paytpv_periodicity':
-            $("#paytpv_cycles option").each(function() {
+        case 'paytpv_periodicity':            
+            $("#paytpv_cycles option").each(function() {                
                 if ($(this).val()*element.val()>(365*5))
                     $(this).hide();
                 else
                     $(this).show();
             });
         break;
+        
         case 'paytpv_cycles':
-            $("#paytpv_periodicity option").each(function() {
-                if ($(this).val()*element.val()>(365*5))
+            $("#paytpv_cycles option").each(function() {
+                if ($(this).val() * $("#paytpv_periodicity").val()>(365*5))
                     $(this).hide();
                 else
                     $(this).show();
@@ -181,7 +180,7 @@ function saveOrderInfoJQ(paytpv_suscripcion){
             paytpv_periodicity = 0;
             paytpv_cycles = 0;
         break;
-        case 1: // Suscription
+        case 1: // Suscription           
             paytpv_agree = 0;
             paytpv_periodicity = $("#paytpv_periodicity").val();
             paytpv_cycles = $("#paytpv_cycles").val()
@@ -267,13 +266,3 @@ function suscribeJQ(){
     });
 }
 
-function ShowHidePaymentButton(show){
-  
-  if (show){
-    $("#clockwait_jet").hide('fast');
-    $("#btnforg").show('fast');
-  }else{
-    $("#btnforg").hide('fast');
-    $("#clockwait_jet").show('fast');
-  }
-}

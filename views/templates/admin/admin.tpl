@@ -27,7 +27,7 @@
 </script>
 
 
-<div class="alert">
+<div class="alert alert-info">
     <img src="../modules/paytpv/logo.png" width="46" style="float:left; margin-right:15px;">
     <p><strong>{l s='This module allows you to accept secure payments by PAYCOMET.' mod='paytpv'}</strong></p>
     <p>{l s='If the customer chooses this payment method, they will be able to make payments automatically' mod='paytpv'}</p>
@@ -52,7 +52,7 @@
             <ul class="paytpv">
                 <li><strong>{l s='NOTIFICATION URL' mod='paytpv'}:</strong> {$NOTIFICACION|escape:'htmlall':'UTF-8':FALSE}</li>
             </ul>
-        </li>       
+        </li>
     </ul>
 
 </div>
@@ -61,14 +61,14 @@
     <p class="important">{l s='USER DOCUMENTATION' mod='paytpv'}</p>
     <p><strong>{l s='Link to documentation by clicking the following link' mod='paytpv'} <a class='link' target="_blank"  href="https://docs.paycomet.com/es/modulos-de-pago/prestashop">{l s='USER DOCUMENTATION'  mod='paytpv'}</a></strong>
 </div>
-    
+
 <div id="paytpvconfigarea">
     {$errorMessage|escape:'quotes':'UTF-8'}
 
-    {$configform} {* no escaping needed, comes from PrestaShop Form Helper!!! *}
+    {$configform|escape:'quotes':'UTF-8'}
 
     <div class="text-right">
-        <hr />        
+        <hr />
         <button type="submit" value="1" name="btnSubmit" class="btn btn-default">
             <i class="process-icon-save"></i> {l s='Save' mod='paytpv'}
         </button>

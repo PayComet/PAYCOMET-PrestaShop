@@ -77,10 +77,6 @@
     {/if}
 
     <div id="storingStep" class="box">        
-        <p class="checkbox">
-            <span class="checked"><input type="checkbox" name="savecard" id="savecard"></span>
-            <label for="savecard">{l s='Save card for future purchases' mod='paytpv'}.<span class="paytpv-pci">{l s='Card data is protected by the Payment Card Industry Data Security Standard (PCI DSS)' mod='paytpv'}.</span></label>
-        </p>
         <p>
             <a href="javascript:void(0);" onclick="vincularTarjeta();" title="{l s='Link card' mod='paytpv'}" class="button button-small btn btn-default">
                 <span>{l s='Link card' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
@@ -88,6 +84,7 @@
             <a href="javascript:void(0);" onclick="close_vincularTarjeta();" title="{l s='Cancel' mod='paytpv'}" class="button button-small btn btn-default" id="close_vincular" style="display:none">
                 <span>{l s='Cancel' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
             </a>
+            <span class="paytpv-pci">{l s='Card data is protected by the Payment Card Industry Data Security Standard (PCI DSS)' mod='paytpv'}.</span>
         </p>
 
         <div class="payment_module paytpv_iframe" id="nueva_tarjeta" style="display:none">
@@ -97,13 +94,13 @@
                 <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}" method="POST" class="paytpv_jet" id="paycometPaymentForm">
                     {include file='modules/paytpv/views/templates/hook/inc_payment_jetIframe.tpl'}
                 </form>
-
             {/if}
+            <input type="hidden" name="add_url" id="add_url" value="{$url_paytpv|escape:'htmlall':'UTF-8'}">
         </div>
-    </div>
-    <hr>
-    <h2>{l s='My Subscriptions' mod='paytpv'}</h2>
+    </div>   
     {if isset($suscriptions[0])}
+        <hr>
+        <h2>{l s='My Subscriptions' mod='paytpv'}</h2>
         <div class="span6" id="div_suscripciones">
             {l s='Subscriptions' mod='paytpv'}:
             <ul>
@@ -143,10 +140,7 @@
                     </li>
                 {/section}
             </ul>
-        </div>
-   
-    {else}
-        <p class="warning">{l s='There are no subscriptions.' mod='paytpv'}</p>
+        </div>    
     {/if}
 
     <div id="alert" style="display:none">
@@ -161,12 +155,7 @@
         <input type="hidden" name="paytpv_iduser" id="paytpv_iduser">
         <input type="hidden" name="id_suscription" id="id_suscription">
         <input type="hidden" name="newpage_payment" id="newpage_payment" value="{$newpage_payment|escape:'htmlall':'UTF-8':FALSE}">
-    </div>
-
-    <div style="display: none;">
-        {include file='modules/paytpv/views/templates/hook/inc_payment_conditions.tpl'}
-    </div>
-
-
+        <input type="hidden" name="paytpv_integration" id="paytpv_integration" value="{$paytpv_integration|escape:'htmlall':'UTF-8':FALSE}">
+    </div>    
     
 </div>
