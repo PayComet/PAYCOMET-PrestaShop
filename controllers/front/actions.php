@@ -216,7 +216,6 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                     if ($formResponse->errorCode == 0) {
                         $url_paytpv = $formResponse->challengeUrl;
                     }
-
                 } catch (exception $e) {
                     $url_paytpv = "";
                 }
@@ -283,7 +282,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
 
         $arrReturn = array();
         $arrReturn["error"] = 1;
-        
+
         if (PaytpvOrderInfo::saveOrderInfo(
             (int) $this->context->customer->id,
             $cart->id,
@@ -425,12 +424,11 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                         $payment,
                         $subscription
                     );
-    
+
                     $url_paytpv = "";
                     if ($formResponse->errorCode == 0) {
                         $url_paytpv = $formResponse->challengeUrl;
                     }
-
                 } catch (exception $e) {
                     $url_paytpv = "";
                 }
