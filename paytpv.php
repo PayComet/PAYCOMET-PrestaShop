@@ -1787,7 +1787,10 @@ class Paytpv extends PaymentModule
                     $payment
                 );
 
-                $url_paytpv = $formResponse->challengeUrl;
+                $url_paytpv = "";
+                if ($formResponse->errorCode == 0) {
+                    $url_paytpv = $formResponse->challengeUrl;
+                }
             } catch (exception $e) {
                 $url_paytpv = "";
             }
@@ -2182,7 +2185,7 @@ class Paytpv extends PaymentModule
                         $paytpv_iduser,
                         $paytpv_tokenuser
                     );
-                    $result["DS_RESPONSE"] = (!isset($removeSubscriptionResponse) || $removeSubscriptionResponse->errorCode > 0)? 0 : 1;
+                    $result["DS_RESPONSE"] = ($removeSubscriptionResponse->errorCode > 0)? 0 : 1;
                 } catch (exception $e) {
                     $result["DS_RESPONSE"] = 0;
                 }
@@ -2331,7 +2334,9 @@ class Paytpv extends PaymentModule
             $result = array();
             $result["DS_RESPONSE"] = ($executeRefundReponse->errorCode > 0)? 0 : 1;
             $result['DS_ERROR_ID'] = $executeRefundReponse->errorCode;
-            $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+            if ($executeRefundReponse->errorCode == 0) {
+                $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+            }
         } else {
             $client = new WSClient(
                 array(
@@ -2375,7 +2380,9 @@ class Paytpv extends PaymentModule
 
                 $result["DS_RESPONSE"] = ($executeRefundReponse->errorCode > 0)? 0 : 1;
                 $result['DS_ERROR_ID'] = $executeRefundReponse->errorCode;
-                $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+                if ($executeRefundReponse->errorCode == 0) {
+                    $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+                }
             } else {
                 $client = new WSClient(
                     array(
@@ -2420,7 +2427,10 @@ class Paytpv extends PaymentModule
 
                 $result["DS_RESPONSE"] = ($executeRefundReponse->errorCode > 0)? 0 : 1;
                 $result['DS_ERROR_ID'] = $executeRefundReponse->errorCode;
-                $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+
+                if ($executeRefundReponse->errorCode == 0) {
+                    $result['DS_MERCHANT_AUTHCODE'] = $executeRefundReponse->authCode;
+                }
             } else {
                 $client = new WSClient(
                     array(
