@@ -28,7 +28,7 @@ function buildED() {
         a = t.substr(3, 2);
     $('[data-paycomet=\'dateMonth\']').val(n), $('[data-paycomet=\'dateYear\']').val(a);
 }
-    
+
 
 $(document).ready(function() {
 
@@ -41,14 +41,14 @@ $(document).ready(function() {
             $(this).val(newInput);
         }
     });
-    
+
     // JetIframe -> newpage_payment=0
     $("body").on("submit",".paycomet_jet",function(event)
     {
         event.preventDefault();
-        if ($("#card").val()!="0"){            
+        if ($("#card").val()!="0"){
             window.location.href = $("#card").val();
-        } else{                        
+        } else{
             $("#submit_jet").click();
             // Si hay error no continuamos
             if ($("#paymentErrorMsg").innerHTML!="") {

@@ -31,7 +31,6 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
     public $ssl = true;
     public $display_top  = false;
 
-    
     public function initContent()
     {
         $this->display_column_left = false;
@@ -45,11 +44,10 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $paytpv = $this->module;
 
         $this->context->smarty->assign('msg_paytpv', "");
-        
+
         $msg_paytpv = "";
 
         $this->context->smarty->assign('msg_paytpv', $msg_paytpv);
-        
 
         // Valor de compra
         $id_currency = (int)(Configuration::get('PS_CURRENCY_DEFAULT'));
@@ -112,7 +110,6 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign('account', 0);
 
         $this->context->smarty->assign('jet_id', $jetid_sel);
-        
         $this->context->smarty->assign('jet_paytpv', $paytpv->jet_paytpv);
 
 
@@ -133,17 +130,14 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign('active_suscriptions', $active_suscriptions);
         $this->context->smarty->assign('saved_card', $saved_card);
         $this->context->smarty->assign('id_cart', Context::getContext()->cart->id);
-        
         $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
 
-        
+
         $tmpl_vars = array_merge(
             array(
             'this_path' => $this->module->getPath())
         );
         $this->context->smarty->assign($tmpl_vars);
-        
-        
         $this->context->controller->addJqueryPlugin('fancybox');
         $this->context->controller->addCSS($this->module->getPath() . 'views/css/payment.css', 'all');
         $this->context->controller->addCSS($this->module->getPath() . 'views/css/fullscreen.css', 'all');
@@ -160,7 +154,6 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         if ($paytpv_integration==1) {
             $this->context->controller->addJS($this->module->getPath() . 'views/js/paytpv_jet.js');
         }
-        
 
         $this->setTemplate('../hook/payment_bsiframe.tpl');
     }

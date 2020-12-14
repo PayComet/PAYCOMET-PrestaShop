@@ -40,7 +40,6 @@ class PaycometApiRest
         $payment = [],
         $subscription = []
     ) {
-        
         $params = [
             "operationType" => (int) $operationType,
             "language" => (string) $language,
@@ -52,7 +51,7 @@ class PaycometApiRest
 
         return $this->executeRequest('https://rest.paycomet.com/v1/form', $params);
     }
-    
+
     public function addUser(
         $terminal,
         $jetToken,
@@ -72,7 +71,7 @@ class PaycometApiRest
 
         return $this->executeRequest('https://rest.paycomet.com/v1/cards', $params);
     }
-    
+
     public function infoUser(
         $idUser,
         $tokenUser,
@@ -83,7 +82,7 @@ class PaycometApiRest
             'tokenUser' => (string) $tokenUser,
             'terminal' => (int) $terminal,
         ];
-            
+
         return $this->executeRequest('https://rest.paycomet.com/v1/cards/info', $params);
     }
 
@@ -97,7 +96,7 @@ class PaycometApiRest
             'idUser' => (int) $idUser,
             'tokenUser' => (string) $tokenUser,
         ];
-            
+
         return $this->executeRequest('https://rest.paycomet.com/v1/cards/delete', $params);
     }
 
@@ -218,7 +217,7 @@ class PaycometApiRest
 
         return $this->executeRequest('https://rest.paycomet.com/v1/subscription/remove', $params);
     }
-    
+
     public function executeRefund(
         $order,
         $terminal,
@@ -263,9 +262,9 @@ class PaycometApiRest
                     "Content-Type: application/json"
             ),
         ));
-        
+
         $response = curl_exec($curl);
-        
+
         curl_close($curl);
 
         return json_decode($response);

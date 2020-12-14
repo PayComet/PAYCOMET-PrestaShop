@@ -32,9 +32,6 @@ class PaytpvCustomer extends ObjectModel
     public $id_customer;
     public $date;
     public $card_desc;
-    
-
-    
 
     public static function getCardsCustomer($customer_id)
     {
@@ -80,7 +77,7 @@ class PaytpvCustomer extends ObjectModel
 
         $sql = 'SELECT paytpv_iduser,paytpv_tokenuser,paytpv_cc FROM '._DB_PREFIX_.'paytpv_customer WHERE
         paytpv_tokenuser="'.pSQL($token).'" and id_customer = '.(int)$customer_id;
-        
+
         if ($row = Db::getInstance()->getRow($sql)) {
             $res['IDUSER']= $row['paytpv_iduser'];
             $res['TOKEN_USER']= $row['paytpv_tokenuser'];
@@ -96,8 +93,6 @@ class PaytpvCustomer extends ObjectModel
         $result = Db::getInstance()->getRow($sql);
         return $result;
     }
-
-    
 
     public static function getCustomer()
     {
@@ -124,7 +119,6 @@ class PaytpvCustomer extends ObjectModel
     }
 
 
-    
     public static function removeCustomerIduser($customer_id, $paytpv_iduser)
     {
         $sql = 'DELETE FROM '. _DB_PREFIX_ .'paytpv_customer where id_customer = '.(int)$customer_id

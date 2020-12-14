@@ -87,7 +87,7 @@ if (!class_exists('ClassRegistro')) {
                     SELECT `id_cart`
                     FROM `table_registro`
                     WHERE `id_cart` = ' . (int) $id_cart);
-            
+
             if (empty($result) === true or
                 $result === false or
                 !sizeof($result) or

@@ -31,7 +31,7 @@
     <img src="../modules/paytpv/logo.png" width="46" style="float:left; margin-right:15px;">
     <p><strong>{l s='This module allows you to accept secure payments by PAYCOMET.' mod='paytpv'}</strong></p>
     <p>{l s='If the customer chooses this payment method, they will be able to make payments automatically' mod='paytpv'}</p>
-</div>    
+</div>
 
 <div>
     <p><H1>{l s='PRERREQUISTES' mod='paytpv'}</H1></p>
@@ -47,7 +47,7 @@
     <p class="important">{l s='IMPORTANT' mod='paytpv'}</p>
     <p><strong>{l s='Finally you need to configure in your account' mod='paytpv'} <a class='link' target="_blank" href="https://dashboard.paycomet.com/cp_control"> PAYCOMET </a>{l s='the following URLs for the payment module to work properly' mod='paytpv'}:</strong>
     </p>
-    <ul class="paytpv">                
+    <ul class="paytpv">
         <li><strong>{l s='Type of Notification (IMPORTANT)' mod='paytpv'}:</strong> {l s='Notification via URL or Notification via URL and email' mod='paytpv'}
             <ul class="paytpv">
                 <li><strong>{l s='NOTIFICATION URL' mod='paytpv'}:</strong> {$NOTIFICACION|escape:'htmlall':'UTF-8':FALSE}</li>
@@ -74,7 +74,3 @@
         </button>
     </div>
 </div>
-
-
-
-    

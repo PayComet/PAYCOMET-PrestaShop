@@ -23,7 +23,7 @@
 */
 
 
-$(document).ready(function() {    
+$(document).ready(function() {
 
     $("body").on("click",".exec_directpay",function(event) {
         event.preventDefault();
@@ -45,7 +45,7 @@ $(document).ready(function() {
     });
 
     $("body").on("change","#card",function(event){
-        
+
         if ($("#payment_mode_paytpv")){
             $("#payment_mode_paytpv").attr("data-payment-link",$(this).val());
         }
@@ -60,12 +60,12 @@ function paytpv_initialize(){
 
 function check_suscription(){
     if ($("#paytpv_suscripcion").is(':checked')){
-        if ($("#newpage_payment").val()!=2)  
-            $("#exec_directpay").hide();        
+        if ($("#newpage_payment").val()!=2)
+            $("#exec_directpay").hide();
         $("#div_periodicity").show();
         suscribeJQ();
         $("#cards_paytpv, #storingStep").hide();
-    }else{ 
+    }else{
         $("#cards_paytpv").show();
         $("#div_periodicity,.paytpv_iframe").hide();
         addCardJQ();
@@ -89,9 +89,9 @@ function checkCard(){
             $("#exec_directpay").show();
         }
     // Pago en pagina de PAYTPV Fullscreen
-    } else if ($("#newpage_payment").val()==2){    
-        $("#saved_cards").show();  
-        if ($("#card option").length==1){              
+    } else if ($("#newpage_payment").val()==2){
+        $("#saved_cards").show();
+        if ($("#card option").length==1){
             $("#cards_paytpv").hide();
         }
         // El boton de pagar lo mostramos siempre
@@ -110,23 +110,23 @@ function checkCard(){
                 $("#storingStep,.paytpv_iframe").removeClass("hidden").hide();
             }
         }
-       
-        
-    }   
+
+
+    }
 }
 
 
-function validateSuscription(element){     
+function validateSuscription(element){
     switch (element.attr("id")){
-        case 'paytpv_periodicity':            
-            $("#paytpv_cycles option").each(function() {                
+        case 'paytpv_periodicity':
+            $("#paytpv_cycles option").each(function() {
                 if ($(this).val()*element.val()>(365*5))
                     $(this).hide();
                 else
                     $(this).show();
             });
         break;
-        
+
         case 'paytpv_cycles':
             $("#paytpv_cycles option").each(function() {
                 if ($(this).val() * $("#paytpv_periodicity").val()>(365*5))
@@ -162,7 +162,7 @@ function confirm(msg, modal, callback) {
 }
 
 
-function addParam(url,param){   
+function addParam(url,param){
 
     var hasQuery = url.indexOf("?") + 1;
     var hasHash = url.indexOf("#") + 1;
@@ -180,7 +180,7 @@ function saveOrderInfoJQ(paytpv_suscripcion){
             paytpv_periodicity = 0;
             paytpv_cycles = 0;
         break;
-        case 1: // Suscription           
+        case 1: // Suscription
             paytpv_agree = 0;
             paytpv_periodicity = $("#paytpv_periodicity").val();
             paytpv_cycles = $("#paytpv_cycles").val()
@@ -220,7 +220,7 @@ function addCardJQ(){
             'ajax': true
         },
         success: function(result)
-        {   
+        {
             if (result.error=='0')
             {
                 $("#paytpv_iframe").attr("src",result.url).one("load",function() {
@@ -251,7 +251,7 @@ function suscribeJQ(){
         },
         success: function(result)
         {
-                       
+
             if (result.error=='0')
             {
                 $("#storingStep").hide();

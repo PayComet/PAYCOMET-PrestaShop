@@ -25,7 +25,7 @@
 
 class PaytpvPaymentsHelperForm extends HelperForm
 {
-    
+
     public function generatePaytpvForm(&$smarty, $fields_form)
     {
         $this->fields_form = $fields_form;
@@ -33,7 +33,7 @@ class PaytpvPaymentsHelperForm extends HelperForm
         $smarty->assign('form_vars', $this->tpl->getTemplateVars());
         return $base_generate;
     }
-    
+
     public function generate()
     {
         return parent::generate();

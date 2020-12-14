@@ -21,8 +21,8 @@
     *  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
     *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
     *}
-   
-                
+
+
     <div id="tipo-pago" style="padding-right:10px;">
         <div class="checkbox">
             <input type="checkbox" name="paytpv_suscripcion" id="paytpv_suscripcion" onclick="check_suscription();" value="1">
@@ -62,9 +62,6 @@
                         <option value="12">12</option>
                     </select>
                 </div>
-            </div>                    
+            </div>
         </div>
-    </div>            
-           
-            
-            
+    </div>

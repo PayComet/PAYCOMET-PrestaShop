@@ -248,7 +248,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
             $this->context->smarty->assign('account', 1);
 
             $this->context->smarty->assign('jet_id', $jetid);
-            
+
             $this->context->smarty->assign('jet_lang', $language);
 
             $this->context->smarty->assign('jet_paytpv', $paytpv->jet_paytpv);

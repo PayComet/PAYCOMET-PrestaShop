@@ -88,7 +88,7 @@ class PaytpvTerminal extends ObjectModel
             $password = $jetid = "";
             $tdfirst = 0;
         }
-        
+
         $id_shop = Context::getContext()->shop->id;
         $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'paytpv_terminal (id,id_shop,idterminal,idterminal_ns,password,
         password_ns,jetid,jetid_ns,currency_iso_code,terminales,tdfirst,tdmin) VALUES(' . (int)$id .
@@ -171,7 +171,7 @@ class PaytpvTerminal extends ObjectModel
     public static function getTerminalByIdTerminal($idterminal)
     {
         $id_shop = Context::getContext()->shop->id;
-        
+
         $idterminal = ($idterminal>0) ? $idterminal:0;
         $sql = 'select * from ' . _DB_PREFIX_ . 'paytpv_terminal where (idterminal=' . (int)$idterminal . ' or
          idterminal_ns=' . (int)$idterminal . ') and id_shop=' . (int)$id_shop;

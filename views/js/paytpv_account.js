@@ -23,11 +23,11 @@
 */
 
 
-$(document).ready(function() {   
+$(document).ready(function() {
 
-    
-    
-    $(".remove_card").on("click", function(e){   
+
+
+    $(".remove_card").on("click", function(e){
         e.preventDefault();
         $("#paytpv_iduser").val($(this).attr("id"));
         cc_iduser = $("#cc_"+$(this).attr("id")).val()
@@ -36,7 +36,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".save_desc").on("click", function(e){   
+    $(".save_desc").on("click", function(e){
         e.preventDefault();
         $("#paytpv_iduser").val($(this).attr("id"));
         card_desc = $("#card_desc_"+$(this).attr("id")).val()
@@ -45,7 +45,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".cancel_suscription").on("click", function(e){   
+    $(".cancel_suscription").on("click", function(e){
         e.preventDefault();
         $("#id_suscription").val($(this).attr("id"));
         confirm(msg_cancelsuscription, true, function(resp) {
@@ -86,7 +86,7 @@ function alert(msg) {
     });
 }
 
-function vincularTarjeta(){       
+function vincularTarjeta(){
     if ($('#newpage_payment').val()==2) {
         window.location = ($("#add_url").val());
     } else {
@@ -95,7 +95,7 @@ function vincularTarjeta(){
     }
 }
 
-function close_vincularTarjeta(){    
+function close_vincularTarjeta(){
     $('#nueva_tarjeta').hide();
     $('#close_vincular').hide();
 }
@@ -124,7 +124,7 @@ function removeCard()
             }
         }
     });
-    
+
 };
 
 function saveDescriptionCard()
@@ -144,11 +144,11 @@ function saveDescriptionCard()
             if (result == '0')
             {
                alert(msg_descriptionsaved)
-               
+
             }
         }
     });
-    
+
 };
 
 
@@ -174,6 +174,6 @@ function cancelSuscription()
         },
         dataType:"json"
     });
-    
+
 };
 

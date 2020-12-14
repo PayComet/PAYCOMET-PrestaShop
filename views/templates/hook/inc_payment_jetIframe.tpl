@@ -21,8 +21,8 @@
     *  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
     *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
     *}
-   
-    
+
+
     <input type="hidden" data-paycomet="jetID" value="{$jet_id|escape:'htmlall':'UTF-8'}">
     <ul>
         <li>
@@ -62,7 +62,7 @@
         {elseif ($account==1)}
             <button type="submit" title="{l s='Save Card' mod='paytpv'}" class="btn btn-primary button button-medium" id="btnforg">
                 <span>{l s='Save Card' mod='paytpv'}<i class="icon-chevron-right right"></i></span>
-            </button>        
+            </button>
         {/if}
     </div>
     <div id="paymentErrorMsg"></div>

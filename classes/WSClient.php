@@ -260,7 +260,7 @@ class WsClient
         $DS_SUBSCRIPTION_PERIODICITY = $peridicity;
 
         $DS_SUSCRIPTION_AMOUNT = $amount;
-        
+
         $DS_MERCHANT_MERCHANTSIGNATURE = hash(
             'sha512',
             $DS_MERCHANT_MERCHANTCODE . $DS_IDUSER . $DS_TOKEN_USER . $DS_MERCHANT_TERMINAL . $DS_SUSCRIPTION_AMOUNT
@@ -307,7 +307,7 @@ class WsClient
             $p["MERCHANT_DATA"] = $MERCHANT_DATA;
         }
 
-        
+
         $this->writeLog("Petición create_subscription_token:\n".print_r($p, true));
 
         $res = $this->client->call('create_subscription_token', $p, '', '', false, true);

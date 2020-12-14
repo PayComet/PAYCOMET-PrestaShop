@@ -21,7 +21,7 @@
     *  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
     *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
     *}
-       
+
     <div id="cards_paytpv">
         <div class="select" style="max-width:300px;">
             <label for="card" style="text-align:left">{l s='Card' mod='paytpv'}:</label>
@@ -29,15 +29,14 @@
                 {section name=card loop=$saved_card }
                     {if ($saved_card[card].url=="0")}
                         {if ($newpage_payment==2)}
-                            <option value='{$paytpv_iframe|escape:'htmlall':'UTF-8'}'>{l s='NEW CARD' mod='paytpv'}</option>
+                            <option value="{$paytpv_iframe|escape:'htmlall':'UTF-8'}">{l s='NEW CARD' mod='paytpv'}</option>
                         {else}
                             <option value='0'>{l s='NEW CARD' mod='paytpv'}</option>
                         {/if}
                     {else}
-                        <option value='{$saved_card[card].url|escape:'htmlall':'UTF-8'}'>{$saved_card[card].CC|escape:'htmlall':'UTF-8'} ({$saved_card[card].BRAND|escape:'htmlall':'UTF-8'}){if ($saved_card[card].CARD_DESC!="")} - {$saved_card[card].CARD_DESC|escape:'htmlall':'UTF-8'}{/if}</option>
+                        <option value="{$saved_card[card].url|escape:'htmlall':'UTF-8'}">{$saved_card[card].CC|escape:'htmlall':'UTF-8'} ({$saved_card[card].BRAND|escape:'htmlall':'UTF-8'}){if ($saved_card[card].CARD_DESC!="")} - {$saved_card[card].CARD_DESC|escape:'htmlall':'UTF-8'}{/if}</option>
                     {/if}
                 {/section}
             </select>
         </div>
     </div>
-                

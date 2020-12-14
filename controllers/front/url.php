@@ -59,7 +59,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             $arrDatos = array("module_v" => $paytpv->version, "ps_v" => _PS_VERSION_);
             exit(json_encode($arrDatos));
         }
-        
 
         // Notify response
         // (execute_purchase)
@@ -77,18 +76,16 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             $context = Context::getContext();
             $id_cart = (int) Tools::substr($ref, 0, 8);
             $cart = new Cart($id_cart);
-            
+
             if (Context::getContext()->shop->id != $cart->id_shop) {
                 $context->shop->id = $cart->id_shop;
             }
-
 
             $arrTerminal = PaytpvTerminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
             $idterminal = $arrTerminal["idterminal"];
             $idterminal_ns = $arrTerminal["idterminal_ns"];
             $pass = $arrTerminal["password"];
             $pass_ns = $arrTerminal["password_ns"];
-            
 
             if (Tools::getValue('TpvID') == $idterminal) {
                 $idterminal_sel = $idterminal;
@@ -107,7 +104,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             if ($sign != $local_sign) {
                 die('Error 1');
             }
-
             // (add_user)
         } elseif (Tools::getValue('TransactionType') === "107") {
             $ref = Tools::getValue('Order');
@@ -144,7 +140,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             if ($sign != $local_sign) {
                 die('Error 2');
             }
-            
+
             if ($paytpv->apikey != '') {
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaytpvApi.php');
                 $apiRest = new PaycometApiRest($paytpv->apikey);
@@ -180,7 +176,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             );
 
             die('Usuario Registrado');
-
             // (create_subscription)
         } elseif (Tools::getValue('TransactionType') === "9") {
             $result = Tools::getValue('Response') == 'OK' ? 0 : -1;
@@ -236,7 +231,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                 $suscripcion = 2;
             }
         }
-
 
         if ($result == 0) {
             $context = Context::getContext();
@@ -295,7 +289,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                             }
 
                             $notifyDirectPayment = 2;
-                            
                             $apiRest = new PaycometApiRest($paytpv->apikey);
                             $executeRefundReponse = $apiRest->executeRefund(
                                 Tools::getValue('Order'),
