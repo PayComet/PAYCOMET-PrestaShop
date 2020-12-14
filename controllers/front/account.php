@@ -75,79 +75,140 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                 $pass_sel = $pass_ns;
                 $jetid_sel = $jetid_ns;
             }
-        
 
-            // BANKSTORE JET
+
+            // SAVE BANKSTORE JET
             $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
 
             if ($token && Tools::strlen($token) == 64) {
                 include_once(_PS_MODULE_DIR_.'/paytpv/classes/WSClient.php');
+                include_once(_PS_MODULE_DIR_.'/paytpv/classes/PaycometApiRest.php');
 
-                $client = new WSClient(
-                    array(
-                        'endpoint_paytpv' => $paytpv->endpoint_paytpv,
-                        'clientcode' => $paytpv->clientcode,
-                        'term' => $idterminal_sel,
-                        'pass' => $pass_sel,
-                        'jetid' => $jetid_sel
-                    )
-                );
+                if ($paytpv->apikey != '') {
+                    $notify = 2;
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
+                    $addUserResponse = $apiRest->addUser(
+                        $idterminal_sel,
+                        $token,
+                        $this->context->cart->id,
+                        $notify
+                    );
+                    $addUserResponseErrorCode = $addUserResponse->errorCode;
 
-                $addUserResponse = $client->addUserToken($token);
-                if (( int ) $addUserResponse[ 'DS_ERROR_ID' ] > 0) {
-                    $error = $paytpv->l('Cannot operate with given credit card');
+                    if ($addUserResponse->errorCode == 0) {
+                        $idUser = $addUserResponse->idUser;
+                        $tokenUser = $addUserResponse->tokenUser;
+                    }
                 } else {
-                    $data = array();
+                    $client = new WSClient(
+                        array(
+                            'endpoint_paytpv' => $paytpv->endpoint_paytpv,
+                            'clientcode' => $paytpv->clientcode,
+                            'term' => $idterminal_sel,
+                            'pass' => $pass_sel,
+                            'jetid' => $jetid_sel
+                        )
+                    );
 
-                    $data["IDUSER"] = $addUserResponse["DS_IDUSER"];
-                    $data["TOKEN_USER"] = $addUserResponse["DS_TOKEN_USER"];
-                    $result = $client->infoUser($data["IDUSER"], $data["TOKEN_USER"]);
+                    $addUserResponse = $client->addUserToken($token);
+                    $addUserResponseErrorCode = $addUserResponse['DS_ERROR_ID'];
+
+                    if ($addUserResponse['DS_ERROR_ID'] == 0) {
+                        $idUser = $addUserResponse["DS_IDUSER"];
+                        $tokenUser = $addUserResponse["DS_TOKEN_USER"];
+                    }
+                }
+
+                if (( int ) $addUserResponseErrorCode > 0) {
+                    $error = $paytpv->l('Cannot operate with given credit card', 'account');
+                } else {
+                    if ($paytpv->apikey != '') {
+                        $apiRest = new PaycometApiRest($paytpv->apikey);
+                        $infoUserResponse = $apiRest->infoUser(
+                            $idUser,
+                            $tokenUser,
+                            $idterminal_sel
+                        );
+                        $result = array();
+                        if ($infoUserResponse->errorCode == 0) {
+                            $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
+                            $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
+                        }
+                    } else {
+                        $result = $client->infoUser($idUser, $tokenUser);
+                    }
+
                     $paytpv->saveCard(
                         (int)$this->context->customer->id,
-                        $data["IDUSER"],
-                        $data["TOKEN_USER"],
+                        $idUser,
+                        $tokenUser,
                         $result['DS_MERCHANT_PAN'],
                         $result['DS_CARD_BRAND']
                     );
                 }
             }
-            
+            // FIN SAVE BANKSTORE JET
+
             $saved_card = PaytpvCustomer::getCardsCustomer((int)$this->context->customer->id);
-                        
+
             $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
-            $suscriptions = PaytpvSuscription::getSuscriptionsCustomer($language, (int)$this->context->customer->id);
+            $suscriptions = PaytpvSuscription::getSuscriptionCustomer($language, (int)$this->context->customer->id);
 
             $order = Context::getContext()->customer->id . "_" . Context::getContext()->shop->id;
             $operation = 107;
             $ssl = Configuration::get('PS_SSL_ENABLED');
             $paytpv_integration = (int)(Configuration::get('PAYTPV_INTEGRATION'));
-    
+
             $URLOK=$URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'account', array(), $ssl);
-            
 
-            // Cálculo Firma
-            $signature = hash('sha512', $paytpv->clientcode.$idterminal_sel.$operation.$order.md5($pass_sel));
-            $fields = array(
-                'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
-                'MERCHANT_TERMINAL' => $idterminal_sel,
-                'OPERATION' => $operation,
-                'LANGUAGE' => $language,
-                'MERCHANT_MERCHANTSIGNATURE' => $signature,
-                'MERCHANT_ORDER' => $order,
-                'URLOK' => $URLOK,
-                'URLKO' => $URLKO,
-                '3DSECURE' => $secure_pay
-            );
+            if ($paytpv->apikey != '') {
+                try {
+                    $apiRest = new PaycometApiRest($paytpv->apikey);
+                    $formResponse = $apiRest->form(
+                        $operation,
+                        $language,
+                        $idterminal_sel,
+                        '',
+                        [
+                            'terminal' => (int) $idterminal_sel,
+                            'order' => (string) $order,
+                            'urlOk' => (string) $URLOK,
+                            'urlKo' => (string) $URLKO
+                        ],
+                        []
+                    );
+                    $url_paytpv = "";
+                    if ($formResponse->errorCode == 0) {
+                        $url_paytpv = $formResponse->challengeUrl;
+                    }
+                } catch (exception $e) {
+                    $url_paytpv = "";
+                }
+            } else {
+                // Cálculo Firma
+                $signature = hash('sha512', $paytpv->clientcode.$idterminal_sel.$operation.$order.md5($pass_sel));
+                $fields = array(
+                    'MERCHANT_MERCHANTCODE' => $paytpv->clientcode,
+                    'MERCHANT_TERMINAL' => $idterminal_sel,
+                    'OPERATION' => $operation,
+                    'LANGUAGE' => $language,
+                    'MERCHANT_MERCHANTSIGNATURE' => $signature,
+                    'MERCHANT_ORDER' => $order,
+                    'URLOK' => $URLOK,
+                    'URLKO' => $URLKO,
+                    '3DSECURE' => $secure_pay
+                );
 
-            $query = http_build_query($fields);
+                $query = http_build_query($fields);
 
-            $vhash = hash('sha512', md5($query.md5($pass_sel)));
+                $vhash = hash('sha512', md5($query.md5($pass_sel)));
 
-            $url_paytpv = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
+                $url_paytpv = $paytpv->url_paytpv . "?".$query . "&VHASH=".$vhash;
+            }
 
             $paytpv_path = Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$paytpv->name.'/';
-            
+
             $this->context->controller->addCSS($paytpv_path . 'views/css/account.css', 'all');
             $this->context->controller->addCSS($paytpv_path . 'views/css/fullscreen.css', 'all');
             $this->context->controller->addJS($paytpv_path . 'views/js/paytpv_account.js');
@@ -179,13 +240,15 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                     true
                 )
             );
-            
+
             $this->context->smarty->assign('newpage_payment', $paytpv->newpage_payment);
 
             $this->context->smarty->assign('paytpv_integration', $paytpv_integration);
 
+            $this->context->smarty->assign('account', 1);
+
             $this->context->smarty->assign('jet_id', $jetid);
-            
+
             $this->context->smarty->assign('jet_lang', $language);
 
             $this->context->smarty->assign('jet_paytpv', $paytpv->jet_paytpv);
@@ -199,7 +262,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
 
             // Bankstore JET
             if ($paytpv_integration==1) {
-                $this->context->smarty->assign('js_code', "");
+                $this->context->controller->addJS($paytpv_path . 'views/js/paytpv_jet.js');
 
                 $this->context->smarty->assign('this_path', $this->module->getPath());
             }

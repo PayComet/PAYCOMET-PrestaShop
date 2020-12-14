@@ -30,16 +30,20 @@
     font-size: 14px;
     font-weight: 400;
     margin-bottom: 5px;
+    display: table-cell;
 }
 
 .paytpv_jet .carbon-img img, form input, form label, form li .help {
     display: block;
 }
 
-.paytpv_jet{
-	max-width: 360px;
+.paytpv_jet{    
+    padding-right:15px;
 }
-
+.paytpv_jet .alert{
+    margin: 0;
+    margin-top:25px;
+ }
 .paytpv_jet .paytpv_merchant_pan {
     background-image: url(cards.png), url(cards.png);
     background-position: 2px -103px,260px -50px;
@@ -77,7 +81,7 @@
 }
 
 .paytpv_jet>ul>li {
-    padding: 10px 0;
+    padding: 0px 0;
 }
 
 
@@ -112,8 +116,8 @@
 
 .payment_icons {
     display: inline-block;
-    float: right;
     width: auto;
+    float: right;
 }
 
 .payment_icons li {
@@ -126,3 +130,78 @@
 }
 
 
+/*
+* newpage_payment
+*/
+.paytpv_jet.newpage_payment{
+Width:100%;
+max-Width: 100%;
+padding-right:17px;
+}
+.paytpv_jet.newpage_payment #cards_paytpv{
+    Width:60%;
+    max-Width: 60%;
+}
+.paytpv_jet.newpage_payment #saved_cards{
+    margin-top:10px;
+}
+
+@media only screen and (max-width:64em) {
+    .paytpv_jet{
+        padding-right: 5px;
+    }
+
+    .paytpv_jet.newpage_payment #card{
+        Width:100%!important;
+    }
+    .paytpv_jet.newpage_payment #uniform-card span{
+        Width:100%!important;
+    }
+    .paytpv_jet.newpage_payment .alert{
+        margin: 0;
+        margin-top:25px;
+     }
+     .paytpv_jet.newpage_payment .checkbox input{
+        padding-bottom: 25px;
+     }
+     .paytpv_jet.newpage_payment .payment_icons{
+        margin-top: 20px;
+        margin-left: -10px; 
+     }
+    .paytpv_jet.newpage_payment .payment_icons li{
+        margin-right: 5px;
+        margin-bottom: 10px;
+    }
+    .paytpv_jet.newpage_payment ul{
+        margin-bottom: 15px;
+    }
+    .paytpv_jet.newpage_payment .paytpv_footer{
+        padding:0;
+        padding-top: 25px;
+    }
+
+    .payment_icons {        
+        padding-top: 20px;
+        float: none;
+    }
+}
+@media only screen and (min-width:64em) {
+    .paytpv_jet.newpage_payment .alert{
+        Width:41em;
+    }
+    .paytpv_jet.newpage_payment .footer_line{
+        display:flex;
+    }
+    .paytpv_jet.newpage_payment .payment_icons{
+        margin-top: 4px;
+        padding-left: 15px;
+    }
+     .paytpv_jet.newpage_payment #card{
+        Width:67%!important;
+    }
+    .paytpv_jet.newpage_payment #uniform-card span{
+        Width:25em!important;
+    }
+
+    
+}

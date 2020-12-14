@@ -24,32 +24,28 @@
 
 
 $(document).ready(function() {
-    $("#open_conditions").fancybox({
-            autoSize:false,
-            'width':parseInt($(window).width() * 0.7)
-        });
-
-    $("#open_directpay").fancybox({
-            'beforeShow': onOpenDirectPay
-        });
 
     $("body").on("click",".exec_directpay",function(event) {
         event.preventDefault();
         $.fancybox.close();
         $(".paytpv_pay").hide();
         $("#clockwait").show();
-        $("#pago_directo").attr("action",$("#card").val());
-        $("#card option,#suscripcion").attr("disabled", true);
+        if ($("#paytpv_suscripcion").is(':checked')){
+            $("#pago_directo").attr("action",$("#paytpv_iframe_aux").val());
+        } else {
+            $("#pago_directo").attr("action",$("#card").val());
+        }
+        $("#card option,#paytpv_suscripcion").attr("disabled", true);
         $("#pago_directo").submit();
     });
 
 
-    $("body").on("change",".paytpv #susc_periodicity, .paytpv #susc_cycles",function(){
+    $("body").on("change",".paytpv #paytpv_periodicity, .paytpv #paytpv_cycles",function(){
         validateSuscription($(this));
     });
 
     $("body").on("change","#card",function(event){
-        
+
         if ($("#payment_mode_paytpv")){
             $("#payment_mode_paytpv").attr("data-payment-link",$(this).val());
         }
@@ -63,11 +59,14 @@ function paytpv_initialize(){
 }
 
 function check_suscription(){
-    if ($("#suscripcion").is(':checked')){
+    if ($("#paytpv_suscripcion").is(':checked')){
+        if ($("#newpage_payment").val()!=2)
+            $("#exec_directpay").hide();
         $("#div_periodicity").show();
         suscribeJQ();
-        $("#saved_cards, #storingStep").hide();
+        $("#cards_paytpv, #storingStep").hide();
     }else{
+        $("#cards_paytpv").show();
         $("#div_periodicity,.paytpv_iframe").hide();
         addCardJQ();
         checkCard();
@@ -84,16 +83,19 @@ function checkCard(){
         // Si está seleccionada NUEVA TARJETA
         if ($("#card").val()=="0"){
             $("#storingStep,.paytpv_iframe").removeClass("hidden").show();
-            $("#open_directpay,#exec_directpay").hide();
+            $("#exec_directpay").hide();
         }else{
             $("#storingStep,.paytpv_iframe").hide();
-            $("#open_directpay,#exec_directpay").show();
+            $("#exec_directpay").show();
         }
     // Pago en pagina de PAYTPV Fullscreen
     } else if ($("#newpage_payment").val()==2){
         $("#saved_cards").show();
+        if ($("#card option").length==1){
+            $("#cards_paytpv").hide();
+        }
         // El boton de pagar lo mostramos siempre
-        $("#open_directpay,#exec_directpay").show();
+        $("#exec_directpay").show();
 
         // Ocultar select de Tarjetas si solo hay NUEVA TARJETA
         if ($("#card option").length==1){
@@ -108,25 +110,26 @@ function checkCard(){
                 $("#storingStep,.paytpv_iframe").removeClass("hidden").hide();
             }
         }
-       
-        
-    }   
+
+
+    }
 }
 
 
-function validateSuscription(element){ 
+function validateSuscription(element){
     switch (element.attr("id")){
-        case 'susc_periodicity':
-            $("#susc_cycles option").each(function() {
+        case 'paytpv_periodicity':
+            $("#paytpv_cycles option").each(function() {
                 if ($(this).val()*element.val()>(365*5))
                     $(this).hide();
                 else
                     $(this).show();
             });
         break;
-        case 'susc_cycles':
-            $("#susc_periodicity option").each(function() {
-                if ($(this).val()*element.val()>(365*5))
+
+        case 'paytpv_cycles':
+            $("#paytpv_cycles option").each(function() {
+                if ($(this).val() * $("#paytpv_periodicity").val()>(365*5))
                     $(this).hide();
                 else
                     $(this).show();
@@ -159,15 +162,7 @@ function confirm(msg, modal, callback) {
 }
 
 
-
-function onOpenDirectPay(){
-    $("#datos_tarjeta").html($("#card :selected").text());
-    var suscripcion="&suscripcion="+($("#suscripcion").is(':checked')?1:0)+"&periodicity="+$("#susc_periodicity").val()+"&cycles="+$("#susc_cycles").val();
-    
-    $("#pago_directo").attr("action",$("#card").val()+suscripcion);
-}
-
-function addParam(url,param){   
+function addParam(url,param){
 
     var hasQuery = url.indexOf("?") + 1;
     var hasHash = url.indexOf("#") + 1;
@@ -181,14 +176,14 @@ function addParam(url,param){
 function saveOrderInfoJQ(paytpv_suscripcion){
     switch (paytpv_suscripcion){
         case 0: // Normal Payment
-            paytpv_agree = $("#savecard").is(':checked')?1:0;
+            paytpv_agree = $("#paytpv_savecard").is(':checked')?1:0;
             paytpv_periodicity = 0;
             paytpv_cycles = 0;
         break;
         case 1: // Suscription
             paytpv_agree = 0;
-            paytpv_periodicity = $("#susc_periodicity").val();
-            paytpv_cycles = $("#susc_cycles").val()
+            paytpv_periodicity = $("#paytpv_periodicity").val();
+            paytpv_cycles = $("#paytpv_cycles").val()
             break;
     }
 
@@ -205,13 +200,17 @@ function saveOrderInfoJQ(paytpv_suscripcion){
         },
         dataType:"json"
     })
+
+    if (paytpv_suscripcion == 1){
+        suscribeJQ();
+    }
 }
 
 function addCardJQ(){
     $("#paytpv_iframe").attr("src","");
     $(".paytpv_iframe").show();
     $("#ajax_loader").show();
-    paytpv_agree = $("#savecard").is(':checked')?1:0;
+    paytpv_agree = $("#paytpv_savecard").is(':checked')?1:0;
     $.ajax({
         url: addParam($("#paytpv_module").val(),'process=addCard'),
         type: "POST",
@@ -221,7 +220,7 @@ function addCardJQ(){
             'ajax': true
         },
         success: function(result)
-        {   
+        {
             if (result.error=='0')
             {
                 $("#paytpv_iframe").attr("src",result.url).one("load",function() {
@@ -245,17 +244,18 @@ function suscribeJQ(){
         data: {
             'paytpv_agree': 0,
             'paytpv_suscripcion': 1,
-            'paytpv_periodicity': $("#susc_periodicity").val(),
-            'paytpv_cycles': $("#susc_cycles").val(),
+            'paytpv_periodicity': $("#paytpv_periodicity").val(),
+            'paytpv_cycles': $("#paytpv_cycles").val(),
             'id_cart' : $("#id_cart").val(),
             'ajax': true
         },
         success: function(result)
         {
-                       
+
             if (result.error=='0')
             {
                 $("#storingStep").hide();
+                $("#paytpv_iframe_aux").val(result.url);
                 $("#paytpv_iframe").attr("src",result.url).one("load",function() {
                     $("#ajax_loader").hide();
                 });;
@@ -266,86 +266,3 @@ function suscribeJQ(){
     });
 }
 
-
-
-
-function takingOff() {
-    ShowHidePaymentButton(false);
-    var x = new PAYTPV.Tokenizator();
-    x.getToken(document.forms["paytpvPaymentForm"], boarding);
-    return false;
-};
-
-function boarding(passenger) {
-    document.getElementById("paymentErrorMsg").innerHTML = "";
-    if (passenger.errorID !== 0 || passenger.paytpvToken === "") {
-        document.getElementById("paymentErrorMsg").innerHTML = passenger.errorText;
-        ShowHidePaymentButton(true);
-    } else {
-        
-        var newInputField = document.createElement("input");
-
-        newInputField.type = "hidden";
-        newInputField.name = "paytpvToken";
-        newInputField.value = passenger.paytpvToken;
-
-        var paytpvPaymentForm = document.forms["paytpvPaymentForm"];
-        paytpvPaymentForm.appendChild(newInputField);
-
-        var newInputField = document.createElement("input");
-
-        newInputField.type = "hidden";
-        newInputField.name = "savecard_jet";
-        newInputField.value = $("#savecard").is(':checked')?1:0;
-        paytpvPaymentForm.appendChild(newInputField);
-
-
-        if ($("#suscription") && $("#suscripcion").is(':checked')){
-            var newInputField = document.createElement("input");
-
-            newInputField.type = "hidden";
-            newInputField.name = "suscription";
-            newInputField.value = 1;
-
-            var paytpvPaymentForm = document.forms["paytpvPaymentForm"];
-            paytpvPaymentForm.appendChild(newInputField);
-
-
-            var newInputField = document.createElement("input");
-
-            newInputField.type = "hidden";
-            newInputField.name = "periodicity";
-            newInputField.value = $("#susc_periodicity").val();
-
-            var paytpvPaymentForm = document.forms["paytpvPaymentForm"];
-            paytpvPaymentForm.appendChild(newInputField);
-
-
-            var newInputField = document.createElement("input");
-
-            newInputField.type = "hidden";
-            newInputField.name = "cycles";
-            newInputField.value = $("#susc_cycles").val();
-
-            var paytpvPaymentForm = document.forms["paytpvPaymentForm"];
-            paytpvPaymentForm.appendChild(newInputField);
-
-
-        }
-        paytpvPaymentForm.submit();
-        
-
-    }
-}
-
-
-function ShowHidePaymentButton(show){
-  
-  if (show){
-    $("#clockwait_jet").hide('fast');
-    $("#btnforg").show('fast');
-  }else{
-    $("#btnforg").hide('fast');
-    $("#clockwait_jet").show('fast');
-  }
-}

@@ -25,20 +25,20 @@
 {capture name=path}{l s='Payment completed' mod='paytpv'}{/capture}
 
 <h2>{l s='Payment completed' mod='paytpv'}</h2>
-	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-valid.png"/>&nbsp;&nbsp;   
+	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-valid.png"/>&nbsp;&nbsp;
 	{l s='Thank you for trusting us. Your purchase has been formalized correctly and we will process your order soon.'  mod='paytpv'}
-	
 
-<ul class="footer_links">    
-	<li>    	
-		<a href="{$link->getPageLink('my-account')|escape:'htmlall':'UTF-8':FALSE}" title="{l s='Go to your account'  mod='paytpv'}">    		
-			<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/nav-user.gif" alt="{l s='Go to your account' mod='paytpv'}" class="icon" />&nbsp;{l s='Go to your account'  mod='paytpv'}    	
+
+<ul class="footer_links">
+	<li>
+		<a href="{$link->getPageLink('my-account')|escape:'htmlall':'UTF-8':FALSE}" title="{l s='Go to your account'  mod='paytpv'}">
+			<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/nav-user.gif" alt="{l s='Go to your account' mod='paytpv'}" class="icon" />&nbsp;{l s='Go to your account'  mod='paytpv'}
 		</a>
-	</li>   
-	<li>&nbsp;&nbsp;</li>    
-	<li>    	
-		<a href="{$base_dir|escape:'htmlall':'UTF-8':FALSE}">    		
-			<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/home.gif" alt="{l s='Home' mod='paytpv'}" class="icon" />&nbsp;{l s='Home'  mod='paytpv'}    	
-		</a>    
+	</li>
+	<li>&nbsp;&nbsp;</li>
+	<li>
+		<a href="{$base_dir|escape:'htmlall':'UTF-8':FALSE}">
+			<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/home.gif" alt="{l s='Home' mod='paytpv'}" class="icon" />&nbsp;{l s='Home'  mod='paytpv'}
+		</a>
 	</li>
 </ul>

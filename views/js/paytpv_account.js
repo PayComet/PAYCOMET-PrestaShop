@@ -1,4 +1,4 @@
-/*
+/**
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -24,12 +24,10 @@
 
 
 $(document).ready(function() {
-    $("#open_conditions").fancybox({
-            autoSize:false,
-            'width':parseInt($(window).width() * 0.7)
-        });
-    
-    $(".remove_card").on("click", function(e){   
+
+
+
+    $(".remove_card").on("click", function(e){
         e.preventDefault();
         $("#paytpv_iduser").val($(this).attr("id"));
         cc_iduser = $("#cc_"+$(this).attr("id")).val()
@@ -38,7 +36,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".save_desc").on("click", function(e){   
+    $(".save_desc").on("click", function(e){
         e.preventDefault();
         $("#paytpv_iduser").val($(this).attr("id"));
         card_desc = $("#card_desc_"+$(this).attr("id")).val()
@@ -47,7 +45,7 @@ $(document).ready(function() {
         });
     });
 
-    $(".cancel_suscription").on("click", function(e){   
+    $(".cancel_suscription").on("click", function(e){
         e.preventDefault();
         $("#id_suscription").val($(this).attr("id"));
         confirm(msg_cancelsuscription, true, function(resp) {
@@ -89,22 +87,15 @@ function alert(msg) {
 }
 
 function vincularTarjeta(){
-    if ($("#savecard").is(':checked')){
-        $('#savecard').attr("disabled", true);
-        if ($('#newpage_payment').val()==2)
-            window.location = ($("#paytpv_iframe").attr('src'));
-        else{
-            $('#close_vincular').show();
-            $('#nueva_tarjeta').show();
-        }
-    }else{
-        alert(msg_accept);
+    if ($('#newpage_payment').val()==2) {
+        window.location = ($("#add_url").val());
+    } else {
+        $('#close_vincular').show();
+        $('#nueva_tarjeta').show();
     }
-
 }
 
 function close_vincularTarjeta(){
-    $('#savecard').attr("disabled", false);
     $('#nueva_tarjeta').hide();
     $('#close_vincular').hide();
 }
@@ -133,7 +124,7 @@ function removeCard()
             }
         }
     });
-    
+
 };
 
 function saveDescriptionCard()
@@ -153,11 +144,11 @@ function saveDescriptionCard()
             if (result == '0')
             {
                alert(msg_descriptionsaved)
-               
+
             }
         }
     });
-    
+
 };
 
 
@@ -183,44 +174,6 @@ function cancelSuscription()
         },
         dataType:"json"
     });
-    
+
 };
 
-
-function takingOff() {
-    ShowHidePaymentButton(false);
-    var x = new PAYTPV.Tokenizator();
-    x.getToken(document.forms["paytpvPaymentForm"], boarding);
-    return false;
-};
-
-function boarding(passenger) {
-    document.getElementById("paymentErrorMsg").innerHTML = "";
-    if (passenger.errorID !== 0 || passenger.paytpvToken === "") {
-        document.getElementById("paymentErrorMsg").innerHTML = passenger.errorText;
-    } else {
-        
-        var newInputField = document.createElement("input");
-
-        newInputField.type = "hidden";
-        newInputField.name = "paytpvToken";
-        newInputField.value = passenger.paytpvToken;
-
-        var paytpvPaymentForm = document.forms["paytpvPaymentForm"];
-        paytpvPaymentForm.appendChild(newInputField);
-
-        paytpvPaymentForm.submit();
-        
-    }
-}
-
-function ShowHidePaymentButton(show){
-  
-  if (show){
-    $("#clockwait_jet").hide('fast');
-    $("#btnforg").show('fast');
-  }else{
-    $("#btnforg").hide('fast');
-    $("#clockwait_jet").show('fast');
-  }
-}
