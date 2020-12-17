@@ -96,6 +96,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                     $idterminal_sel,
                     $token,
                     $this->context->cart->id,
+                    '',
+                    'ES',
                     $notify
                 );
                 $addUserResponseErrorCode = $addUserResponse->errorCode;
@@ -276,6 +278,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $merchantData = $paytpv->getMerchantData($this->context->cart);
                 $userInteraction = '1';
                 $methodId = '1';
+                $notifyDirectPayment = 1;
 
                 $apiRest = new PaycometApiRest($paytpv->apikey);
                 if ($jetPayment &&
@@ -329,7 +332,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         [],
                         '',
                         '',
-                        $merchantData
+                        $merchantData,
+                        $notifyDirectPayment
                     );
 
                     $salida = $URLKO;
@@ -439,6 +443,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
                 $userInteraction = '1';
                 $methodId = '1';
+                $notifyDirectPayment = 1;
                 $merchantData = $paytpv->getMerchantData($this->context->cart);
 
                 try {
@@ -461,7 +466,8 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         [],
                         '',
                         '',
-                        $merchantData
+                        $merchantData,
+                        $notifyDirectPayment
                     );
 
                     $charge = array();
