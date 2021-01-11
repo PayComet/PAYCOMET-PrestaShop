@@ -148,13 +148,21 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign('currency_symbol', $currency->sign);
         $this->context->smarty->assign('disableoffersavecard', $disableoffersavecard);
 
-        $this->context->smarty->assign('paytpv_iframe', $this->module->paytpvIframeURL());
+        $iframeURL = $this->module->paytpvIframeURL();
+        if (filter_var($iframeURL, FILTER_VALIDATE_URL) === false) {
+            $paytpv_error = $iframeURL;
+            $iframeURL = "";
+            $this->context->smarty->assign('paytpv_error', $paytpv_error);
+            $this->setTemplate('../hook/payment_error.tpl');
+        } else {
+            $this->context->smarty->assign('paytpv_iframe', $iframeURL);
 
-        // Bankstore JET
-        if ($paytpv_integration==1) {
-            $this->context->controller->addJS($this->module->getPath() . 'views/js/paytpv_jet.js');
+            // Bankstore JET
+            if ($paytpv_integration==1) {
+                $this->context->controller->addJS($this->module->getPath() . 'views/js/paytpv_jet.js');
+            }
+
+            $this->setTemplate('../hook/payment_bsiframe.tpl');
         }
-
-        $this->setTemplate('../hook/payment_bsiframe.tpl');
     }
 }

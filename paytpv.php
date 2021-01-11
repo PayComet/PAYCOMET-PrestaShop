@@ -48,7 +48,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.6.1';
+        $this->version = '6.6.2';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -751,12 +751,13 @@ class Paytpv extends PaymentModule
                 $billAddState = end($billAddState);
                 $Merchant_EMV3DS["billing"]["billAddrState"] = $billAddState;
             }
-
+            
             if ($billing->phone) {
                 $arrDatosHomePhone = array();
 
-                $arrDatosHomePhone["cc"] = $billing_address_country->call_prefix;
-                $arrDatosHomePhone["subscriber"] = $billing->phone;
+                $arrDatosHomePhone["cc"] = $billing_address_country->call_prefix;                
+                $suscriber_phone = preg_replace('/[^0-9]/', '', $billing->phone);
+                $arrDatosHomePhone["subscriber"] = $suscriber_phone;
 
                 $Merchant_EMV3DS["customer"]["homePhone"] = $arrDatosHomePhone;
             }
@@ -765,7 +766,8 @@ class Paytpv extends PaymentModule
                 $arrDatosMobilePhone = array();
 
                 $arrDatosMobilePhone["cc"] = $billing_address_country->call_prefix;
-                $arrDatosMobilePhone["subscriber"] = $billing->phone_mobile;
+                $suscriber_phone_mobile = preg_replace('/[^0-9]/', '', $billing->phone_mobile);
+                $arrDatosMobilePhone["subscriber"] = $suscriber_phone_mobile;
 
                 $Merchant_EMV3DS["customer"]["mobilePhone"] = $arrDatosMobilePhone;
             }
@@ -1579,10 +1581,17 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('this_path', $this->_path);
             $this->context->smarty->assign('iframe_height', $iframe_height);
             return $this->display(__FILE__, 'payment_newpage.tpl');
-            // Pago en nueva pagina fullscreen si no tiene tarjetas almacenadas
+        // Pago en nueva pagina fullscreen si no tiene tarjetas almacenadas
         } elseif ($newpage_payment == 2 && empty($saved_card) && $disableoffersavecard) {
+            $iframeURL = $this->paytpvIframeURL();
+            if (filter_var($iframeURL, FILTER_VALIDATE_URL) === false) {
+                $paytpv_error = $iframeURL;
+                $iframeURL = "";
+                $this->context->smarty->assign('paytpv_error', $paytpv_error);
+                return $this->display(__FILE__, 'payment_error.tpl');
+            }
             $this->context->smarty->assign('this_path', $this->_path);
-            $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
+            $this->context->smarty->assign('paytpv_iframe', $iframeURL);
             $this->context->smarty->assign('iframe_height', $iframe_height);
             return $this->display(__FILE__, 'payment_newpage2.tpl');
             // Pago integrado
@@ -1649,8 +1658,16 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('active_suscriptions', $active_suscriptions);
             $this->context->smarty->assign('saved_card', $saved_card);
             $this->context->smarty->assign('id_cart', $params['cart']->id);
-
-            $this->context->smarty->assign('paytpv_iframe', $this->paytpvIframeURL());
+            
+            $iframeURL = $this->paytpvIframeURL();
+            if (filter_var($iframeURL, FILTER_VALIDATE_URL) === false) {
+                $paytpv_error = $iframeURL;
+                $iframeURL = "";
+                $this->context->smarty->assign('paytpv_error', $paytpv_error);
+                return $this->display(__FILE__, 'payment_error.tpl');
+            }
+            
+            $this->context->smarty->assign('paytpv_iframe', $iframeURL);
 
             $this->context->smarty->assign('newpage_payment', $newpage_payment);
             $this->context->smarty->assign('iframe_height', $iframe_height);
@@ -1790,9 +1807,11 @@ class Paytpv extends PaymentModule
                 $url_paytpv = "";
                 if ($formResponse->errorCode == 0) {
                     $url_paytpv = $formResponse->challengeUrl;
+                } else {
+                    $url_paytpv = $formResponse->errorCode;
                 }
             } catch (exception $e) {
-                $url_paytpv = "";
+                $url_paytpv = $e->getCode();
             }
         } else {
             // Cálculo Firma

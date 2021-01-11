@@ -27,7 +27,7 @@ if (!class_exists('nusoap_client')) {
     include_once(_PS_MODULE_DIR_ . '/' . 'paytpv/lib/nusoap.php');
 }
 
-class WsClient
+class WSClient
 {
     public $client = null;
     public $config = null;
