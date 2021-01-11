@@ -200,6 +200,7 @@ $_MODULE['<{paytpv}prestashop>payment_bsiframe_a876fbe73a6d039cb8c8566f6aa716d5'
 $_MODULE['<{paytpv}prestashop>payment_bsiframe_99938b17c91170dfb0c2f3f8bc9f2a85'] = 'Pagar';
 $_MODULE['<{paytpv}prestashop>payment_bsiframe_4352c4188d134b0292b21062276389cf'] = 'Los datos de introducidos se almacenarán en los servidores de PAYCOMET, empresa con certificación PCI/DSS de nivel 1, lo que hace los pagos 100% seguros.';
 $_MODULE['<{paytpv}prestashop>payment_bsiframe_0df6dc54d8913c70ff40a8ffcce9c5f6'] = 'Cargando formulario de pago...';
+$_MODULE['<{paytpv}prestashop>payment_error_902b0d55fddef6f8d651fe1035b7d4bd'] = 'Error';
 $_MODULE['<{paytpv}prestashop>payment_newpage_b933f6b9b13a6706766fb18b75af4f45'] = 'Pagar con Tarjeta';
 $_MODULE['<{paytpv}prestashop>payment_newpage2_b933f6b9b13a6706766fb18b75af4f45'] = 'Pagar con tarjeta';
 $_MODULE['<{paytpv}prestashop>payment_return_f088cd31be48912a0143f62d1215fb5d'] = 'Gracias por confiar en nosotros. Su compra se ha formalizado correctamente y en breve procesaremos su pedido.';
