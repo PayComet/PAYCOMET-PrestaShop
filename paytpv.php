@@ -751,11 +751,11 @@ class Paytpv extends PaymentModule
                 $billAddState = end($billAddState);
                 $Merchant_EMV3DS["billing"]["billAddrState"] = $billAddState;
             }
-            
+
             if ($billing->phone) {
                 $arrDatosHomePhone = array();
 
-                $arrDatosHomePhone["cc"] = $billing_address_country->call_prefix;                
+                $arrDatosHomePhone["cc"] = $billing_address_country->call_prefix;
                 $suscriber_phone = preg_replace('/[^0-9]/', '', $billing->phone);
                 $arrDatosHomePhone["subscriber"] = $suscriber_phone;
 
