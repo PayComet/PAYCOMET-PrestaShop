@@ -196,7 +196,6 @@ class Paytpv extends PaymentModule
 
     private function postValidation()
     {
-
         // Show error when required fields.
         if (Tools::getIsset('btnSubmit')) {
             if (empty(Tools::getValue('clientcode'))) {
@@ -721,10 +720,10 @@ class Paytpv extends PaymentModule
     {
         $Merchant_EMV3DS = array();
 
-        $Merchant_EMV3DS["customer"]["id"] = $this->context->customer->id;
-        $Merchant_EMV3DS["customer"]["name"] = $this->context->customer->firstname;
-        $Merchant_EMV3DS["customer"]["surname"] = $this->context->customer->lastname;
-        $Merchant_EMV3DS["customer"]["email"] = $this->context->customer->email;
+        $Merchant_EMV3DS["customer"]["id"] = isset($this->context->customer->id) ? $this->context->customer->id : 0;
+        $Merchant_EMV3DS["customer"]["name"] = isset($this->context->customer->firstname) ? $this->context->customer->firstname : '';
+        $Merchant_EMV3DS["customer"]["surname"] = isset($this->context->customer->lastname) ? $this->context->customer->lastname : '';
+        $Merchant_EMV3DS["customer"]["email"] = isset($this->context->customer->email) ? $this->context->customer->email : '';
 
 
         // Billing info
@@ -755,9 +754,9 @@ class Paytpv extends PaymentModule
             if ($billing->phone) {
                 $arrDatosHomePhone = array();
 
-                $arrDatosHomePhone["cc"] = $billing_address_country->call_prefix;
+                $arrDatosHomePhone["cc"] = (string) $billing_address_country->call_prefix;
                 $suscriber_phone = preg_replace('/[^0-9]/', '', $billing->phone);
-                $arrDatosHomePhone["subscriber"] = $suscriber_phone;
+                $arrDatosHomePhone["subscriber"] = (string) $suscriber_phone;
 
                 $Merchant_EMV3DS["customer"]["homePhone"] = $arrDatosHomePhone;
             }
@@ -765,9 +764,9 @@ class Paytpv extends PaymentModule
             if ($billing->phone_mobile) {
                 $arrDatosMobilePhone = array();
 
-                $arrDatosMobilePhone["cc"] = $billing_address_country->call_prefix;
+                $arrDatosMobilePhone["cc"] = (string) $billing_address_country->call_prefix;
                 $suscriber_phone_mobile = preg_replace('/[^0-9]/', '', $billing->phone_mobile);
-                $arrDatosMobilePhone["subscriber"] = $suscriber_phone_mobile;
+                $arrDatosMobilePhone["subscriber"] = (string) $suscriber_phone_mobile;
 
                 $Merchant_EMV3DS["customer"]["mobilePhone"] = $arrDatosMobilePhone;
             }
@@ -800,8 +799,8 @@ class Paytpv extends PaymentModule
             if ($shipping->phone) {
                 $arrDatosWorkPhone = array();
 
-                $arrDatosWorkPhone["cc"] = $billing_address_country->call_prefix;
-                $arrDatosWorkPhone["subscriber"] = $shipping->phone;
+                $arrDatosWorkPhone["cc"] = (string) $billing_address_country->call_prefix;
+                $arrDatosWorkPhone["subscriber"] = (string) $shipping->phone;
 
                 $Merchant_EMV3DS["customer"]["workPhone"] = $arrDatosWorkPhone;
             }
@@ -2016,7 +2015,6 @@ class Paytpv extends PaymentModule
     {
         $paytpv_cc = '************' . Tools::substr($paytpv_cc, -4);
 
-
         PaytpvCustomer::addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $id_customer);
 
         $result = array();
@@ -2026,9 +2024,6 @@ class Paytpv extends PaymentModule
 
         return $result;
     }
-
-
-
 
     public function removeCard($paytpv_iduser)
     {
