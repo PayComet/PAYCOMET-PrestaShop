@@ -48,7 +48,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.6.2';
+        $this->version = '6.6.3';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -196,7 +196,6 @@ class Paytpv extends PaymentModule
 
     private function postValidation()
     {
-
         // Show error when required fields.
         if (Tools::getIsset('btnSubmit')) {
             if (empty(Tools::getValue('clientcode'))) {
@@ -675,6 +674,8 @@ class Paytpv extends PaymentModule
 
     public function isoCodeToNumber($code)
     {
+        $isoCodeNumber = 724; // Default value;
+
         $arrCode = array(
             "AF" => "004", "AX" => "248", "AL" => "008", "DE" => "276", "AD" => "020", "AO" => "024",
             "AI" => "660", "AQ" => "010", "AG" => "028", "SA" => "682", "DZ" => "012", "AR" => "032", "AM" => "051",
@@ -714,18 +715,24 @@ class Paytpv extends PaymentModule
             "WF" => "876", "YE" => "887", "DJ" => "262", "ZM" => "894", "ZW" => "716"
         );
 
-        return $arrCode[$code];
+        if (isset($arrCode[$code])) {
+            $isoCodeNumber = $arrCode[$code];
+        }
+        return $isoCodeNumber;
     }
 
     public function getEMV3DS($cart)
     {
         $Merchant_EMV3DS = array();
 
-        $Merchant_EMV3DS["customer"]["id"] = $this->context->customer->id;
-        $Merchant_EMV3DS["customer"]["name"] = $this->context->customer->firstname;
-        $Merchant_EMV3DS["customer"]["surname"] = $this->context->customer->lastname;
-        $Merchant_EMV3DS["customer"]["email"] = $this->context->customer->email;
-
+        $Merchant_EMV3DS["customer"]["id"] =
+            isset($this->context->customer->id) ? $this->context->customer->id : '';
+        $Merchant_EMV3DS["customer"]["name"] =
+            isset($this->context->customer->firstname) ? $this->context->customer->firstname : '';
+        $Merchant_EMV3DS["customer"]["surname"] =
+            isset($this->context->customer->lastname) ? $this->context->customer->lastname : '';
+        $Merchant_EMV3DS["customer"]["email"] =
+            isset($this->context->customer->email) ? $this->context->customer->email : '';
 
         // Billing info
         $billing = new Address((int) ($cart->id_address_invoice));
@@ -735,29 +742,30 @@ class Paytpv extends PaymentModule
             $billing_address_state = new State($billing->id_state);
 
 
-            $Merchant_EMV3DS["billing"]["billAddrCity"] = ($billing) ? $billing->city : "";
-            $Merchant_EMV3DS["billing"]["billAddrCountry"] = ($billing) ? $billing_address_country->iso_code : "";
+            $Merchant_EMV3DS["billing"]["billAddrCity"] = ($billing) ? $billing->city : '';
+            $Merchant_EMV3DS["billing"]["billAddrCountry"] = ($billing) ? $billing_address_country->iso_code : '';
             if ($Merchant_EMV3DS["billing"]["billAddrCountry"] != "") {
                 $Merchant_EMV3DS["billing"]["billAddrCountry"] =
                     $this->isoCodeToNumber($Merchant_EMV3DS["billing"]["billAddrCountry"]);
+                // billAddrState -> Only if defined billAddrCountry
+                if ($billing_address_state->iso_code != "") {
+                    $billAddState = explode("-", $billing_address_state->iso_code);
+                    $billAddState = end($billAddState);
+                    $Merchant_EMV3DS["billing"]["billAddrState"] = $billAddState;
+                }
             }
-            $Merchant_EMV3DS["billing"]["billAddrLine1"] = ($billing) ? $billing->address1 : "";
-            $Merchant_EMV3DS["billing"]["billAddrLine2"] = ($billing) ? $billing->address2 : "";
+            $Merchant_EMV3DS["billing"]["billAddrLine1"] = ($billing) ? $billing->address1 : '';
+            $Merchant_EMV3DS["billing"]["billAddrLine2"] = ($billing) ? $billing->address2 : '';
             //$Merchant_EMV3DS["billing"]["billAddrLine3"] = "";
-            $Merchant_EMV3DS["billing"]["billAddrPostCode"] = ($billing) ? $billing->postcode : "";
-
-            if ($billing_address_state->iso_code != "") {
-                $billAddState = explode("-", $billing_address_state->iso_code);
-                $billAddState = end($billAddState);
-                $Merchant_EMV3DS["billing"]["billAddrState"] = $billAddState;
-            }
+            $Merchant_EMV3DS["billing"]["billAddrPostCode"] = ($billing) ? $billing->postcode : '';
 
             if ($billing->phone) {
                 $arrDatosHomePhone = array();
 
-                $arrDatosHomePhone["cc"] = $billing_address_country->call_prefix;
-                $suscriber_phone = preg_replace('/[^0-9]/', '', $billing->phone);
-                $arrDatosHomePhone["subscriber"] = $suscriber_phone;
+                $arrDatosHomePhone["cc"] =
+                    Tools::substr(preg_replace('/[^0-9]/', '', $billing_address_country->call_prefix), 0, 3);
+                $arrDatosHomePhone["subscriber"] =
+                    Tools::substr(preg_replace('/[^0-9]/', '', $billing->phone), 0, 15);
 
                 $Merchant_EMV3DS["customer"]["homePhone"] = $arrDatosHomePhone;
             }
@@ -765,9 +773,10 @@ class Paytpv extends PaymentModule
             if ($billing->phone_mobile) {
                 $arrDatosMobilePhone = array();
 
-                $arrDatosMobilePhone["cc"] = $billing_address_country->call_prefix;
-                $suscriber_phone_mobile = preg_replace('/[^0-9]/', '', $billing->phone_mobile);
-                $arrDatosMobilePhone["subscriber"] = $suscriber_phone_mobile;
+                $arrDatosMobilePhone["cc"] =
+                    Tools::substr(preg_replace('/[^0-9]/', '', $billing_address_country->call_prefix), 0, 3);
+                $arrDatosMobilePhone["subscriber"] =
+                    Tools::substr(preg_replace('/[^0-9]/', '', $billing->phone_mobile), 0, 15);
 
                 $Merchant_EMV3DS["customer"]["mobilePhone"] = $arrDatosMobilePhone;
             }
@@ -780,28 +789,33 @@ class Paytpv extends PaymentModule
             $shipping_address_country = new Country($shipping->id_country);
             $shipping_address_state = new State($shipping->id_state);
 
-            $Merchant_EMV3DS["shipping"]["shipAddrCity"] = ($shipping) ? $shipping->city : "";
-            $Merchant_EMV3DS["shipping"]["shipAddrCountry"] = ($shipping) ? $shipping_address_country->iso_code : "";
+            $Merchant_EMV3DS["shipping"]["shipAddrCity"] = ($shipping) ? $shipping->city : '';
+            $Merchant_EMV3DS["shipping"]["shipAddrCountry"] = ($shipping) ? $shipping_address_country->iso_code : '';
             if ($Merchant_EMV3DS["shipping"]["shipAddrCountry"] != "") {
                 $Merchant_EMV3DS["shipping"]["shipAddrCountry"] =
                     $this->isoCodeToNumber($Merchant_EMV3DS["shipping"]["shipAddrCountry"]);
+                
+                // shipAddrState -> Only if defined shipAddrCountry
+                if ($shipping_address_state->iso_code != "") {
+                    $shipAddrState = explode("-", $shipping_address_state->iso_code);
+                    $shipAddrState = end($shipAddrState);
+                    $Merchant_EMV3DS["shipping"]["shipAddrState"] = $shipAddrState;
+                }
             }
-            $Merchant_EMV3DS["shipping"]["shipAddrLine1"] = ($shipping) ? $shipping->address1 : "";
-            $Merchant_EMV3DS["shipping"]["shipAddrLine2"] = ($shipping) ? $shipping->address2 : "";
+            $Merchant_EMV3DS["shipping"]["shipAddrLine1"] = ($shipping) ? $shipping->address1 : '';
+            $Merchant_EMV3DS["shipping"]["shipAddrLine2"] = ($shipping) ? $shipping->address2 : '';
             //$Merchant_EMV3DS["shipping"]["shipAddrLine3"] = "";
-            $Merchant_EMV3DS["shipping"]["shipAddrPostCode"] = ($shipping) ? $shipping->postcode : "";
+            $Merchant_EMV3DS["shipping"]["shipAddrPostCode"] = ($shipping) ? $shipping->postcode : '';
 
-            if ($shipping_address_state->iso_code != "") {
-                $shipAddrState = explode("-", $shipping_address_state->iso_code);
-                $shipAddrState = end($shipAddrState);
-                $Merchant_EMV3DS["shipping"]["shipAddrState"] = $shipAddrState;
-            }
+            
 
             if ($shipping->phone) {
                 $arrDatosWorkPhone = array();
 
-                $arrDatosWorkPhone["cc"] = $billing_address_country->call_prefix;
-                $arrDatosWorkPhone["subscriber"] = $shipping->phone;
+                $arrDatosWorkPhone["cc"] =
+                    Tools::substr(preg_replace('/[^0-9]/', '', $shipping_address_country->call_prefix), 0, 3);
+                $arrDatosWorkPhone["subscriber"] =
+                    Tools::substr(preg_replace('/[^0-9]/', '', $shipping->phone), 0, 15);
 
                 $Merchant_EMV3DS["customer"]["workPhone"] = $arrDatosWorkPhone;
             }
@@ -2016,7 +2030,6 @@ class Paytpv extends PaymentModule
     {
         $paytpv_cc = '************' . Tools::substr($paytpv_cc, -4);
 
-
         PaytpvCustomer::addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $id_customer);
 
         $result = array();
@@ -2026,9 +2039,6 @@ class Paytpv extends PaymentModule
 
         return $result;
     }
-
-
-
 
     public function removeCard($paytpv_iduser)
     {
