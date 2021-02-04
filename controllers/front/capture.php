@@ -361,6 +361,9 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
         $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);
 
+        $userInteraction = '1';
+        $methodId = '1';
+
         // INICIO PAGO NO SEGURO SUSCRIPCION
         if ($jetPayment && (Tools::getIsset("paytpv_suscripcion") && Tools::getValue("paytpv_suscripcion")==1)) {
             $subscription_startdate = date("Y-m-d");
@@ -395,8 +398,6 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
                 $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);
 
-                $userInteraction = '1';
-                $methodId = '1';
                 $merchantData = $paytpv->getMerchantData($this->context->cart);
 
                 $createSubscriptionResponse = $apiRest->createSubscription(
@@ -440,9 +441,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                 $apiRest = new PaycometApiRest($paytpv->apikey);
                 $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
                 $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);
-
-                $userInteraction = '1';
-                $methodId = '1';
+                
                 $notifyDirectPayment = 1;
                 $merchantData = $paytpv->getMerchantData($this->context->cart);
 
@@ -492,8 +491,14 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                     $importe,
                     $paytpv_order_ref,
                     $MERCHANT_SCORING,
-                    null
+                    null,
+                    $userInteraction
                 );
+
+                if ($charge["DS_CHALLENGE_URL"] != "") {
+                    Tools::redirect(urldecode($charge["DS_CHALLENGE_URL"]));
+                    exit;
+                }
             }
         }
 
