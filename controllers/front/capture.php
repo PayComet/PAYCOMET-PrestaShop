@@ -67,7 +67,6 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
         $savecard_jet = Tools::getIsset("paytpv_savecard")?1:0;
 
-
         $jetPayment = 0;
         if ($token && Tools::strlen($token) == 64) {
             // PAGO SEGURO

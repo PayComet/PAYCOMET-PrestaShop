@@ -155,6 +155,22 @@
         </div>
     </div>
 
+    {foreach $apmsUrls as $key => $apm}
+        {if $apm != false}
+            <div class="col-xs-12" style="margin-top: 10px">
+                <div class="paytpv">
+                    <div class="paytpv_title">
+                        <a href="http://www.paycomet.com" target="_blank">
+                        <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/{$key}.png" width="75"></a>
+                        <span>{$apm['method_name']}</span>
+                        <br>
+                        <a id="exec_directpay" href="{$apm['url']}" class="btn btn-primary button button-medium center-block paytpv_pay" style="margin-top: 10px; margin-left: 20px"><span>Pagar<i class="icon-chevron-right right"></i></span></a>
+                    </div>
+                </div>
+            </div>
+        {/if}
+    {/foreach}
+
     <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$link->getModuleLink('paytpv', 'actions',[], true)|escape:'htmlall':'UTF-8'}">
 
     <script type="text/javascript">
