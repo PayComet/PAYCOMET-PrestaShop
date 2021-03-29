@@ -307,37 +307,63 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         $merchantData
                     );
 
-                    $salida = $URLKO;
-                    if ($createSubscriptionResponse->challengeUrl != "") {
+                    // Hay challenge
+                    if (isset($createSubscriptionResponse->challengeUrl) &&
+                        $createSubscriptionResponse->challengeUrl != ""
+                    ) {
                         $salida = $createSubscriptionResponse->challengeUrl;
+                    // Frictionless
+                    } elseif (isset($createSubscriptionResponse->errorCode) &&
+                        $createSubscriptionResponse->errorCode == 0 &&
+                        isset($createSubscriptionResponse->authCode) &&
+                        $createSubscriptionResponse->authCode != "") {
+                        $salida = $URLOK;
+                    // Error
+                    } else {
+                        $salida = $URLKO;
                     }
                 } else {
-                    $executePurchaseResponse = $apiRest->executePurchase(
-                        $idterminal_sel,
-                        $paytpv_order_ref,
-                        $importe,
-                        $currency_iso_code,
-                        $methodId,
-                        Tools::getRemoteAddr(),
-                        $secure_pay,
-                        $data["IDUSER"],
-                        $data['TOKEN_USER'],
-                        $URLOK,
-                        $URLKO,
-                        $scoring,
-                        '',
-                        '',
-                        $userInteraction,
-                        [],
-                        '',
-                        '',
-                        $merchantData,
-                        $notifyDirectPayment
-                    );
+                    try {
+                        $executePurchaseResponse = $apiRest->executePurchase(
+                            $idterminal_sel,
+                            $paytpv_order_ref,
+                            $importe,
+                            $currency_iso_code,
+                            $methodId,
+                            Tools::getRemoteAddr(),
+                            $secure_pay,
+                            $data["IDUSER"],
+                            $data['TOKEN_USER'],
+                            $URLOK,
+                            $URLKO,
+                            $scoring,
+                            '',
+                            '',
+                            $userInteraction,
+                            [],
+                            '',
+                            '',
+                            $merchantData,
+                            $notifyDirectPayment
+                        );
 
-                    $salida = $URLKO;
-                    if ($executePurchaseResponse->challengeUrl != "") {
-                        $salida = $executePurchaseResponse->challengeUrl;
+                        // Hay challenge
+                        if (isset($executePurchaseResponse->challengeUrl) &&
+                            $executePurchaseResponse->challengeUrl != ""
+                        ) {
+                            $salida = $executePurchaseResponse->challengeUrl;
+                        // Frictionless
+                        } elseif (isset($executePurchaseResponse->errorCode) &&
+                            $executePurchaseResponse->errorCode == 0 &&
+                            isset($executePurchaseResponse->authCode) &&
+                            $executePurchaseResponse->authCode != "") {
+                            $salida = $URLOK;
+                        // Error
+                        } else {
+                            $salida = $URLKO;
+                        }
+                    } catch (exception $e) {
+                        $salida = $URLKO;
                     }
                 }
             }
@@ -424,9 +450,20 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                     $merchantData
                 );
 
-                if ($createSubscriptionResponse->challengeUrl != "") {
+                // Hay challenge
+                if (isset($createSubscriptionResponse->challengeUrl) &&
+                    $createSubscriptionResponse->challengeUrl != ""
+                ) {
                     Tools::redirect($createSubscriptionResponse->challengeUrl);
                     exit;
+                // Frictionless
+                } elseif (isset($createSubscriptionResponse->errorCode) &&
+                    $createSubscriptionResponse->errorCode == 0 &&
+                    isset($createSubscriptionResponse->authCode) &&
+                    $createSubscriptionResponse->authCode != "") {
+                    Tools::redirect($URLOK);
+                    exit;
+                // Error
                 } else {
                     $charge = array();
                     $charge["DS_RESPONSE"] = ($createSubscriptionResponse->errorCode > 0)? 0 : 1;
@@ -472,8 +509,18 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                     $charge["DS_RESPONSE"] = ($executePurchaseResponse->errorCode > 0)? 0 : 1;
                     $charge['DS_ERROR_ID'] = $executePurchaseResponse->errorCode;
 
-                    if ($executePurchaseResponse->challengeUrl != "") {
+                    // Hay challenge
+                    if (isset($executePurchaseResponse->challengeUrl) &&
+                        $executePurchaseResponse->challengeUrl != ""
+                    ) {
                         Tools::redirect($executePurchaseResponse->challengeUrl);
+                        exit;
+                    // Frictionless
+                    } elseif (isset($executePurchaseResponse->errorCode) &&
+                        $executePurchaseResponse->errorCode == 0 &&
+                        isset($executePurchaseResponse->authCode) &&
+                        $executePurchaseResponse->authCode != "") {
+                        Tools::redirect($URLOK);
                         exit;
                     }
                 } catch (exception $e) {
@@ -494,7 +541,9 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                     $userInteraction
                 );
 
-                if ($charge["DS_CHALLENGE_URL"] != "") {
+                if (isset($charge["DS_CHALLENGE_URL"]) &&
+                    $charge["DS_CHALLENGE_URL"] != "" &&
+                    $charge["DS_CHALLENGE_URL"] != "0") {
                     Tools::redirect(urldecode($charge["DS_CHALLENGE_URL"]));
                     exit;
                 }
