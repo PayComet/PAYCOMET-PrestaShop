@@ -45,7 +45,7 @@
                 {if ($paytpv_integration==1)}
                     <form action="{$paytpv_jetid_url|escape:'htmlall':'UTF-8'}" method="POST" class="paytpv_jet" id="paycometPaymentForm" style="clear:left;">
                 {/if}
-
+                
                 <div class="paytpv_title">
                     <a href="http://www.paycomet.com" target="_blank"><img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/paytpv_logo.svg" width="135"></a>
                     {l s='Pay with Card' mod='paytpv'}
@@ -107,7 +107,7 @@
                                 <img id='ajax_loader' src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/clockpayblue.gif"></img>
                                 {l s='Loading payment form...' mod='paytpv'}
                             </p>
-                            <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 100%; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: {$iframe_height|escape:'htmlall':'UTF-8'}px;" marginheight="0" marginwidth="0" scrolling="no"></iframe>
+                            <iframe id="paytpv_iframe" src="{$paytpv_iframe|escape:'htmlall':'UTF-8':FALSE}" name="paytpv" style="width: 98%; border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-style: initial; border-color: initial; border-image: initial; height: {$iframe_height|escape:'htmlall':'UTF-8'}px;" marginheight="0" marginwidth="0" scrolling="no"></iframe>
                         {else}
 
                             {include file="modules/paytpv/views/templates/hook/inc_payment_jetIframe.tpl"}
@@ -148,7 +148,6 @@
         </div>
     </div>
 
-
     <div style="display: none;">
         <div id="directpay" style="overflow:auto;">
             <form name="pago_directo" id="pago_directo" action="" method="post"></form>
@@ -157,16 +156,13 @@
 
     {foreach $apmsUrls as $key => $apm}
         {if $apm != false}
-            <div class="col-xs-12" style="margin-top: 10px">
-                <div class="paytpv">
-                    <div class="paytpv_title">
-                        <a href="http://www.paycomet.com" target="_blank">
-                        <img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/{$key}.png" width="75"></a>
-                        <span>{$apm['method_name']}</span>
-                        <br>
-                        <a id="exec_directpay" href="{$apm['url']}" class="btn btn-primary button button-medium center-block paytpv_pay" style="margin-top: 10px; margin-left: 20px"><span>Pagar<i class="icon-chevron-right right"></i></span></a>
-                    </div>
-                </div>
+
+            <div class="col-xs-12">
+                <p class="payment_module">	
+                    <a class="paycometPayments" href="{$apm['url']}" rel="nofollow" style="background: url({$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/{$apm['img_name']}.svg) 15px 12px no-repeat #fbfbfb; ">				
+                        {l s='Pay with ' mod='paytpv'} {$apm['method_name']}
+                    </a>	
+                </p>
             </div>
         {/if}
     {/foreach}
