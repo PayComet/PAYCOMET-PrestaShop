@@ -22,9 +22,9 @@
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *}
 
-<table width="100%" border="0">
-    <tr>
-    	<td><img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-valid.png"/></td>
-    	<td>{l s='Thank you for trusting us. Your purchase has been formalized correctly and we will process your order soon.' mod='paytpv'} {l s='Order Reference' mod='paytpv'}: <strong>{$reference|escape:'htmlall':'UTF-8':FALSE}</strong> </td>
-	</tr>
-</table>
+<p>
+	{l s='Your order on %s is complete.' sprintf=[$shop_name] mod='paytpv'}
+</p>
+<p>
+	{$result_txt}
+</p>

@@ -36,7 +36,7 @@
 	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-cancel.png"/> &nbsp;&nbsp; {$error_msg|escape:'htmlall':'UTF-8':FALSE}
 	{else}
 	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-cancel.png"/>&nbsp;&nbsp;
-	{l s='We are sorry. Your payment has not been completed. You can try again or choose another payment method. Remember that you can use cards adhered to the Visa secure payment system called "Verified by Visa", or MasterCard secure payment system, called "MasterCard SecureCode"'  mod='paytpv'}
+	{l s='We are sorry. Your payment has not been completed. You can try again or choose another payment method.'  mod='paytpv'}
 	{/if}
 
 <ul class="footer_links">
