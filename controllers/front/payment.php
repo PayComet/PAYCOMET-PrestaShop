@@ -78,7 +78,7 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
 
         $cart = Context::getContext()->cart;
         $datos_pedido = $this->module->terminalCurrency($cart);
-        $jetid = $datos_pedido["jetid"];                
+        $jetid = $datos_pedido["jetid"];
 
         $newpage_payment = (int)(Configuration::get('PAYTPV_NEWPAGEPAYMENT'));
         $paytpv_integration = (int)(Configuration::get('PAYTPV_INTEGRATION'));

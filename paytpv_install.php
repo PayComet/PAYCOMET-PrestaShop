@@ -182,6 +182,5 @@ class PayTpvInstall
         Configuration::deleteByName('PAYTPV_PASS');
         Configuration::deleteByName('PAYTPV_SUSCRIPTIONS');
         Configuration::deleteByName('PAYTPV_NEWPAGEPAYMENT');
-
     }
 }

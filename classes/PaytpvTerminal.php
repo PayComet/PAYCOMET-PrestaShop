@@ -27,11 +27,11 @@ class PaytpvTerminal extends ObjectModel
 {
     public $id;
     public $id_shop;
-    public $idterminal;    
+    public $idterminal;
     public $password;
     public $jetid;
     public $currency_iso_code;
-    
+
 
     public static function existTerminal()
     {
@@ -54,23 +54,24 @@ class PaytpvTerminal extends ObjectModel
 
     public static function addTerminal(
         $id,
-        $idterminal,        
-        $password,        
-        $jetid,        
+        $idterminal,
+        $password,
+        $jetid,
         $currency_iso_code
     ) {
-        $idterminal = ($idterminal=="")?"null":(int)$idterminal;      
+        $idterminal = ($idterminal=="")?"null":(int)$idterminal;
 
         $id_shop = Context::getContext()->shop->id;
-        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'paytpv_terminal (id,id_shop,idterminal,password,jetid,currency_iso_code) VALUES(' . (int)$id .
-        ',' . (int)$id_shop . ',' . (int)$idterminal . ',"' . pSQL($password) . '","' . pSQL($jetid) . '", "' . pSQL($currency_iso_code) . '")';
+        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'paytpv_terminal (id,id_shop,idterminal,password,jetid,currency_iso_code)
+        VALUES(' . (int)$id . ',' . (int)$id_shop . ',' . (int)$idterminal . ',"' . pSQL($password) .'",
+        "' . pSQL($jetid) . '", "' . pSQL($currency_iso_code) . '")';
         Db::getInstance()->Execute($sql);
     }
 
     public static function getTerminals()
     {
         $id_shop = Context::getContext()->shop->id;
-        return Db::getInstance()->executeS("SELECT idterminal, password, jetid, 
+        return Db::getInstance()->executeS("SELECT idterminal, password, jetid,
         currency_iso_code FROM " . _DB_PREFIX_ . "paytpv_terminal where id_shop=" .
         (int)$id_shop);
     }
@@ -124,9 +125,9 @@ class PaytpvTerminal extends ObjectModel
             }
         }
         $arrDatos = array();
-        $arrDatos["idterminal"] = $result2["idterminal"];        
-        $arrDatos["password"] = $result2["password"];        
-        $arrDatos["jetid"] = $result2["jetid"];        
+        $arrDatos["idterminal"] = $result2["idterminal"];
+        $arrDatos["password"] = $result2["password"];
+        $arrDatos["jetid"] = $result2["jetid"];
 
         return $arrDatos;
     }
@@ -136,15 +137,15 @@ class PaytpvTerminal extends ObjectModel
         $id_shop = Context::getContext()->shop->id;
 
         $idterminal = ($idterminal>0) ? $idterminal:0;
-        $sql = 'select * from ' . _DB_PREFIX_ . 'paytpv_terminal where idterminal=' . (int)$idterminal . ' 
+        $sql = 'select * from ' . _DB_PREFIX_ . 'paytpv_terminal where idterminal=' . (int)$idterminal . '
         and id_shop=' . (int)$id_shop;
         $result2 = Db::getInstance()->getRow($sql);
 
         $arrDatos = array();
-        $arrDatos["idterminal"] = $result2["idterminal"];        
+        $arrDatos["idterminal"] = $result2["idterminal"];
         $arrDatos["password"] = $result2["password"];
-        $arrDatos["jetid"] = $result2["jetid"];        
-        
+        $arrDatos["jetid"] = $result2["jetid"];
+
         return $arrDatos;
     }
 }

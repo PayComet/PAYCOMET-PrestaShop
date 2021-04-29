@@ -26,5 +26,5 @@
 	{l s='Your order on %s is complete.' sprintf=[$shop_name] mod='paytpv'}
 </p>
 <p>
-	{$result_txt}
+	{$result_txt|escape:'htmlall':'UTF-8':FALSE}
 </p>

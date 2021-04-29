@@ -82,8 +82,8 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             }
 
             $arrTerminal = PaytpvTerminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
-            $idterminal = $arrTerminal["idterminal"];            
-            $pass = $arrTerminal["password"];            
+            $idterminal = $arrTerminal["idterminal"];
+            $pass = $arrTerminal["password"];
 
             $local_sign = hash('sha512', $paytpv->clientcode . $idterminal . Tools::getValue('TransactionType') .
                                 $ref . Tools::getValue('Amount') . Tools::getValue('Currency') . md5($pass) .
@@ -111,7 +111,7 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             $arrTerminal = PaytpvTerminal::getTerminalByIdTerminal(Tools::getValue('TpvID'));
             $idterminal = $arrTerminal["idterminal"];
             $pass = $arrTerminal["password"];
-            
+
             $local_sign = hash('sha512', $paytpv->clientcode . $idterminal . Tools::getValue('TransactionType') .
                                  $ref . Tools::getValue('DateTime') . md5($pass));
 
@@ -140,13 +140,11 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                     $result['DS_MERCHANT_PAN'],
                     $result['DS_CARD_BRAND']
                 );
-    
-                die('Usuario Registrado');
 
+                die('Usuario Registrado');
             } else {
                 die('Error 1004');
             }
-
             // (create_subscription)
         } elseif (Tools::getValue('TransactionType') === "9") {
             $result = Tools::getValue('Response') == 'OK' ? 0 : -1;
@@ -398,7 +396,6 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
 
                 // Para APMs. Si el estado esta en "Pendient de pago" lo pasamos a Pago Aceptado
                 if ($order->getCurrentState() == Configuration::get("PS_CHECKOUT_STATE_WAITING_LOCAL_PAYMENT")) {
-
                     $order->addOrderPayment($importe, null, Tools::getValue('AuthCode'));
 
                     $history = new OrderHistory();

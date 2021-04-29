@@ -70,7 +70,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
         die('1');
     }
 
-    
+
 
     /**
      * Remove card
@@ -125,8 +125,8 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
         $datos_pedido = $paytpv->terminalCurrency($cart);
         $importe = $datos_pedido["importe"];
         $currency_iso_code = $datos_pedido["currency_iso_code"];
-        $idterminal = $datos_pedido["idterminal"];        
-        
+        $idterminal = $datos_pedido["idterminal"];
+
         $values = array(
             'id_cart' => $cart->id,
             'key' => Context::getContext()->customer->secure_key
@@ -141,7 +141,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
         $paytpv_order_ref = str_pad($cart->id, 8, "0", STR_PAD_LEFT);
 
         $language = $paytpv->getPaycometLang($this->context->language->language_code);
-        $secure_pay = true;        
+        $secure_pay = true;
         $arrReturn = array();
         $arrReturn["error"] = 1;
         if (PaytpvOrderInfo::saveOrderInfo(
@@ -309,7 +309,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
             $language = $paytpv->getPaycometLang($this->context->language->language_code);
 
             $score = $paytpv->transactionScore($cart);
-            $MERCHANT_SCORING = $scoring = $score["score"];
+            $scoring = $score["score"];
 
             if ($paytpv->apikey != '') {
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');

@@ -38,7 +38,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
     public function initContent()
     {
         parent::initContent();
-        
+
         $error = "";
 
         $this->context->controller->addJqueryPlugin('fancybox');
@@ -51,13 +51,13 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
             $paytpv = $this->module;
 
             $arrTerminal = PaytpvTerminal::getTerminalByCurrency($this->context->currency->iso_code);
-            $idterminal = $arrTerminal["idterminal"];            
+            $idterminal = $arrTerminal["idterminal"];
             $jetid = $arrTerminal["jetid"];
 
             // SAVE BANKSTORE JET
             $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
 
-            if ($token && Tools::strlen($token) == 64) {                
+            if ($token && Tools::strlen($token) == 64) {
                 include_once(_PS_MODULE_DIR_.'/paytpv/classes/PaycometApiRest.php');
 
                 if ($paytpv->apikey != '') {
@@ -84,6 +84,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                 if (( int ) $addUserResponseErrorCode > 0) {
                     $error = $paytpv->l('Cannot operate with given credit card', 'account');
                 } else {
+                    $result = array();
                     if ($paytpv->apikey != '') {
                         $apiRest = new PaycometApiRest($paytpv->apikey);
                         $infoUserResponse = $apiRest->infoUser(
@@ -104,7 +105,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                                 $result['DS_CARD_BRAND']
                             );
                         }
-                    }                    
+                    }
                 }
             }
             // FIN SAVE BANKSTORE JET

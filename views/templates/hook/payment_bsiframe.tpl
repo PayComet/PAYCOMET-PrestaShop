@@ -159,8 +159,8 @@
 
             <div class="col-xs-12">
                 <p class="payment_module">	
-                    <a class="paycometPayments" href="{$apm['url']}" rel="nofollow" style="background: url({$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/{$apm['img_name']}.svg) 15px 12px no-repeat #fbfbfb; ">				
-                        {l s='Pay with ' mod='paytpv'} {$apm['method_name']}
+                    <a class="paycometPayments" href="{$apm['url']|escape:'htmlall':'UTF-8':FALSE}" rel="nofollow" style="background: url({$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/{$apm['img_name']|escape:'htmlall':'UTF-8':FALSE}.svg) 15px 12px no-repeat #fbfbfb; ">
+                        {l s='Pay with ' mod='paytpv'} {$apm['method_name']|escape:'htmlall':'UTF-8':FALSE}
                     </a>	
                 </p>
             </div>

@@ -58,8 +58,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         $jetPayment = 0;
         $secure_pay = true;
         // JETTOKEN CARD
-        if ($token && Tools::strlen($token) == 64) {            
-
+        if ($token && Tools::strlen($token) == 64) {
             if ($paytpv->apikey != '') {
                 $notify = 2; // No notificar HTTP
 
@@ -138,7 +137,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         $paytpv_order_ref = str_pad($this->context->cart->id, 8, "0", STR_PAD_LEFT);
 
         $URLOK=Context::getContext()->link->getModuleLink($paytpv->name, 'urlok', $values, $ssl);
-        $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);        
+        $URLKO=Context::getContext()->link->getModuleLink($paytpv->name, 'urlko', $values, $ssl);
 
         $subscription_startdate = date("Ymd");
         $susc_periodicity = $periodicity;
@@ -258,6 +257,5 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
 
         Tools::redirect($salida);
         exit;
-
     }
 }
