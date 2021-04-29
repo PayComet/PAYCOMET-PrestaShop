@@ -217,17 +217,17 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             // EXIST ORDER
             if ($id_order) {
                 $order = new Order($id_order);
-
-                $sql = 'SELECT COUNT(oh.`id_order_history`) AS nb
-                        FROM `' . _DB_PREFIX_ . 'order_history` oh
-                        WHERE oh.`id_order` = ' . (int) $id_order . '
-                AND oh.id_order_state = ' . Configuration::get('PS_OS_PAYMENT');
-                $n = Db::getInstance()->getValue($sql);
-                $pagoRegistrado = $n > 0;
+                $pagoRegistrado = $paytpv->isOrderPaid($id_order);
 
                 // If a subscription payment
                 // SUSCRIPCION
                 if (Tools::getValue('TransactionType') === "9" && $suscripcion == 2) {
+                    // Evitar duplicidades.
+                    $notifDuplicada = $paytpv->isPaymentProcesed(Tools::getValue('AuthCode'));
+                    if ($notifDuplicada) {
+                        die('Notif Duplicada');
+                    }
+
                     $cart_problem_txt = "";
 
                     $new_cart = $cart->duplicate();

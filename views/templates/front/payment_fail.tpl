@@ -30,13 +30,11 @@
 
 
 	{if ($password_fail)}
-	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-cancel.png"/> &nbsp;&nbsp; {l s='Incorrect Password'  mod='paytpv'}
-
+		{l s='Incorrect Password'  mod='paytpv'}
 	{else if ($error_msg)}
-	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-cancel.png"/> &nbsp;&nbsp; {$error_msg|escape:'htmlall':'UTF-8':FALSE}
-	{else}
-	<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/icon-cancel.png"/>&nbsp;&nbsp;
-	{l s='We are sorry. Your payment has not been completed. You can try again or choose another payment method.'  mod='paytpv'}
+		{$error_msg|escape:'htmlall':'UTF-8':FALSE}
+	{else}	
+		{l s='We are sorry. Your payment has not been completed. You can try again or choose another payment method.'  mod='paytpv'}
 	{/if}
 
 <ul class="footer_links">

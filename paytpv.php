@@ -2668,4 +2668,22 @@ class Paytpv extends PaymentModule
 
         return $paytpv_order; //&& $paytpv_order['payment_status'] != 'Refunded';
     }
+
+    /* Compruebas si un pedido está en estado Pagado */
+    public function isOrderPaid($id_order){
+        $sql = 'SELECT COUNT(oh.`id_order_history`) AS nb
+            FROM `' . _DB_PREFIX_ . 'order_history` oh
+            WHERE oh.`id_order` = ' . (int) $id_order . '
+        AND oh.id_order_state = ' . Configuration::get('PS_OS_PAYMENT');
+        $n = Db::getInstance()->getValue($sql);
+        return ($n > 0);
+    }
+
+    /* Compruebas si un pedido ya ha sido pagado en la hora anterior*/
+    public function isPaymentProcesed($authCode){
+            $sql = 'SELECT COUNT(*) as np  FROM `' . _DB_PREFIX_ . 'order_payment` where transaction_id = ' . $authCode . ' and date_add > DATE_ADD(SYSDATE(),INTERVAL - 1 hour)';
+        $n = Db::getInstance()->getValue($sql);
+        return ($n > 0);
+    }
+
 }
