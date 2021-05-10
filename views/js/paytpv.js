@@ -39,7 +39,6 @@ $(document).ready(function() {
         $("#pago_directo").submit();
     });
 
-
     $("body").on("change",".paytpv #paytpv_periodicity, .paytpv #paytpv_cycles",function(){
         validateSuscription($(this));
     });
