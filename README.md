@@ -53,6 +53,10 @@ Todas las suscripciones mostrarán el estado actual:
 
 ## Release Notes
 
+> 6.7.1: 
+
+- Mejoras controlador URLOK
+
 > 6.7.0: 
 
 - **API Key [OBLIGATORIA]**: Debe dar de alta una API Key en su área de cliente de PAYCOMET e indicarla en el Plugin para poder operar. 
