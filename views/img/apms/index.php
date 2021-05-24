@@ -1,4 +1,6 @@
-{*
+<?php
+
+/*
 * 2007-2015 PrestaShop
 *
 * NOTICE OF LICENSE
@@ -20,23 +22,13 @@
 *  @author     PAYCOMET <info@paycomet.com>
 *  @copyright  2019 PAYTPV ON LINE ENTIDAD DE PAGO S.L
 *  @license    http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*}
+*/
 
-{capture name=path}{l s='Payment completed' mod='paytpv'}{/capture}
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Location: ../");
 
-<h2>{l s='Payment completed' mod='paytpv'}</h2>	
-{l s='Thank you for trusting us. Your purchase has been formalized correctly and we will process your order soon.'  mod='paytpv'}
-
-<ul class="footer_links">
-	<li>
-		<a href="{$link->getPageLink('my-account')|escape:'htmlall':'UTF-8':FALSE}" title="{l s='Go to your account'  mod='paytpv'}">
-			<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/nav-user.gif" alt="{l s='Go to your account' mod='paytpv'}" class="icon" />&nbsp;{l s='Go to your account'  mod='paytpv'}
-		</a>
-	</li>
-	<li>&nbsp;&nbsp;</li>
-	<li>
-		<a href="{$base_dir|escape:'htmlall':'UTF-8':FALSE}">
-			<img src="{$base_dir|escape:'htmlall':'UTF-8':FALSE}img/admin/home.gif" alt="{l s='Home' mod='paytpv'}" class="icon" />&nbsp;{l s='Home'  mod='paytpv'}
-		</a>
-	</li>
-</ul>
+exit;
