@@ -130,8 +130,8 @@ class Paytpv extends PaymentModule
             $this->disableoffersavecard = $config['PAYTPV_DISABLEOFFERSAVECARD'];
         }
         
-        if (array_key_exists('PAYTPV_APM_BIZUM', $config)) {
-            $this->paytpv_apm_bizum = $config['PAYTPV_APM_BIZUM'];
+        if (array_key_exists('PAYTPV_APM_bizum', $config)) {
+            $this->paytpv_apm_bizum = $config['PAYTPV_APM_bizum'];
         }
         if (array_key_exists('PAYTPV_APM_paypal', $config)) {
             $this->paytpv_apm_paypal = $config['PAYTPV_APM_paypal'];
@@ -428,7 +428,7 @@ class Paytpv extends PaymentModule
                 );
             }
 
-            Configuration::updateValue('PAYTPV_APM_BIZUM', Tools::getValue('apms_bizum'));
+            Configuration::updateValue('PAYTPV_APM_bizum', Tools::getValue('apms_bizum'));
             Configuration::updateValue('PAYTPV_APM_paypal', Tools::getValue('apms_paypal'));
             Configuration::updateValue('PAYTPV_APM_klarna_payments', Tools::getValue('apms_klarna_payments'));
             Configuration::updateValue('PAYTPV_APM_ideal', Tools::getValue('apms_ideal'));
@@ -998,7 +998,7 @@ class Paytpv extends PaymentModule
         $arrValues["ip_change_scoring"] = $config["PAYTPV_IPCHANGE_SCORING"];
 
         //APMs
-        $arrValues["apms_bizum"] = $config["PAYTPV_APM_BIZUM"];
+        $arrValues["apms_bizum"] = $config["PAYTPV_APM_bizum"];
         $arrValues["apms_paypal"] = $config["PAYTPV_APM_paypal"];
         $arrValues["apms_klarna_payments"] = $config["PAYTPV_APM_klarna_payments"];
         $arrValues["apms_ideal"] = $config["PAYTPV_APM_ideal"];
@@ -1781,8 +1781,8 @@ class Paytpv extends PaymentModule
             if (Configuration::get('PAYTPV_APM_klarna_payments') != null) {
                 array_push($apms, Configuration::get('PAYTPV_APM_klarna_payments'));
             }
-            if (Configuration::get('PAYTPV_APM_BIZUM') != null) {
-                array_push($apms, Configuration::get('PAYTPV_APM_BIZUM'));
+            if (Configuration::get('PAYTPV_APM_bizum') != null) {
+                array_push($apms, Configuration::get('PAYTPV_APM_bizum'));
             }
             if (Configuration::get('PAYTPV_APM_paypal') != null) {
                 array_push($apms, Configuration::get('PAYTPV_APM_paypal'));
@@ -2213,7 +2213,7 @@ class Paytpv extends PaymentModule
         'PAYTPV_BROWSER_SCORING', 'PAYTPV_BROWSER_SCORING_SCORE', 'PAYTPV_SO_SCORING',
         'PAYTPV_SO_SCORING_SCORE', 'PAYTPV_DISABLEOFFERSAVECARD');
 
-        $arrApms = array('PAYTPV_APM_paypal', 'PAYTPV_APM_BIZUM', 'PAYTPV_APM_ideal', 'PAYTPV_APM_klarna_payments',
+        $arrApms = array('PAYTPV_APM_paypal', 'PAYTPV_APM_bizum', 'PAYTPV_APM_ideal', 'PAYTPV_APM_klarna_payments',
         'PAYTPV_APM_giropay', 'PAYTPV_APM_mybank', 'PAYTPV_APM_multibanco_sibs', 'PAYTPV_APM_trustly',
         'PAYTPV_APM_przelewy24', 'PAYTPV_APM_bancontact', 'PAYTPV_APM_eps', 'PAYTPV_APM_tele2',
         'PAYTPV_APM_paysera', 'PAYTPV_APM_postfinance', 'PAYTPV_APM_qiwi_wallet', 'PAYTPV_APM_yandex_money',
