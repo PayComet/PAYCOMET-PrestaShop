@@ -5,7 +5,7 @@ class paytpvSimuladorModuleFrontController extends ModuleFrontController
 
     public function initContent()
     {
-        $urlSimulador = "https://instantcredit.net/simulator/test/ic-simulator.js";
+        $urlSimulador = "https://instantcredit.net/simulator/ic-simulator.js";
 
         parent::initContent();
 

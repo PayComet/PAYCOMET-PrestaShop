@@ -770,14 +770,21 @@ class Paytpv extends PaymentModule
     {
         $Merchant_EMV3DS = array();
 
-        $Merchant_EMV3DS["customer"]["id"] =
-            isset($this->context->customer->id) ? $this->context->customer->id : '';
-        $Merchant_EMV3DS["customer"]["name"] =
-            isset($this->context->customer->firstname) ? $this->context->customer->firstname : '';
-        $Merchant_EMV3DS["customer"]["surname"] =
-            isset($this->context->customer->lastname) ? $this->context->customer->lastname : '';
-        $Merchant_EMV3DS["customer"]["email"] =
-            isset($this->context->customer->email) ? $this->context->customer->email : '';
+        if (isset($this->context->customer->id) && $this->context->customer->id > 0) {
+            $Merchant_EMV3DS["customer"]["id"] = $this->context->customer->id;
+        }
+
+        if (isset($this->context->customer->firstname) && $this->context->customer->firstname != "") {
+            $Merchant_EMV3DS["customer"]["name"] = $this->context->customer->firstname;
+        }
+
+        if (isset($this->context->customer->surname) && $this->context->customer->surname != "") {
+            $Merchant_EMV3DS["customer"]["surname"] = $this->context->customer->lastname;
+        }
+
+        if (isset($this->context->customer->email) && $this->context->customer->email != "") {
+            $Merchant_EMV3DS["customer"]["email"] = $this->context->customer->email;
+        }
 
         // Billing info
         $billing = new Address((int) ($cart->id_address_invoice));
@@ -1273,6 +1280,9 @@ class Paytpv extends PaymentModule
         $arrFields[] = $options_form;
 
         if (Tools::getValue('apikey') != '' || $this->apikey) {
+
+            $arrAPMs = $this->getUserAlternativePaymentMethods();
+
             $apms_form = array(
                 'form' => array(
                     'legend' => array(
@@ -1285,7 +1295,7 @@ class Paytpv extends PaymentModule
                             'label' => $this->l('Alternative payment methods'),
                             'name' => 'apms',
                             'values' => array(
-                                'query' => $this->getUserAlternativePaymentMethods(),
+                                'query' => $arrAPMs,
                                 'id' => 'id',
                                 'name' => 'name'
                             ),
@@ -1298,55 +1308,64 @@ class Paytpv extends PaymentModule
             $arrFields[] = $apms_form;
 
 
-            $instantCredit_form = array(
-                'form' => array(
-                    'legend' => array(
-                        'title' => $this->l('Instant Credit'),
-                        'icon' => 'icon-cogs'
-                    ),
-                    'input' => array(
-                        array(
-                            'type' => 'switch',
-                            'label' => 'Simulador de coutas',
-                            'name' => 'apms_instant_credit_simuladorCoutas',
-                            'is_bool' => true,
-                            'hint' => 'Mostrar el simulador de coutas.',
-                            'values' => array(
-                                array(
-                                    'id' => 'active_on',
-                                    'value' => true,
-                                    'label' => 'Activado',
-                                ),
-                                array(
-                                    'id' => 'active_off',
-                                    'value' => false,
-                                    'label' => 'Desactivado',
-                                )
-                            ),
-                        ),
-                        array(
-                            'type' => 'text',
-                            'label' => $this->l('HASH TOKEN'),
-                            'name' => 'apms_instant_credit_hashToken',
-                            'required' => false
-                        ),
-                        array(
-                            'type' => 'text',
-                            'label' => $this->l('Financiación mínima'),
-                            'name' => 'apms_instant_credit_minFin',
-                            'required' => true
-                        ),
-                        array(
-                            'type' => 'text',
-                            'label' => $this->l('Financiación maxima'),
-                            'name' => 'apms_instant_credit_maxFin',
-                            'required' => true
-                        ),
-                    )
-                ),
-            );
+            $arrMethods = array();
+            foreach ($arrAPMs as $key=>$apm_data) {
+                $arrMethods[] = $apm_data["val"];
+            }
 
-            $arrFields[] = $instantCredit_form;
+            // Instant Credit
+            if (in_array(33,$arrMethods)) {
+
+                $instantCredit_form = array(
+                    'form' => array(
+                        'legend' => array(
+                            'title' => $this->l('Instant Credit'),
+                            'icon' => 'icon-cogs'
+                        ),
+                        'input' => array(
+                            array(
+                                'type' => 'switch',
+                                'label' => 'Simulador de coutas',
+                                'name' => 'apms_instant_credit_simuladorCoutas',
+                                'is_bool' => true,
+                                'hint' => 'Mostrar el simulador de coutas.',
+                                'values' => array(
+                                    array(
+                                        'id' => 'active_on',
+                                        'value' => true,
+                                        'label' => 'Activado',
+                                    ),
+                                    array(
+                                        'id' => 'active_off',
+                                        'value' => false,
+                                        'label' => 'Desactivado',
+                                    )
+                                ),
+                            ),
+                            array(
+                                'type' => 'text',
+                                'label' => $this->l('HASH TOKEN'),
+                                'name' => 'apms_instant_credit_hashToken',
+                                'required' => false
+                            ),
+                            array(
+                                'type' => 'text',
+                                'label' => $this->l('Financiación mínima'),
+                                'name' => 'apms_instant_credit_minFin',
+                                'required' => true
+                            ),
+                            array(
+                                'type' => 'text',
+                                'label' => $this->l('Financiación maxima'),
+                                'name' => 'apms_instant_credit_maxFin',
+                                'required' => true
+                            ),
+                        )
+                    ),
+                );
+
+                $arrFields[] = $instantCredit_form;
+            }
         }
 
         $arrScore = array();
@@ -1919,7 +1938,7 @@ class Paytpv extends PaymentModule
 
                         $url_paytpv[$methodId]['url'] = $url_apm;
                         $method_name = $this->getAPMName($methodId);
-                        $method_img = Tools::strtolower($method_name);
+                        $method_img = str_replace(" ","",Tools::strtolower($method_name));
                         $url_paytpv[$methodId]['method_name'] = $method_name;
                         $url_paytpv[$methodId]['img_name'] = $method_img;
                         $url_paytpv[$methodId]['html_code'] = $this->getAPMData($methodId, $cart->getOrderTotal(true, Cart::BOTH));
@@ -1986,7 +2005,7 @@ class Paytpv extends PaymentModule
             20 => "EPS",
             21 => "Tele2",
             22 => "Paysera",
-            23 => "PostFinance",
+            23 => "Post Finance",
             24 => "QIWI",
             25 => "Yandex",
             26 => "MTS",
@@ -1994,7 +2013,7 @@ class Paytpv extends PaymentModule
             28 => "Paysafecard",
             29 => "Skrill",
             30 => "WebMoney",
-            33 => "InstantCredit"
+            33 => "Instant Credit"
         ][$methodId];
     }
 
