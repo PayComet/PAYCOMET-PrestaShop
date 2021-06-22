@@ -32,4 +32,6 @@
             </a>
         </p>
     </div>
+
+    {include file='modules/paytpv/views/templates/hook/inc_payment_apms.tpl'}
 </div>
