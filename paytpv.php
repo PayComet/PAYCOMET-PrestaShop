@@ -48,7 +48,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.1';
+        $this->version = '6.7.2';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -376,10 +376,14 @@ class Paytpv extends PaymentModule
                     case 1130:  // No se encuentra el producto
                     case 1003:  // Credenciales inválidas
                     case 127:   // Parámetro no válido.
-                        $arrDatos["error_txt"] = $this->l('Check that the Client Code, Terminal and Password are correct.');
+                        $arrDatos["error_txt"] = $this->l(
+                            'Check that the Client Code, Terminal and Password are correct.'
+                        );
                         break;
                     case 1337:  // Ruta de notificación no configurada
-                        $arrDatos["error_txt"] = $this->l('Notification URL is not defined in the product configuration of your account PAYCOMET account.');
+                        $arrDatos["error_txt"] = $this->l(
+                            'Notification URL is not defined in the product configuration of your account PAYCOMET account.'
+                        );
                         break;
                     case 28:    // Curl
                     case 1338:  // Ruta de notificación no responde correctamente
@@ -388,8 +392,9 @@ class Paytpv extends PaymentModule
                         . Context::getContext()->link->getModuleLink($this->name, 'url', array(), $ssl);
                         break;
                     case 1339:  // Configuración de terminales incorrecta
-                        $arrDatos["error_txt"] = $this->l('Your Product in PAYCOMET account is not set up with the Available Terminals option: ')
-                        . $terminales_txt;
+                        $arrDatos["error_txt"] = $this->l(
+                            'Your Product in PAYCOMET account is not set up with the Available Terminals option: '
+                        ) . $terminales_txt;
                         break;
                 }
                 return $arrDatos;
@@ -453,10 +458,22 @@ class Paytpv extends PaymentModule
 
 
             // Instan Credit
-            Configuration::updateValue('PAYTPV_APM_instant_credit_simuladorCoutas', Tools::getValue('apms_instant_credit_simuladorCoutas'));
-            Configuration::updateValue('PAYTPV_APM_instant_credit_hashToken', Tools::getValue('apms_instant_credit_hashToken'));
-            Configuration::updateValue('PAYTPV_APM_instant_credit_minFin', Tools::getValue('apms_instant_credit_minFin'));
-            Configuration::updateValue('PAYTPV_APM_instant_credit_maxFin', Tools::getValue('apms_instant_credit_maxFin'));
+            Configuration::updateValue(
+                'PAYTPV_APM_instant_credit_simuladorCoutas',
+                Tools::getValue('apms_instant_credit_simuladorCoutas')
+            );
+            Configuration::updateValue(
+                'PAYTPV_APM_instant_credit_hashToken',
+                Tools::getValue('apms_instant_credit_hashToken')
+            );
+            Configuration::updateValue(
+                'PAYTPV_APM_instant_credit_minFin',
+                Tools::getValue('apms_instant_credit_minFin')
+            );
+            Configuration::updateValue(
+                'PAYTPV_APM_instant_credit_maxFin',
+                Tools::getValue('apms_instant_credit_maxFin')
+            );
 
             // Datos Scoring
 
@@ -1029,11 +1046,10 @@ class Paytpv extends PaymentModule
         $arrValues["apms_instant_credit"] = $config["PAYTPV_APM_instant_credit"];
 
         // Instant Credit
-        $arrValues["apms_instant_credit_simuladorCoutas"] = $config["PAYTPV_APM_instant_credit_simuladorCoutas"];        
+        $arrValues["apms_instant_credit_simuladorCoutas"] = $config["PAYTPV_APM_instant_credit_simuladorCoutas"];
         $arrValues["apms_instant_credit_hashToken"] = $config["PAYTPV_APM_instant_credit_hashToken"];
         $arrValues["apms_instant_credit_minFin"] = $config["PAYTPV_APM_instant_credit_minFin"];
         $arrValues["apms_instant_credit_maxFin"] = $config["PAYTPV_APM_instant_credit_maxFin"];
-        
 
         $arrValues["ip_change_scoring_score"] = $config["PAYTPV_IPCHANGE_SCORING_SCORE"];
         $arrValues["browser_scoring"] = $config["PAYTPV_BROWSER_SCORING"];
@@ -1280,7 +1296,6 @@ class Paytpv extends PaymentModule
         $arrFields[] = $options_form;
 
         if (Tools::getValue('apikey') != '' || $this->apikey) {
-
             $arrAPMs = $this->getUserAlternativePaymentMethods();
 
             $apms_form = array(
@@ -1309,13 +1324,12 @@ class Paytpv extends PaymentModule
 
 
             $arrMethods = array();
-            foreach ($arrAPMs as $key=>$apm_data) {
+            foreach ($arrAPMs as $key => $apm_data) {
                 $arrMethods[] = $apm_data["val"];
             }
 
             // Instant Credit
-            if (in_array(33,$arrMethods)) {
-
+            if (in_array(33, $arrMethods)) {
                 $instantCredit_form = array(
                     'form' => array(
                         'legend' => array(
@@ -1350,13 +1364,13 @@ class Paytpv extends PaymentModule
                             ),
                             array(
                                 'type' => 'text',
-                                'label' => $this->l('Financiación mínima'),
+                                'label' => $this->l('Minimum financing'),
                                 'name' => 'apms_instant_credit_minFin',
                                 'required' => true
                             ),
                             array(
                                 'type' => 'text',
-                                'label' => $this->l('Financiación maxima'),
+                                'label' => $this->l('Maximum financing'),
                                 'name' => 'apms_instant_credit_maxFin',
                                 'required' => true
                             ),
@@ -1686,6 +1700,9 @@ class Paytpv extends PaymentModule
 
         $saved_card = PaytpvCustomer::getCardsCustomer((int) $this->context->customer->id);
 
+        $apmsUrls = $this->getUserApmsForPayment();
+        $this->context->smarty->assign('apmsUrls', $apmsUrls);
+
         // Pago en nueva pagina dentro del comercio
         if ($newpage_payment == 1) {
             $this->context->smarty->assign('this_path', $this->_path);
@@ -1706,8 +1723,6 @@ class Paytpv extends PaymentModule
             return $this->display(__FILE__, 'payment_newpage2.tpl');
             // Pago integrado
         } else {
-            $apmsUrls = $this->getUserApmsForPayment();
-            $this->context->smarty->assign('apmsUrls', $apmsUrls);
             $cart = Context::getContext()->cart;
             $datos_pedido = $this->terminalCurrency($cart);
             $jetid = $datos_pedido["jetid"];
@@ -1896,11 +1911,9 @@ class Paytpv extends PaymentModule
 
             foreach ($apms as $methodId) {
                 try {
-
-                    if (!$this->validateMethod($methodId,$cart)) {
+                    if (!$this->validateMethod($methodId, $cart)) {
                         continue;
                     }
-                    
                     $payment =  [
                         'terminal' => (int) $idterminal,
                         'order' => (string) $paytpv_order_ref,
@@ -1938,10 +1951,23 @@ class Paytpv extends PaymentModule
 
                         $url_paytpv[$methodId]['url'] = $url_apm;
                         $method_name = $this->getAPMName($methodId);
-                        $method_img = str_replace(" ","",Tools::strtolower($method_name));
+                        $method_img = str_replace(" ", "", Tools::strtolower($method_name));
+                        $url_paytpv[$methodId]['title'] = $this->l('Pay with ') . $method_name;
                         $url_paytpv[$methodId]['method_name'] = $method_name;
                         $url_paytpv[$methodId]['img_name'] = $method_img;
-                        $url_paytpv[$methodId]['html_code'] = $this->getAPMData($methodId, $cart->getOrderTotal(true, Cart::BOTH));
+                        $url_paytpv[$methodId]['html_code'] = $this->getAPMData(
+                            $methodId,
+                            $cart->getOrderTotal(true, Cart::BOTH)
+                        );
+
+                        // Personalacion APMs
+                        switch ($methodId) {
+                            case 33:
+                                $url_paytpv[$methodId]['title'] = $this->l('Instant installment payment');
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 } catch (exception $e) {
                     $url_paytpv = $e->getCode();
@@ -1952,28 +1978,38 @@ class Paytpv extends PaymentModule
         }
     }
 
-    public function validateMethod($methodId,$cart){
+    public function validateMethod($methodId, $cart)
+    {
+        $valid = false;
         switch ($methodId) {
-            default:
-                return true;
-                break;
             case 33: // Instant Credit
-                if ($cart->getOrderTotal(true, Cart::BOTH) >= $this->paytpv_apm_instant_credit_minFin &&
-                    $cart->getOrderTotal(true, Cart::BOTH) <= $this->paytpv_apm_instant_credit_maxFin) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                break; 
+                if (($this->paytpv_apm_instant_credit_minFin == 0 ||
+                    $cart->getOrderTotal(true, Cart::BOTH) >= $this->paytpv_apm_instant_credit_minFin ) &&
+                    ($this->paytpv_apm_instant_credit_maxFin == 0 ||
+                    $cart->getOrderTotal(true, Cart::BOTH) <= $this->paytpv_apm_instant_credit_maxFin )) {
+                    $valid = true;
+                } else {
+                    $valid = false;
+                }
+                break;
+            default:
+                $valid = true;
+                break;
         }
+        return $valid;
     }
 
-    public function getAPMData($methodId, $total) {
+    public function getAPMData($methodId, $total)
+    {
         $html_code = "";
-        switch ($methodId){
+        switch ($methodId) {
             case 33: // Instant Credit
                 if ($this->paytpv_apm_instant_credit_simulador) {
-                    $urlSimulador = $this->context->link->getModuleLink($this->name, 'simulador', array('importe_financiar' => $total));
+                    $urlSimulador = $this->context->link->getModuleLink(
+                        $this->name,
+                        'simulador',
+                        array('importe_financiar' => $total)
+                    );
 
                     $html_code = '
                                 <object data="'.$urlSimulador . '" type="text/html"
@@ -2243,7 +2279,7 @@ class Paytpv extends PaymentModule
         'PAYTPV_APM_instant_credit_hashToken', 'PAYTPV_APM_instant_credit_minFin',
         'PAYTPV_APM_instant_credit_maxFin');
 
-        $arrConfig = array_merge($arrPaycomet,$arrApms,$arrInstantCredit);
+        $arrConfig = array_merge($arrPaycomet, $arrApms, $arrInstantCredit);
 
         return Configuration::getMultiple($arrConfig);
     }
