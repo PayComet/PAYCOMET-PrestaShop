@@ -2005,18 +2005,12 @@ class Paytpv extends PaymentModule
         switch ($methodId) {
             case 33: // Instant Credit
                 if ($this->paytpv_apm_instant_credit_simulador) {
-                    $urlSimulador = $this->context->link->getModuleLink(
-                        $this->name,
-                        'simulador',
-                        array('importe_financiar' => $total)
-                    );
-
-                    $html_code = '
-                                <object data="'.$urlSimulador . '" type="text/html"
-                                style="overflow:hidden;width:100%; height:80px;float: right;">
-                                    Error: Se ha producido un error al cargar el simulador. Perdone las molestias.
-                                </object>
-                            ';
+                    $html_code = '<div class="ic-configuration" style="display:none;">';
+                    $html_code .= $this->paytpv_apm_instant_credit_hashToken;
+                    $html_code .= '</div>';
+                    $html_code .= '<div class="ic-simulator" amount="'.$total.'"></div>';
+                    $html_code .= '<script src="https://instantcredit.net/simulator/ic-simulator.js"
+                     charset="UTF-8"></script>';
                 }
                 break;
             default:
