@@ -158,7 +158,7 @@
         {include file='modules/paytpv/views/templates/hook/inc_payment_apms.tpl'}
     {/if}
 
-    <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$link->getModuleLink('paytpv', 'actions',[], true)|escape:'htmlall':'UTF-8'}">
+    <input type="hidden" name="paytpv_module" id="paytpv_module" value="{$paytpv_module|escape:'htmlall':'UTF-8':FALSE}">
 
     <script type="text/javascript">
     paytpv_initialize();
