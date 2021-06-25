@@ -104,6 +104,11 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign('jet_lang', $language);
 
         $this->context->smarty->assign(
+            'paytpv_module',
+            Context::getContext()->link->getModuleLink($this->module->name, 'actions', array(), $ssl)
+        );
+        
+        $this->context->smarty->assign(
             'paytpv_jetid_url',
             Context::getContext()->link->getModuleLink($this->module->name, 'capture', array(), $ssl)
         );
