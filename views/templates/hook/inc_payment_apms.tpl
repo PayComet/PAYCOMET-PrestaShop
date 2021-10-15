@@ -24,7 +24,7 @@
 
     <div id="paycomet_apms">
         {foreach $apmsUrls as $key => $apm}
-            {if $apm != false}
+            {if $apm != false && $key!=1 }
                 <div class="col-xs-12">
                     <p class="payment_module">
                         <a class="paycometPayments" href="{$apm['url']|escape:'htmlall':'UTF-8':FALSE}" rel="nofollow" style="background: url({$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/{$apm['img_name']|escape:'htmlall':'UTF-8':FALSE}.svg) 15px 12px no-repeat #fbfbfb; ">
