@@ -50,7 +50,7 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign('msg_paytpv', $msg_paytpv);
 
         // Valor de compra
-        $id_currency = (int)(Configuration::get('PS_CURRENCY_DEFAULT'));
+        $id_currency = Context::getContext()->cart->id_currency;
 
         $currency = new Currency((int)($id_currency));
         // $importe = number_format(Context::getContext()->cart->getOrderTotal(true, Cart::BOTH)*100, 0, '.', '');
