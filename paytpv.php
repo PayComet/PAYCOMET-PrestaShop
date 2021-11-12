@@ -48,7 +48,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.4';
+        $this->version = '6.7.5';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -201,6 +201,10 @@ class Paytpv extends PaymentModule
 
         if (array_key_exists('PAYTPV_APM_instant_credit', $config)) {
             $this->paytpv_apm_instant_credit = $config['PAYTPV_APM_instant_credit'];
+        }
+
+        if (array_key_exists('PAYTPV_APM_instant_credit_environment', $config)) {
+            $this->paytpv_apm_instant_credit_environment = $config['PAYTPV_APM_instant_credit_environment'];
         }
 
         if (array_key_exists('PAYTPV_APM_instant_credit_hashToken', $config)) {
@@ -458,6 +462,10 @@ class Paytpv extends PaymentModule
             Configuration::updateValue(
                 'PAYTPV_APM_instant_credit_simuladorCoutas',
                 Tools::getValue('apms_instant_credit_simuladorCoutas')
+            );
+            Configuration::updateValue(
+                'PAYTPV_APM_instant_credit_environment',
+                Tools::getValue('apms_instant_credit_environment')
             );
             Configuration::updateValue(
                 'PAYTPV_APM_instant_credit_hashToken',
@@ -1046,6 +1054,7 @@ class Paytpv extends PaymentModule
 
         // Instant Credit
         $arrValues["apms_instant_credit_simuladorCoutas"] = $config["PAYTPV_APM_instant_credit_simuladorCoutas"];
+        $arrValues["apms_instant_credit_environment"] = $config["PAYTPV_APM_instant_credit_environment"];
         $arrValues["apms_instant_credit_hashToken"] = $config["PAYTPV_APM_instant_credit_hashToken"];
         $arrValues["apms_instant_credit_minFin"] = $config["PAYTPV_APM_instant_credit_minFin"];
         $arrValues["apms_instant_credit_maxFin"] = $config["PAYTPV_APM_instant_credit_maxFin"];
@@ -1335,10 +1344,10 @@ class Paytpv extends PaymentModule
                     'input' => array(
                         array(
                             'type' => 'switch',
-                            'label' => 'Simulador de coutas',
+                            'label' => $this->l('Simulator'),
                             'name' => 'apms_instant_credit_simuladorCoutas',
                             'is_bool' => true,
-                            'hint' => 'Mostrar el simulador de coutas.',
+                            'hint' => $this->l('Show simulator'),
                             'values' => array(
                                 array(
                                     'id' => 'active_on',
@@ -1353,8 +1362,28 @@ class Paytpv extends PaymentModule
                             ),
                         ),
                         array(
+                            'type' => 'select',
+                            'label' => $this->l('Simulator Environment'),
+                            'name' => 'apms_instant_credit_environment',
+                            'hint' => $this->l('Simulator Environment'),
+                            'options' => array(
+                                'query' => array(
+                                    array(
+                                        'id' => 0,
+                                        'name' => $this->l('Production')
+                                    ),
+                                    array(
+                                        'id' => 1,
+                                        'name' => $this->l('Test')
+                                    )
+                                ),
+                                'id' => 'id',
+                                'name' => 'name'
+                            )
+                        ),
+                        array(
                             'type' => 'text',
-                            'label' => $this->l('HASH TOKEN'),
+                            'label' => $this->l('Hash Simulator'),
                             'name' => 'apms_instant_credit_hashToken',
                             'required' => false
                         ),
@@ -2014,6 +2043,16 @@ class Paytpv extends PaymentModule
         return $valid;
     }
 
+    public function getICSimulatorUrl()
+    {
+        if ($this->paytpv_apm_instant_credit_environment == 1) {
+            $url = "https://instantcredit.net/simulator/test/ic-simulator.js";
+        } else {
+            $url = "https://instantcredit.net/simulator/ic-simulator.js";
+        }
+        return $url;
+    }
+
     public function getAPMData($methodId, $total)
     {
         $html_code = "";
@@ -2024,8 +2063,7 @@ class Paytpv extends PaymentModule
                     $html_code .= $this->paytpv_apm_instant_credit_hashToken;
                     $html_code .= '</div>';
                     $html_code .= '<div class="ic-simulator" amount="'.$total.'"></div>';
-                    $html_code .= '<script src="https://instantcredit.net/simulator/ic-simulator.js"
-                     charset="UTF-8"></script>';
+                    $html_code .= '<script src="'. $this->getICSimulatorUrl() .'" charset="UTF-8"></script>';
                 }
                 break;
             default:
@@ -2284,7 +2322,7 @@ class Paytpv extends PaymentModule
         'PAYTPV_APM_mts', 'PAYTPV_APM_beeline', 'PAYTPV_APM_paysafecard', 'PAYTPV_APM_skrill',
         'PAYTPV_APM_webmoney', 'PAYTPV_APM_instant_credit');
 
-        $arrInstantCredit = array('PAYTPV_APM_instant_credit_simuladorCoutas',
+        $arrInstantCredit = array('PAYTPV_APM_instant_credit_simuladorCoutas','PAYTPV_APM_instant_credit_environment',
         'PAYTPV_APM_instant_credit_hashToken', 'PAYTPV_APM_instant_credit_minFin',
         'PAYTPV_APM_instant_credit_maxFin');
 
