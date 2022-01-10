@@ -27,7 +27,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-include_once dirname(__FILE__) . '/classes/ClassRegistro.php';
 include_once dirname(__FILE__) . '/classes/PaytpvTerminal.php';
 include_once dirname(__FILE__) . '/classes/PaytpvOrder.php';
 include_once dirname(__FILE__) . '/classes/PaytpvOrderInfo.php';
@@ -48,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.6';
+        $this->version = '6.7.7';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -80,9 +79,6 @@ class Paytpv extends PaymentModule
         }
         if (array_key_exists('PAYTPV_SUSCRIPTIONS', $config)) {
             $this->suscriptions = $config['PAYTPV_SUSCRIPTIONS'];
-        }
-        if (array_key_exists('PAYTPV_REG_ESTADO', $config)) {
-            $this->reg_estado = $config['PAYTPV_REG_ESTADO'];
         }
         if (array_key_exists('PAYTPV_FIRSTPURCHASE_SCORING', $config)) {
             $this->firstpurchase_scoring = $config['PAYTPV_FIRSTPURCHASE_SCORING'];
@@ -941,10 +937,6 @@ class Paytpv extends PaymentModule
             );
         }
 
-        if (Tools::isSubmit('id_registro')) {
-            ClassRegistro::remove(Tools::getValue('id_registro'));
-        }
-
         $this->currency_array = Currency::getCurrenciesByIdShop(Context::getContext()->shop->id);
 
         if (Configuration::get('PS_RESTRICT_DELIVERED_COUNTRIES')) {
@@ -1014,7 +1006,6 @@ class Paytpv extends PaymentModule
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
         $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
         $arrValues["suscriptions"] = $config["PAYTPV_SUSCRIPTIONS"];
-        $arrValues["reg_estado"] = $config["PAYTPV_REG_ESTADO"];
 
         $arrValues["firstpurchase_scoring"] = $config["PAYTPV_FIRSTPURCHASE_SCORING"];
         $arrValues["firstpurchase_scoring_score"] = $config["PAYTPV_FIRSTPURCHASE_SCORING_SCO"];
@@ -2308,7 +2299,7 @@ class Paytpv extends PaymentModule
     {
 
         $arrPaycomet = array('PAYTPV_CLIENTCODE', 'PAYTPV_INTEGRATION', 'PAYTPV_APIKEY', 'PAYTPV_NEWPAGEPAYMENT',
-        'PAYTPV_IFRAME_HEIGHT', 'PAYTPV_SUSCRIPTIONS', 'PAYTPV_REG_ESTADO', 'PAYTPV_FIRSTPURCHASE_SCORING',
+        'PAYTPV_IFRAME_HEIGHT', 'PAYTPV_SUSCRIPTIONS', 'PAYTPV_FIRSTPURCHASE_SCORING',
         'PAYTPV_FIRSTPURCHASE_SCORING_SCO', 'PAYTPV_SESSIONTIME_SCORING', 'PAYTPV_SESSIONTIME_SCORING_VAL',
         'PAYTPV_SESSIONTIME_SCORING_SCORE', 'PAYTPV_DCOUNTRY_SCORING', 'PAYTPV_DCOUNTRY_SCORING_VAL',
         'PAYTPV_DCOUNTRY_SCORING_SCORE', 'PAYTPV_IPCHANGE_SCORING', 'PAYTPV_IPCHANGE_SCORING_SCORE',

@@ -53,6 +53,10 @@ Todas las suscripciones mostrarán el estado actual:
 
 ## Release Notes
 
+> 6.7.7: 
+
+- Mejoras de código
+
 > 6.7.6: 
 
 - Mejoras de código
