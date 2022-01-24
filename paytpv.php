@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.8';
+        $this->version = '6.7.9';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -796,7 +796,7 @@ class Paytpv extends PaymentModule
             $Merchant_EMV3DS["customer"]["name"] = $this->context->customer->firstname;
         }
 
-        if (isset($this->context->customer->surname) && $this->context->customer->surname != "") {
+        if (isset($this->context->customer->lastname) && $this->context->customer->lastname != "") {
             $Merchant_EMV3DS["customer"]["surname"] = $this->context->customer->lastname;
         }
 
@@ -1000,8 +1000,8 @@ class Paytpv extends PaymentModule
         $config = $this->getConfigValues();
         $arrValues = array();
 
-        $arrValues["clientcode"] = $config["PAYTPV_CLIENTCODE"];
-        $arrValues["apikey"] = (isset($config["PAYTPV_APIKEY"]))?$config["PAYTPV_APIKEY"]:"";
+        $arrValues["clientcode"] = trim($config["PAYTPV_CLIENTCODE"]);
+        $arrValues["apikey"] = (isset(trim($config["PAYTPV_APIKEY"])))?trim($config["PAYTPV_APIKEY"]):"";
         $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
         $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
@@ -1059,9 +1059,9 @@ class Paytpv extends PaymentModule
         $arrValues["disableoffersavecard"] = $config["PAYTPV_DISABLEOFFERSAVECARD"];
 
         foreach ($this->terminales_paytpv as $key => $term) {
-            $arrValues["term[".$key."]"] = $term["idterminal"];
-            $arrValues["pass[".$key."]"] = $term["password"];
-            $arrValues["jetid[".$key."]"] = $term["jetid"];
+            $arrValues["term[".$key."]"] = trim($term["idterminal"]);
+            $arrValues["pass[".$key."]"] = trim($term["password"]);
+            $arrValues["jetid[".$key."]"] = trim($term["jetid"]);
             $arrValues["moneda[".$key."]"] = $term["currency_iso_code"];
         }
         return $arrValues;
