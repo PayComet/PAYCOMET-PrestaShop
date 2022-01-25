@@ -1001,7 +1001,7 @@ class Paytpv extends PaymentModule
         $arrValues = array();
 
         $arrValues["clientcode"] = trim($config["PAYTPV_CLIENTCODE"]);
-        $arrValues["apikey"] = (isset(trim($config["PAYTPV_APIKEY"])))?trim($config["PAYTPV_APIKEY"]):"";
+        $arrValues["apikey"] = trim($config["PAYTPV_APIKEY"]);
         $arrValues["integration"] = $config["PAYTPV_INTEGRATION"];
         $arrValues["newpage_payment"] = $config["PAYTPV_NEWPAGEPAYMENT"];
         $arrValues["iframe_height"] = ($config["PAYTPV_IFRAME_HEIGHT"]!="")?$config["PAYTPV_IFRAME_HEIGHT"] : 440;
