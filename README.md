@@ -1,6 +1,6 @@
-# Módulo de pago de PAYCOMET para Prestashop 1.5+
+# Módulo de pago de PAYCOMET para Prestashop 1.6+
 
-Ofrece la posibilidad de cobrar a tus clientes con tarjeta en tiendas Prestashop 1.5+.
+Ofrece la posibilidad de cobrar a tus clientes con tarjeta en tiendas Prestashop 1.6+.
 
 ## Documentación del Módulo.
 
