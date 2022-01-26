@@ -838,6 +838,7 @@ class Paytpv extends PaymentModule
                     Tools::substr(preg_replace('/[^0-9]/', '', $billing->phone), 0, 15);
 
                 $Merchant_EMV3DS["customer"]["homePhone"] = $arrDatosHomePhone;
+                $Merchant_EMV3DS["customer"]["mobilePhone"] = $arrDatosHomePhone;
             }
 
             if ($billing->phone_mobile) {
@@ -902,6 +903,7 @@ class Paytpv extends PaymentModule
 
         $Merchant_EMV3DS["challengeWindowSize"] = 05;
 
+        print_r($Merchant_EMV3DS);
         return $Merchant_EMV3DS;
     }
 
