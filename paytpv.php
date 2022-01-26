@@ -903,7 +903,6 @@ class Paytpv extends PaymentModule
 
         $Merchant_EMV3DS["challengeWindowSize"] = 05;
 
-        print_r($Merchant_EMV3DS);
         return $Merchant_EMV3DS;
     }
 
