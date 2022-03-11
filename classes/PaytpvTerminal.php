@@ -57,14 +57,15 @@ class PaytpvTerminal extends ObjectModel
         $idterminal,
         $password,
         $jetid,
-        $currency_iso_code
+        $currency_iso_code,
+        $dcc
     ) {
         $idterminal = ($idterminal=="")?"null":(int)$idterminal;
 
         $id_shop = Context::getContext()->shop->id;
-        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'paytpv_terminal (id,id_shop,idterminal,password,jetid,currency_iso_code)
+        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'paytpv_terminal (id,id_shop,idterminal,password,jetid,currency_iso_code,dcc)
         VALUES(' . (int)$id . ',' . (int)$id_shop . ',' . (int)$idterminal . ',"' . pSQL($password) .'",
-        "' . pSQL($jetid) . '", "' . pSQL($currency_iso_code) . '")';
+        "' . pSQL($jetid) . '", "' . pSQL($currency_iso_code) . '", "' . pSQL($dcc) .'")';
         Db::getInstance()->Execute($sql);
     }
 
@@ -72,7 +73,7 @@ class PaytpvTerminal extends ObjectModel
     {
         $id_shop = Context::getContext()->shop->id;
         return Db::getInstance()->executeS("SELECT idterminal, password, jetid,
-        currency_iso_code FROM " . _DB_PREFIX_ . "paytpv_terminal where id_shop=" .
+        currency_iso_code, dcc FROM " . _DB_PREFIX_ . "paytpv_terminal where id_shop=" .
         (int)$id_shop);
     }
 
@@ -128,6 +129,7 @@ class PaytpvTerminal extends ObjectModel
         $arrDatos["idterminal"] = $result2["idterminal"];
         $arrDatos["password"] = $result2["password"];
         $arrDatos["jetid"] = $result2["jetid"];
+        $arrDatos["dcc"] = $result2["dcc"];
 
         return $arrDatos;
     }
@@ -145,6 +147,7 @@ class PaytpvTerminal extends ObjectModel
         $arrDatos["idterminal"] = $result2["idterminal"];
         $arrDatos["password"] = $result2["password"];
         $arrDatos["jetid"] = $result2["jetid"];
+        $arrDatos["dcc"] = $result2["dcc"];
 
         return $arrDatos;
     }
