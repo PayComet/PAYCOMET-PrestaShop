@@ -126,6 +126,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
         $importe = $datos_pedido["importe"];
         $currency_iso_code = $datos_pedido["currency_iso_code"];
         $idterminal = $datos_pedido["idterminal"];
+        $dcc = $datos_pedido["dcc"];
 
         $values = array(
             'id_cart' => $cart->id,
@@ -153,7 +154,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
             $cycles,
             0
         )) {
-            $OPERATION = 1;
+            $OPERATION = ($dcc == 1)?116 : 1;
 
             if ($paytpv->apikey != '') {
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');

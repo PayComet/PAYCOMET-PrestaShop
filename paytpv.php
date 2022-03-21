@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.10';
+        $this->version = '6.7.11';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -423,7 +423,8 @@ class Paytpv extends PaymentModule
                     trim($aux_term),
                     trim(Tools::getValue("pass")[$key]),
                     trim(Tools::getValue("jetid")[$key]),
-                    Tools::getValue("moneda")[$key]
+                    Tools::getValue("moneda")[$key],
+                    Tools::getValue("dcc")[$key]
                 );
             }
 
@@ -966,7 +967,6 @@ class Paytpv extends PaymentModule
 
         $this->context->smarty->assign('configform', str_replace('</form>', '', $this->displayForm()));
         $output = $this->context->smarty->fetch($this->local_path . 'views/templates/admin/admin.tpl');
-
         return $output;
     }
 
@@ -1064,6 +1064,7 @@ class Paytpv extends PaymentModule
             $arrValues["pass[".$key."]"] = trim($term["password"]);
             $arrValues["jetid[".$key."]"] = trim($term["jetid"]);
             $arrValues["moneda[".$key."]"] = $term["currency_iso_code"];
+            $arrValues["dcc[".$key."]"] = $term["dcc"];
         }
         return $arrValues;
     }
@@ -1174,6 +1175,24 @@ class Paytpv extends PaymentModule
                         'name' => 'name'
                     ),
                     'desc' => $this->l('PAYCOMET Terminal Currency.'),
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('DCC'),
+                    'name' => 'dcc['.$key.']',
+                    'id' => 'dcc_' . $key,
+                    'values' => array(
+                        array(
+                            'id' => 'active_on',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        ),
+                        array(
+                            'id' => 'active_off',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        )
+                    ),
                 )
             );
 
@@ -1678,6 +1697,7 @@ class Paytpv extends PaymentModule
             $terminales[0]["password"] = "";
             $terminales[0]["jetid"] = "";
             $terminales[0]["currency_iso_code"] = $currency->iso_code;
+            $terminales[0]["dcc"] = 0;
         }
 
         return $terminales;
@@ -2124,6 +2144,7 @@ class Paytpv extends PaymentModule
         $importe = $datos_pedido["importe"];
         $currency_iso_code = $datos_pedido["currency_iso_code"];
         $idterminal = $datos_pedido["idterminal"];
+        $dcc = $datos_pedido["dcc"];
 
         $values = array(
             'id_cart' => $cart->id,
@@ -2143,7 +2164,7 @@ class Paytpv extends PaymentModule
         $score = $this->transactionScore($cart);
         $scoring = $score["score"];
 
-        $OPERATION = "1";
+        $OPERATION = ($dcc == 1)?116 : 1;
         if ($this->apikey != '') {
             $userInteraction = '1';
             $merchantData = $this->getMerchantData($cart);
@@ -2219,6 +2240,7 @@ class Paytpv extends PaymentModule
         $arrDatos["password"] = $result["password"];
         $arrDatos["jetid"] = $result["jetid"];
         $arrDatos["currency_iso_code"] = $this->context->currency->iso_code;
+        $arrDatos["dcc"] = $result["dcc"];
         $arrDatos["importe"] = number_format($cart->getOrderTotal(true, Cart::BOTH) * 100, 0, '.', '');
 
         return $arrDatos;
@@ -2423,12 +2445,15 @@ class Paytpv extends PaymentModule
         } else {
             $paytpv_iduser = $result["paytpv_iduser"];
             $paytpv_tokenuser = $result["paytpv_tokenuser"];
+            $order = new Order((int) $result["id_order"]);
+            $order_ref = str_pad($order->id_cart, 8, "0", STR_PAD_LEFT);
 
             if ($this->apikey != '') {
                 $apiRest = new PaycometApiRest($this->apikey);
                 try {
                     $removeSubscriptionResponse = $apiRest->removeSubscription(
                         $idterminal,
+                        $order_ref,
                         $paytpv_iduser,
                         $paytpv_tokenuser
                     );

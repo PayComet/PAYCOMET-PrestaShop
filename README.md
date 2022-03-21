@@ -53,6 +53,10 @@ Todas las suscripciones mostrarán el estado actual:
 
 ## Release Notes
 
+> 6.7.11: 
+
+- Se añade opción de pago por DCC
+
 > 6.7.10: 
 
 - Mejoras de código
