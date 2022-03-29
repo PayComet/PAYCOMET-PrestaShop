@@ -53,6 +53,10 @@ Todas las suscripciones mostrarán el estado actual:
 
 ## Release Notes
 
+> 6.7.12: 
+
+- Se añade apm Klarna Payments
+
 > 6.7.11: 
 
 - Se añade opción de pago por DCC
