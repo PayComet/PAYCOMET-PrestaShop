@@ -729,12 +729,12 @@ class Paytpv extends PaymentModule
         $shoppingCartData = array();
 
         $i = 0;
+        $amount = 0;
         foreach ($cart->getProducts() as $key => $product) {
-
             if (is_int($product["quantity"])) {
                 $shoppingCartData[$key + $i]["sku"] = "1";
                 $shoppingCartData[$key + $i]["quantity"] = (int) $product["quantity"];
-                $shoppingCartData[$key + $i]["unitPrice"] = number_format($product["price_without_reduction_without_tax"] * 100, 0, '.', ''); 
+                $shoppingCartData[$key + $i]["unitPrice"] = number_format($product["price_with_reduction_without_tax"] * 100, 0, '.', ''); 
                 $shoppingCartData[$key + $i]["name"] = $product["name"];
                 $shoppingCartData[$key + $i]["category"] = $product["category"];
                 $shoppingCartData[$key + $i]["articleType"] = ($product["is_virtual"] == 1)?8 : 5;
@@ -742,7 +742,7 @@ class Paytpv extends PaymentModule
             } else {
                 $shoppingCartData[$key + $i]["sku"] = "1";
                 $shoppingCartData[$key + $i]["quantity"] = 1;
-                $shoppingCartData[$key + $i]["unitPrice"] = number_format(($product["price_without_reduction_without_tax"] * $product["quantity"]) * 100, 0, '.', '');
+                $shoppingCartData[$key + $i]["unitPrice"] = number_format(($product["price_with_reduction_without_tax"] * $product["quantity"]) * 100, 0, '.', '');
                 $shoppingCartData[$key + $i]["name"] = $product["name"];
                 $shoppingCartData[$key + $i]["category"] = $product["category"];
                 $shoppingCartData[$key + $i]["articleType"] = ($product["is_virtual"] == 1)?8 : 5;
@@ -750,7 +750,7 @@ class Paytpv extends PaymentModule
             }
 
             // Se añade el descuento
-            if ($product["reduction"] > 0) {
+            if (isset($product["reduction"]) && $product["reduction"] > 0) {
                 $i++;
                 $shoppingCartData[$key + $i]["sku"] = "1";
                 $shoppingCartData[$key + $i]["quantity"] = 1;
