@@ -51,6 +51,9 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
         $currency_iso_code = $datos_pedido["currency_iso_code"];
         $idterminal = $datos_pedido["idterminal"];
         $dcc = $datos_pedido["dcc"];
+        $productDescription = '';
+        
+        if (isset($this->context->customer->email)) $productDescription = $this->context->customer->email;
 
         // BANKSTORE JET
         $token = Tools::getIsset("paytpvToken")?Tools::getValue("paytpvToken"):"";
@@ -180,7 +183,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         $URLOK,
                         $URLKO,
                         $scoring,
-                        '',
+                        $productDescription,
                         '',
                         $userInteraction,
                         [],
@@ -220,6 +223,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         'currency' => (string) $currency_iso_code,
                         'userInteraction' => (int) $userInteraction,
                         'secure' => (int) $secure_pay,
+                        'productDescription' => $productDescription,
                         'merchantData' => $merchantData,
                         'idUser' => $data["IDUSER"],
                         'tokenUser' => $data['TOKEN_USER'],
@@ -265,7 +269,7 @@ class PaytpvCaptureModuleFrontController extends ModuleFrontController
                         $URLOK,
                         $URLKO,
                         $scoring,
-                        '',
+                        $productDescription,
                         '',
                         $userInteraction,
                         [],

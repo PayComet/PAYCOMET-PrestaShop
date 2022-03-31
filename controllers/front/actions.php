@@ -156,6 +156,10 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
         )) {
             $OPERATION = ($dcc == 1)?116 : 1;
 
+            $productDescription = '';
+        
+            if (isset($this->context->customer->email)) $productDescription = $this->context->customer->email;
+
             if ($paytpv->apikey != '') {
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
@@ -176,6 +180,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                         'userInteraction' => (int) $userInteraction,
                         'secure' => (int) $secure_pay,
                         'merchantData' => $merchantData,
+                        'productDescription' => $productDescription,
                         'urlOk' => $URLOK,
                         'urlKo' => $URLKO
                     ];
@@ -317,6 +322,10 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                 include_once(_PS_MODULE_DIR_ . '/paytpv/classes/PaycometApiRest.php');
 
                 $merchantData = $paytpv->getMerchantData($cart);
+                $productDescription = '';
+        
+                if (isset($this->context->customer->email)) $productDescription = $this->context->customer->email;
+
                 $userInteraction = '1';
 
                 try {
@@ -329,6 +338,7 @@ class PaytpvActionsModuleFrontController extends ModuleFrontController
                         'userInteraction' => (int) $userInteraction,
                         'secure' => (int) $secure_pay,
                         'merchantData' => $merchantData,
+                        'productDescription' => $productDescription,
                         'urlOk' => $URLOK,
                         'urlKo' => $URLKO
                     ];
