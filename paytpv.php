@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.13';
+        $this->version = '6.7.14';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -272,9 +272,9 @@ class Paytpv extends PaymentModule
             return false;
         }
 
-
         return true;
     }
+
     public function uninstall()
     {
         include_once(_PS_MODULE_DIR_ . '/' . $this->name . '/paytpv_install.php');
