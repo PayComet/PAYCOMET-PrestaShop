@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.14';
+        $this->version = '6.7.15';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -192,6 +192,9 @@ class Paytpv extends PaymentModule
         if (array_key_exists('PAYTPV_APM_klarna_payments', $config)) {
             $this->paytpv_apm_klarna_payments = $config['PAYTPV_APM_klarna_payments'];
         }
+        if (array_key_exists('PAYTPV_APM_paypal', $config)) {
+            $this->paytpv_apm_paypal = $config['PAYTPV_APM_paypal'];
+        }
 
         // Instant Credit ---------------------------------------------
         if (array_key_exists('PAYTPV_APM_instant_credit_simuladorCoutas', $config)) {
@@ -267,7 +270,8 @@ class Paytpv extends PaymentModule
             !$this->registerHook('displayAdminOrder') ||
             !$this->registerHook('displayCustomerAccount') ||
             !$this->registerHook('actionProductCancel') ||
-            !$this->registerHook('displayShoppingCart')
+            !$this->registerHook('displayShoppingCart') || 
+            !$this->registerHook('displayOrderDetail')
         ) {
             return false;
         }
@@ -457,6 +461,7 @@ class Paytpv extends PaymentModule
             Configuration::updateValue('PAYTPV_APM_webmoney', Tools::getValue('apms_webmoney'));
             Configuration::updateValue('PAYTPV_APM_instant_credit', Tools::getValue('apms_instant_credit'));
             Configuration::updateValue('PAYTPV_APM_klarna_payments', Tools::getValue('apms_klarna_payments'));
+            Configuration::updateValue('PAYTPV_APM_paypal', Tools::getValue('apms_paypal'));
 
 
             // Instan Credit
@@ -1093,6 +1098,7 @@ class Paytpv extends PaymentModule
         $arrValues["apms_webmoney"] = $config["PAYTPV_APM_webmoney"];
         $arrValues["apms_instant_credit"] = $config["PAYTPV_APM_instant_credit"];
         $arrValues["apms_klarna_payments"] = $config["PAYTPV_APM_klarna_payments"];
+        $arrValues["apms_paypal"] = $config["PAYTPV_APM_paypal"];
 
         // Instant Credit
         $arrValues["apms_instant_credit_simuladorCoutas"] = $config["PAYTPV_APM_instant_credit_simuladorCoutas"];
@@ -1987,6 +1993,9 @@ class Paytpv extends PaymentModule
             if (Configuration::get('PAYTPV_APM_klarna_payments') != null) {
                 array_push($apms, Configuration::get('PAYTPV_APM_klarna_payments'));
             }
+            if (Configuration::get('PAYTPV_APM_paypal') != null) {
+                array_push($apms, Configuration::get('PAYTPV_APM_paypal'));
+            }
 
             if (empty($apms)) {
                 return $apms;
@@ -2145,9 +2154,10 @@ class Paytpv extends PaymentModule
     {
         return [
             1 => "Tarjeta",
+            10 => "Paypal",
             11 => "Bizum",
             12 => "iDEAL",
-            13 => "Klarna",
+            13 => "Klarna Paynow",
             14 => "Giropay",
             15 => "MyBank",
             16 => "Multibanco",
@@ -2308,7 +2318,45 @@ class Paytpv extends PaymentModule
         return $arrDatos;
     }
 
+    public function hookDisplayOrderDetail($params)
+    {
+        if (!$this->active) {
+            return;
+        }
+        $this->context->smarty->assign(array(
+            'this_path' => Tools::getShopDomainSsl(true, true) . __PS_BASE_URI__ . 'modules/' . $this->name .
+            '/'
+        ));
 
+        $id_order = Order::getOrderByCartId((int) $params["order"]->id_cart);
+        $order = new Order($id_order);
+
+        $result_txt = "";
+        $mbentity = ""; // Entidad
+        $mbreference = ""; // Referencia
+        $display = "";
+
+        if (isset(Message::getMessagesByOrderId($order->id, true)[0]["message"])) {
+            $message = Message::getMessagesByOrderId($order->id, true)[0]["message"];
+            $methodData = json_decode(explode('|', $message, 2)[0]);
+        }
+
+        if (strstr(Tools::strtolower($order->payment), "multibanco") && isset($methodData->entityNumber) && isset($methodData->referenceNumber)) {
+            // Multibanco
+            $mbentity = $methodData->entityNumber;
+            $mbreference = $methodData->referenceNumber;
+        } else {
+            $display = "none";
+        }
+
+        $this->context->smarty->assign('display', $display);
+        $this->context->smarty->assign('mbentity', $mbentity);
+        $this->context->smarty->assign('mbreference', $mbreference);
+        $this->context->smarty->assign('result_txt', $result_txt);
+        $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
+
+        return $this->display(__FILE__, 'order_detail.tpl');
+    }
 
     public function hookDisplayPaymentReturn($params)
     {
@@ -2322,12 +2370,28 @@ class Paytpv extends PaymentModule
         $id_order = Order::getOrderByCartId((int) ($params["objOrder"]->id_cart));
         $order = new Order($id_order);
 
-        if (strstr(Tools::strtolower($order->payment), "multibanco")) {
-            $result_txt = $this->l('Your order will be sent as soon as we receive your payment.');
-        } else {
-            $result_txt = $this->l('Thank you for trusting us. Your purchase has been formalized correctly and we will process your order soon.');
+        $result_txt = "";
+        $mbentity = ""; // Entidad
+        $mbreference = ""; // Referencia
+        $display = "";
+
+        if (isset(Message::getMessagesByOrderId($order->id, true)[0]["message"])) {
+            $message = Message::getMessagesByOrderId($order->id, true)[0]["message"];
+            $methodData = json_decode(explode('|', $message, 2)[0]);
         }
 
+        if (strstr(Tools::strtolower($order->payment), "multibanco")) {
+            $result_txt = $this->l('Your order will be sent as soon as we receive your payment.');
+            $mbentity = $methodData->entityNumber;
+            $mbreference = $methodData->referenceNumber;
+        } else {
+            $result_txt = $this->l('Thank you for trusting us. Your purchase has been formalized correctly and we will process your order soon.');
+            $display = "none";
+        }
+
+        $this->context->smarty->assign('display', $display);
+        $this->context->smarty->assign('mbentity', $mbentity);
+        $this->context->smarty->assign('mbreference', $mbreference);
         $this->context->smarty->assign('shop_name', $this->context->shop->name);
         $this->context->smarty->assign('reference', $order->reference);
         $this->context->smarty->assign('result_txt', $result_txt);
@@ -2396,7 +2460,7 @@ class Paytpv extends PaymentModule
         'PAYTPV_APM_przelewy24', 'PAYTPV_APM_bancontact', 'PAYTPV_APM_eps', 'PAYTPV_APM_tele2',
         'PAYTPV_APM_paysera', 'PAYTPV_APM_postfinance', 'PAYTPV_APM_qiwi_wallet', 'PAYTPV_APM_yandex_money',
         'PAYTPV_APM_mts', 'PAYTPV_APM_beeline', 'PAYTPV_APM_paysafecard', 'PAYTPV_APM_skrill',
-        'PAYTPV_APM_webmoney', 'PAYTPV_APM_instant_credit', 'PAYTPV_APM_klarna_payments');
+        'PAYTPV_APM_webmoney', 'PAYTPV_APM_instant_credit', 'PAYTPV_APM_klarna_payments', 'PAYTPV_APM_paypal');
 
         $arrInstantCredit = array('PAYTPV_APM_instant_credit_simuladorCoutas','PAYTPV_APM_instant_credit_environment',
         'PAYTPV_APM_instant_credit_hashToken', 'PAYTPV_APM_instant_credit_minFin',

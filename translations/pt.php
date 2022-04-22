@@ -174,6 +174,9 @@ $_MODULE['<{paytpv}prestashop>paytpv-account_3e5c2b7bf7e0f028cd2653b85ee2a03c'] 
 $_MODULE['<{paytpv}prestashop>my-account_4e997b9d3b7152f2afeacd96ab1ef1cb'] = 'Meus cartões';
 $_MODULE['<{paytpv}prestashop>my-account_da80fdbc4012a4c17e07d3a01ee8ce4e'] = 'Meus cartões paytpv';
 $_MODULE['<{paytpv}prestashop>my-account_202cdc4b5ee3e7de3ae4f6e369b6ee40'] = 'Meus Cartões e Subscrições';
+$_MODULE['<{paytpv}prestashop>order_detail_3cb701aea20df40357ca7d755af1cfb3'] = 'Informação de pagamento de';
+$_MODULE['<{paytpv}prestashop>order_detail_1a434befae3f49ae09347ded52032f6f'] = 'Entidade';
+$_MODULE['<{paytpv}prestashop>order_detail_63d5049791d9d79d86e9a108b0a999ca'] = 'Referência';
 $_MODULE['<{paytpv}prestashop>order_suscription_customer_info_ffcf70e892b8ac3facbac0f88602396b'] = 'Cada';
 $_MODULE['<{paytpv}prestashop>order_suscription_customer_info_44fdec47036f482b68b748f9d786801b'] = 'dias';
 $_MODULE['<{paytpv}prestashop>order_suscription_customer_info_32cf6da134a8b268cf4ab6b79a9a5ad9'] = 'Repetir';
@@ -234,3 +237,6 @@ $_MODULE['<{paytpv}prestashop>payment_bsiframe_3e5c2b7bf7e0f028cd2653b85ee2a03c'
 $_MODULE['<{paytpv}prestashop>payment_newpage_b933f6b9b13a6706766fb18b75af4f45'] = 'Pagar com Cartão';
 $_MODULE['<{paytpv}prestashop>payment_return_f088cd31be48912a0143f62d1215fb5d'] = 'Obrigada por confiar em nós. Sua compra foi realizada corretamente e em breve processaremos o seu pedido.';
 $_MODULE['<{paytpv}prestashop>payment_return_1e860e56970a81a1ba3e1fcb7fccc846'] = 'Referência';
+$_MODULE['<{paytpv}prestashop>payment_return_3cb701aea20df40357ca7d755af1cfb3'] = 'Informação de pagamento de';
+$_MODULE['<{paytpv}prestashop>payment_return_1a434befae3f49ae09347ded52032f6f'] = 'Entidade';
+$_MODULE['<{paytpv}prestashop>payment_return_63d5049791d9d79d86e9a108b0a999ca'] = 'Referência';
