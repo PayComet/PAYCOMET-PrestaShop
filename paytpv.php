@@ -1864,12 +1864,16 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('saved_card', $saved_card);
             $this->context->smarty->assign('id_cart', $params['cart']->id);
 
-            $iframeURL = $this->paytpvIframeURL();
-            if (filter_var($iframeURL, FILTER_VALIDATE_URL) === false) {
-                $paytpv_error = $iframeURL;
-                $iframeURL = "";
-                $this->context->smarty->assign('paytpv_error', $paytpv_error);
-                return $this->display(__FILE__, 'payment_error.tpl');
+            $iframeURL = "";
+
+            if ($paytpv_integration != 1) {
+                $iframeURL = $this->paytpvIframeURL();
+                if (filter_var($iframeURL, FILTER_VALIDATE_URL) === false) {
+                    $paytpv_error = $iframeURL;
+                    $iframeURL = "";
+                    $this->context->smarty->assign('paytpv_error', $paytpv_error);
+                    return $this->display(__FILE__, 'payment_error.tpl');
+                }
             }
 
             $this->context->smarty->assign('paytpv_iframe', $iframeURL);
@@ -2002,95 +2006,45 @@ class Paytpv extends PaymentModule
             }
 
             $cart = Context::getContext()->cart;
-            $datos_pedido = $this->terminalCurrency($cart);
-            $importe = $datos_pedido["importe"];
-            $currency_iso_code = $datos_pedido["currency_iso_code"];
-            $idterminal = $datos_pedido["idterminal"];
-            $paytpv_order_ref = str_pad($cart->id, 8, "0", STR_PAD_LEFT);
-            $merchantData = $this->getMerchantData($cart);
+
             $ssl = Configuration::get('PS_SSL_ENABLED');
-            $values = array(
-                'id_cart' => $cart->id,
-                'key' => Context::getContext()->customer->secure_key
-            );
-            $URLOK = Context::getContext()->link->getModuleLink($this->name, 'urlok', $values, $ssl);
-            $URLKO = Context::getContext()->link->getModuleLink($this->name, 'urlko', $values, $ssl);
 
-            $apiRest = new PaycometApiRest($this->apikey);
             $url_paytpv = array();
-
-            $OPERATION = 1;
-            $userInteraction = 1;
-            $secure_pay = 1;
-            $language = $this->getPaycometLang($this->context->language->language_code);
-            $productDescription = '';
-        
-            if (isset($this->context->customer->email)) $productDescription = $this->context->customer->email;
-
-            $score = $this->transactionScore($cart);
-            $scoring = $score["score"];
 
             foreach ($apms as $methodId) {
                 try {
                     if (!$this->validateMethod($methodId, $cart)) {
                         continue;
                     }
-                    $payment =  [
-                        'terminal' => (int) $idterminal,
-                        'order' => (string) $paytpv_order_ref,
-                        'amount' => (string) $importe,
-                        'methods' => [$methodId],
-                        'currency' => (string) $currency_iso_code,
-                        'userInteraction' => (int) $userInteraction,
-                        'secure' => (int) $secure_pay,
-                        'productDescription' => $productDescription,
-                        'merchantData' => $merchantData,
-                        'urlOk' => $URLOK,
-                        'urlKo' => $URLKO
-                    ];
 
-                    if ($scoring != null) {
-                        $payment['scoring'] = (int) $scoring;
-                    }
-
-                    $formResponse = $apiRest->form(
-                        $OPERATION,
-                        $language,
-                        $idterminal,
-                        '',
-                        $payment
+                    $values = array(
+                        'url' => '',
+                        'id_cart' => $cart->id,
+                        'methodId' => $methodId,
+                        'key' => Context::getContext()->customer->secure_key
                     );
 
-                    if ($formResponse->errorCode == 0) {
-                        $values = array(
-                            'url' => $formResponse->challengeUrl,
-                            'id_cart' => $cart->id,
-                            'methodId' => $methodId,
-                            'key' => Context::getContext()->customer->secure_key
-                        );
+                    $url_apm = Context::getContext()->link->getModuleLink($this->name, 'apm', $values, $ssl);
 
-                        $url_apm = Context::getContext()->link->getModuleLink($this->name, 'apm', $values, $ssl);
+                    $url_paytpv[$methodId]['url'] = $url_apm;
+                    $method_name = $this->getAPMName($methodId);
+                    $url_paytpv[$methodId]['title'] = $this->l('Pay with ') . $method_name;
+                    $method_img = str_replace(" ", "", Tools::strtolower($method_name));
+                    $url_paytpv[$methodId]['method_name'] = $method_name;
+                    $url_paytpv[$methodId]['img_name'] = $method_img;
+                    $url_paytpv[$methodId]['html_code'] = $this->getAPMData(
+                        $methodId,
+                        $cart->getOrderTotal(true, Cart::BOTH)
+                    );
 
-                        $url_paytpv[$methodId]['url'] = $url_apm;
-                        $method_name = $this->getAPMName($methodId);
-                        $method_img = str_replace(" ", "", Tools::strtolower($method_name));
-                        $url_paytpv[$methodId]['title'] = $this->l('Pay with ') . $method_name;
-                        $url_paytpv[$methodId]['method_name'] = $method_name;
-                        $url_paytpv[$methodId]['img_name'] = $method_img;
-                        $url_paytpv[$methodId]['html_code'] = $this->getAPMData(
-                            $methodId,
-                            $cart->getOrderTotal(true, Cart::BOTH)
-                        );
-
-                        // Personalacion APMs
-                        switch ($methodId) {
-                            case 33:
-                                $url_paytpv[$methodId]['title'] = $this->l('Instant installment payment');
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+                    // Personalacion APMs
+                    switch ($methodId) {
+                        case 33:
+                            $url_paytpv[$methodId]['title'] = $this->l('Instant installment payment');
+                            break;
+                        default:
+                            break;
+                    }                    
                 } catch (exception $e) {
                     $url_paytpv = $e->getCode();
                 }
