@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.16';
+        $this->version = '6.7.17';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -1826,7 +1826,7 @@ class Paytpv extends PaymentModule
             $this->context->smarty->assign('this_path', $this->_path);
             $this->context->smarty->assign('paytpv_iframe', $iframeURL);
             $this->context->smarty->assign('iframe_height', $iframe_height);
-            return $this->display(__FILE__, 'payment_newpage2.tpl');
+            return $this->display(__FILE__, 'payment_newpage.tpl');
             // Pago integrado
         } else {
             $cart = Context::getContext()->cart;
@@ -1867,7 +1867,11 @@ class Paytpv extends PaymentModule
             $iframeURL = "";
 
             if ($paytpv_integration != 1) {
-                $iframeURL = $this->paytpvIframeURL();
+                if ($newpage_payment == 2) {
+                    $iframeURL = Context::getContext()->link->getModuleLink($this->name, 'payment');
+                } else {
+                    $iframeURL = $this->paytpvIframeURL();
+                }
                 if (filter_var($iframeURL, FILTER_VALIDATE_URL) === false) {
                     $paytpv_error = $iframeURL;
                     $iframeURL = "";

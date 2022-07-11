@@ -107,7 +107,7 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
             'paytpv_module',
             Context::getContext()->link->getModuleLink($this->module->name, 'actions', array(), $ssl)
         );
-        
+
         $this->context->smarty->assign(
             'paytpv_jetid_url',
             Context::getContext()->link->getModuleLink($this->module->name, 'capture', array(), $ssl)
@@ -145,6 +145,12 @@ class PaytpvPaymentModuleFrontController extends ModuleFrontController
             $this->context->smarty->assign('paytpv_error', $paytpv_error);
             $this->setTemplate('../hook/payment_error.tpl');
         } else {
+
+            // Si el pago es en PAYCOMET redireccionamos directamente
+            if ($newpage_payment == 2) {
+                header("Location: " . $iframeURL);
+            }
+
             $this->context->smarty->assign('paytpv_iframe', $iframeURL);
 
             // Bankstore JET
