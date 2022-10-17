@@ -24,8 +24,9 @@
 
 <section id="order-paycomet" class="box" style="display: {$display|escape:'htmlall':'UTF-8':FALSE}">
 {$result_txt|escape:'htmlall':'UTF-8':FALSE}
-{l s='Payment information of' mod='paytpv'}
-<img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/multibanco.svg" width="100">
+<span class="label" style="font-weight: 700;">{l s='Payment information of' mod='paytpv'}</span>
+<img src="{$this_path|escape:'htmlall':'UTF-8':FALSE}views/img/apms/multibanco.svg" width="100" style="position: relative;
+  top: 30px;">
 <ul>
 <li><strong>{l s='Entity' mod='paytpv'}:</strong> {$mbentity|escape:'htmlall':'UTF-8':FALSE}</li>
 <li><strong>{l s='Reference' mod='paytpv'}:</strong> {$mbreference|escape:'htmlall':'UTF-8':FALSE}</li>

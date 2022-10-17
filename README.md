@@ -52,6 +52,10 @@ Todas las suscripciones mostrarán el estado actual:
 - FINALIZADA: Cuando se ha cumplido todo el periodo de la suscripción
 
 ## Release Notes
+> 6.7.18:
+
+- Se permite añadir los datos de multibanco en el email de confirmación
+- Se eliminan los tokens caducados
 
 > 6.7.17:
 
