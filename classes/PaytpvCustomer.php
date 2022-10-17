@@ -36,7 +36,7 @@ class PaytpvCustomer extends ObjectModel
     public static function getCardsCustomer($customer_id)
     {
         $res = array();
-        $sql = 'SELECT paytpv_iduser,paytpv_tokenuser,paytpv_cc,paytpv_brand,card_desc FROM '._DB_PREFIX_
+        $sql = 'SELECT paytpv_iduser,paytpv_tokenuser,paytpv_cc,paytpv_brand,card_desc,paytpv_expirydate FROM '._DB_PREFIX_
         .'paytpv_customer WHERE not paytpv_cc="" and id_customer = '.(int)$customer_id . ' order by date desc';
 
         $assoc = Db::getInstance()->executeS($sql);
@@ -47,6 +47,7 @@ class PaytpvCustomer extends ObjectModel
             $res[$key]['CC'] = $row['paytpv_cc'];
             $res[$key]['BRAND'] = $row['paytpv_brand'];
             $res[$key]['CARD_DESC'] = $row['card_desc'];
+            $res[$key]['EXPIRY_DATE'] = $row['paytpv_expirydate'];
         }
 
         return  $res;
@@ -107,20 +108,19 @@ class PaytpvCustomer extends ObjectModel
         return $paytpv_iduser;
     }
 
-    public static function addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $id_customer)
+    public static function addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $paytpv_expirydate, $id_customer)
     {
         try {
-            $cardQuery = 'SELECT * FROM '. _DB_PREFIX_ .'paytpv_customer 
-            WHERE paytpv_cc="' . pSQL($paytpv_cc) . '" AND paytpv_brand="' . pSQL($paytpv_brand) . '" AND
-            id_customer="' . pSQL($id_customer) . '"';
+            $cardQuery = 'SELECT * FROM '. _DB_PREFIX_ .'paytpv_customer WHERE paytpv_cc="' . pSQL($paytpv_cc) . '" AND
+                paytpv_brand="' . pSQL($paytpv_brand) . '" AND id_customer="' . pSQL($id_customer) . '"';
             $result = Db::getInstance()->getRow($cardQuery);
 
             if (empty($result) === true) {
-                $sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_customer (`paytpv_iduser`, `paytpv_tokenuser`, 
-                `paytpv_cc`, `paytpv_brand`,`id_customer`,`date`) 
-                VALUES('.(int)$paytpv_iduser.',"'.pSQL($paytpv_tokenuser).'","'.pSQL($paytpv_cc).'",
-                "'.pSQL($paytpv_brand).'",'.(int)$id_customer.',"'.pSQL(date('Y-m-d H:i:s')).'")';
-                Db::getInstance()->Execute($sql);
+                $sql = 'INSERT INTO '. _DB_PREFIX_ .'paytpv_customer (`paytpv_iduser`, `paytpv_tokenuser`, `paytpv_cc`,
+                    `paytpv_brand`,`paytpv_expirydate`,`id_customer`,`date`) 
+                    VALUES('.(int)$paytpv_iduser.',"'.pSQL($paytpv_tokenuser).'","'.pSQL($paytpv_cc).'",
+                    "'.pSQL($paytpv_brand).'","'.pSQL($paytpv_expirydate).'",'.(int)$id_customer.',"'.pSQL(date('Y-m-d H:i:s')).'")';
+                    Db::getInstance()->Execute($sql);
             }
         } catch (exception $e) {
         }
@@ -141,4 +141,13 @@ class PaytpvCustomer extends ObjectModel
         Db::getInstance()->Execute($sql);
         return true;
     }
+
+    public static function updateCustomerExpiryDate($customer_id, $paytpv_iduser, $paytpv_expirydate)
+    {
+        $sql = 'UPDATE '. _DB_PREFIX_ .'paytpv_customer set paytpv_expirydate = "' .pSQL($paytpv_expirydate) .'" where id_customer = '
+        .(int)$customer_id . ' and `paytpv_iduser`="'.(int)$paytpv_iduser.'"';
+        Db::getInstance()->Execute($sql);
+        return true;
+    }
+
 }

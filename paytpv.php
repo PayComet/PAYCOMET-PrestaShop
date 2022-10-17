@@ -760,7 +760,7 @@ class Paytpv extends PaymentModule
                 $i++;
                 $shoppingCartData[$key + $i]["sku"] = "1";
                 $shoppingCartData[$key + $i]["quantity"] = 1;
-                $shoppingCartData[$key + $i]["unitPrice"] = '-' . number_format($product["reduction"] * 100, 0, '.', '') * $product["quantity"];
+                $shoppingCartData[$key + $i]["unitPrice"] = number_format($product["reduction"] * 100, 0, '.', '') * $product["quantity"];
                 $shoppingCartData[$key + $i]["name"] = $product["name"];
                 $shoppingCartData[$key + $i]["category"] = $product["category"];
                 $shoppingCartData[$key + $i]["articleType"] = "4";
@@ -1849,12 +1849,45 @@ class Paytpv extends PaymentModule
 
             $index = 0;
             foreach ($saved_card as $key => $val) {
-                $values_aux = array_merge($values, array("TOKEN_USER" => $val["TOKEN_USER"]));
-                $saved_card[$key]['url'] =
-                    Context::getContext()->link->getModuleLink($this->name, 'capture', $values_aux, $ssl);
+                if ($saved_card[$key]['EXPIRY_DATE'] == '') {
+                    if ($this->apikey != '') {
+                        try {
+                            $apiRest = new PaycometApiRest($this->apikey);
+    
+                            $infoUserResponse = $apiRest->infoUser(
+                                $saved_card[$key]["IDUSER"],
+                                $saved_card[$key]["TOKEN_USER"],
+                                $datos_pedido["idterminal"]
+                            );
+    
+                            if ($infoUserResponse->errorCode == 0) {
+                                $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
+                                $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
+                                $result['DS_MERCHANT_EXPIRYDATE'] = $infoUserResponse->expiryDate;
+    
+                                PaytpvCustomer::UpdateCustomerExpiryDate((int) $this->context->customer->id, $saved_card[$key]["IDUSER"], $result['DS_MERCHANT_EXPIRYDATE']);
 
-                $index++;
+                                $saved_card[$key] = PaytpvCustomer::getCardsCustomer((int) $this->context->customer->id)[$key];
+                            } else if ($infoUserResponse->errorCode == 1001) {
+                                PaytpvCustomer::UpdateCustomerExpiryDate((int) $this->context->customer->id, $saved_card[$key]["IDUSER"], '1900/01');    
+                            }
+                        } catch (exception $e) {
+                        }
+                    }
+                }
+                if (date("Ym") < str_replace("/", "", $saved_card[$key]['EXPIRY_DATE'])) {
+                    $values_aux = array_merge($values, array("TOKEN_USER" => $val["TOKEN_USER"]));
+                    $saved_card[$key]['url'] = Context::getContext()->link->getModuleLink(
+                        $this->name,
+                        'capture',
+                        $values_aux,
+                        $ssl
+                    );
+                    $active_cards[] = $saved_card[$key];
+                    $index++;
+                }    
             }
+            $saved_card = $active_cards;
             $saved_card[$index]['url'] = 0;
 
             $tmpl_vars = array();
@@ -2477,11 +2510,11 @@ class Paytpv extends PaymentModule
         return Configuration::getMultiple($arrConfig);
     }
 
-    public function saveCard($id_customer, $paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand)
+    public function saveCard($id_customer, $paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $paytpv_expirydate)
     {
         $paytpv_cc = '************' . Tools::substr($paytpv_cc, -4);
 
-        PaytpvCustomer::addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $id_customer);
+        PaytpvCustomer::addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $paytpv_expirydate, $id_customer);
 
         $result = array();
 
