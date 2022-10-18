@@ -102,7 +102,7 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                                 (int)$this->context->customer->id,
                                 $idUser,
                                 $tokenUser,
-                                $result['DS_MERCHANT_PAN'],                                
+                                $result['DS_MERCHANT_PAN'],
                                 $result['DS_CARD_BRAND'],
                                 $result['DS_MERCHANT_EXPIRYDATE']
 
@@ -181,6 +181,8 @@ class PaytpvAccountModuleFrontController extends ModuleFrontController
                                 PaytpvCustomer::UpdateCustomerExpiryDate(Context::getContext()->customer->id, $saved_card[$key]["IDUSER"], $result['DS_MERCHANT_EXPIRYDATE']);
     
                                 $saved_card[$key] = PaytpvCustomer::getCardsCustomer(Context::getContext()->customer->id)[$key];
+                            } else if ($infoUserResponse->errorCode == 1001) {
+                                PaytpvCustomer::UpdateCustomerExpiryDate((int) $this->context->customer->id, $saved_card[$key]["IDUSER"], '1900/01');
                             }
                         } catch (exception $e) {
                         }
