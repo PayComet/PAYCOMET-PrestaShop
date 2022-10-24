@@ -149,7 +149,8 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                     Tools::getValue('IdUser'),
                     Tools::getValue('TokenUser'),
                     $result['DS_MERCHANT_PAN'],
-                    $result['DS_CARD_BRAND']
+                    $result['DS_CARD_BRAND'],
+                    $result['DS_MERCHANT_EXPIRYDATE']
                 );
 
                 die('Usuario Registrado');
@@ -472,13 +473,15 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
                             $result = array();
                             $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
                             $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
+                            $result['DS_MERCHANT_EXPIRYDATE'] = $infoUserResponse->expiryDate;
 
                             $result = $paytpv->saveCard(
                                 $cart->id_customer,
                                 Tools::getValue('IdUser'),
                                 Tools::getValue('TokenUser'),
                                 $result['DS_MERCHANT_PAN'],
-                                $result['DS_CARD_BRAND']
+                                $result['DS_CARD_BRAND'],
+                                $result['DS_MERCHANT_EXPIRYDATE']
                             );
                             $paytpv_iduser = $result["paytpv_iduser"];
                             $paytpv_tokenuser = $result["paytpv_tokenuser"];

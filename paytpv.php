@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.17';
+        $this->version = '6.7.18';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -271,7 +271,8 @@ class Paytpv extends PaymentModule
             !$this->registerHook('displayCustomerAccount') ||
             !$this->registerHook('actionProductCancel') ||
             !$this->registerHook('displayShoppingCart') || 
-            !$this->registerHook('displayOrderDetail')
+            !$this->registerHook('displayOrderDetail') ||
+            !$this->registerHook('actionEmailAddAfterContent')
         ) {
             return false;
         }
@@ -759,7 +760,7 @@ class Paytpv extends PaymentModule
                 $i++;
                 $shoppingCartData[$key + $i]["sku"] = "1";
                 $shoppingCartData[$key + $i]["quantity"] = 1;
-                $shoppingCartData[$key + $i]["unitPrice"] = '-' . number_format($product["reduction"] * 100, 0, '.', '') * $product["quantity"];
+                $shoppingCartData[$key + $i]["unitPrice"] = number_format($product["reduction"] * 100, 0, '.', '') * $product["quantity"];
                 $shoppingCartData[$key + $i]["name"] = $product["name"];
                 $shoppingCartData[$key + $i]["category"] = $product["category"];
                 $shoppingCartData[$key + $i]["articleType"] = "4";
@@ -1848,12 +1849,45 @@ class Paytpv extends PaymentModule
 
             $index = 0;
             foreach ($saved_card as $key => $val) {
-                $values_aux = array_merge($values, array("TOKEN_USER" => $val["TOKEN_USER"]));
-                $saved_card[$key]['url'] =
-                    Context::getContext()->link->getModuleLink($this->name, 'capture', $values_aux, $ssl);
+                if ($saved_card[$key]['EXPIRY_DATE'] == '') {
+                    if ($this->apikey != '') {
+                        try {
+                            $apiRest = new PaycometApiRest($this->apikey);
+    
+                            $infoUserResponse = $apiRest->infoUser(
+                                $saved_card[$key]["IDUSER"],
+                                $saved_card[$key]["TOKEN_USER"],
+                                $datos_pedido["idterminal"]
+                            );
+    
+                            if ($infoUserResponse->errorCode == 0) {
+                                $result['DS_MERCHANT_PAN'] = $infoUserResponse->pan;
+                                $result['DS_CARD_BRAND'] = $infoUserResponse->cardBrand;
+                                $result['DS_MERCHANT_EXPIRYDATE'] = $infoUserResponse->expiryDate;
+    
+                                PaytpvCustomer::UpdateCustomerExpiryDate((int) $this->context->customer->id, $saved_card[$key]["IDUSER"], $result['DS_MERCHANT_EXPIRYDATE']);
 
-                $index++;
+                                $saved_card[$key] = PaytpvCustomer::getCardsCustomer((int) $this->context->customer->id)[$key];
+                            } else if ($infoUserResponse->errorCode == 1001) {
+                                PaytpvCustomer::UpdateCustomerExpiryDate((int) $this->context->customer->id, $saved_card[$key]["IDUSER"], '1900/01');    
+                            }
+                        } catch (exception $e) {
+                        }
+                    }
+                }
+                if (date("Ym") < str_replace("/", "", $saved_card[$key]['EXPIRY_DATE'])) {
+                    $values_aux = array_merge($values, array("TOKEN_USER" => $val["TOKEN_USER"]));
+                    $saved_card[$key]['url'] = Context::getContext()->link->getModuleLink(
+                        $this->name,
+                        'capture',
+                        $values_aux,
+                        $ssl
+                    );
+                    $active_cards[] = $saved_card[$key];
+                    $index++;
+                }    
             }
+            $saved_card = $active_cards;
             $saved_card[$index]['url'] = 0;
 
             $tmpl_vars = array();
@@ -2276,6 +2310,53 @@ class Paytpv extends PaymentModule
         return $arrDatos;
     }
 
+    public function hookActionEmailAddAfterContent($params)
+    {
+
+        if (!$this->active) {
+            return;
+        }
+
+        if ($params['template'] !== 'order_conf') {
+            return;
+        }
+
+        $this->context->smarty->assign(array(
+            'this_path' => Tools::getShopDomainSsl(true, true) . __PS_BASE_URI__ . 'modules/' . $this->name .
+                '/'
+        ));
+
+        $id_order = Order::getOrderByCartId((int) $params["cookie"]->id_cart);
+        $order = new Order($id_order);
+
+        $result_txt = "";
+        $mbentity = ""; // Entidad
+        $mbreference = ""; // Referencia
+        $display = "inline";
+
+        if (isset(Message::getMessagesByOrderId($order->id, true)[0]["message"])) {
+            $message = Message::getMessagesByOrderId($order->id, true)[0]["message"];
+            $methodData = json_decode(explode('|', $message, 2)[0]);
+        }
+
+        if (strstr(Tools::strtolower($order->payment), "multibanco") && isset($methodData->entityNumber) && isset($methodData->referenceNumber)) {
+            // Multibanco
+            $mbentity = $methodData->entityNumber;
+            $mbreference = $methodData->referenceNumber;
+        } else {
+            $display = "none";
+        }
+
+        $this->context->smarty->assign('display', $display);
+        $this->context->smarty->assign('mbentity', $mbentity);
+        $this->context->smarty->assign('mbreference', $mbreference);
+        $this->context->smarty->assign('result_txt', $result_txt);
+        $this->context->smarty->assign('base_dir', __PS_BASE_URI__);
+
+        //$params['template_html'] .= $this->display(__FILE__, 'order_detail.tpl');
+        $params['template_html'] = str_replace("{multibanco}", $this->display(__FILE__, 'order_detail.tpl'), $params['template_html']);
+    }
+
     public function hookDisplayOrderDetail($params)
     {
         if (!$this->active) {
@@ -2429,11 +2510,11 @@ class Paytpv extends PaymentModule
         return Configuration::getMultiple($arrConfig);
     }
 
-    public function saveCard($id_customer, $paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand)
+    public function saveCard($id_customer, $paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $paytpv_expirydate)
     {
         $paytpv_cc = '************' . Tools::substr($paytpv_cc, -4);
 
-        PaytpvCustomer::addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $id_customer);
+        PaytpvCustomer::addCustomer($paytpv_iduser, $paytpv_tokenuser, $paytpv_cc, $paytpv_brand, $paytpv_expirydate, $id_customer);
 
         $result = array();
 

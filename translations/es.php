@@ -36,6 +36,7 @@ $_MODULE['<{paytpv}prestashop>paytpv_89578069e6d895be58bc13859d29ab74'] = 'JET I
 $_MODULE['<{paytpv}prestashop>paytpv_72430295a62851768f719ba82860c77f'] = 'JET ID. Disponible en la configuración del producto de PAYCOMET.';
 $_MODULE['<{paytpv}prestashop>paytpv_386c339d37e737a436499d423a77df0c'] = 'Moneda';
 $_MODULE['<{paytpv}prestashop>paytpv_dcb22da8691a515478e5de0f4878aed3'] = 'Moneda del Terminal en PAYCOMET';
+$_MODULE['<{paytpv}prestashop>paytpv_df38cbb45550b14368f9f3c60681bf79'] = 'DCC';
 $_MODULE['<{paytpv}prestashop>paytpv_bafd7322c6e97d25b6299b5d6fe8920b'] = 'No';
 $_MODULE['<{paytpv}prestashop>paytpv_93cba07454f06a4a960172bbd6e2a435'] = 'Si';
 $_MODULE['<{paytpv}prestashop>paytpv_7d792790cba6a5e058c1e5e507b95fb8'] = 'Nuevo Terminal';
@@ -141,6 +142,7 @@ $_MODULE['<{paytpv}prestashop>paytpv-account_4e997b9d3b7152f2afeacd96ab1ef1cb'] 
 $_MODULE['<{paytpv}prestashop>paytpv-account_7b9f6b412c7fca8df137d6a347a64079'] = 'Tarjetas disponibles';
 $_MODULE['<{paytpv}prestashop>paytpv-account_1429571fbadb6eea38966e7279768ea5'] = 'añada una descripción';
 $_MODULE['<{paytpv}prestashop>paytpv-account_360ed49b55424cb0c4ca38b6f135320e'] = 'No tiene asociado todavía ninguna tarjeta';
+$_MODULE['<{paytpv}prestashop>paytpv-account_7e1d00998b6effdf2e6445570b1b955a'] = 'Tarjetas inactivas';
 $_MODULE['<{paytpv}prestashop>paytpv-account_63ba94b68250db1b770935fdb1723f1b'] = 'Vincular tarjeta';
 $_MODULE['<{paytpv}prestashop>paytpv-account_ea4788705e6873b424c65e91c2846b19'] = 'Cancelar';
 $_MODULE['<{paytpv}prestashop>paytpv-account_021931fc1df4ef219e08e4c027992068'] = 'Los datos de tarjetas se protegen mediante el Estándar de Seguridad de Datos para la Industria de Tarjeta de Pago (PCI DSS)';
@@ -207,7 +209,6 @@ $_MODULE['<{paytpv}prestashop>payment_bsiframe_4352c4188d134b0292b21062276389cf'
 $_MODULE['<{paytpv}prestashop>payment_bsiframe_0df6dc54d8913c70ff40a8ffcce9c5f6'] = 'Cargando formulario de pago...';
 $_MODULE['<{paytpv}prestashop>payment_error_902b0d55fddef6f8d651fe1035b7d4bd'] = 'Error';
 $_MODULE['<{paytpv}prestashop>payment_newpage_b933f6b9b13a6706766fb18b75af4f45'] = 'Pagar con Tarjeta';
-$_MODULE['<{paytpv}prestashop>payment_newpage2_b933f6b9b13a6706766fb18b75af4f45'] = 'Pagar con tarjeta';
 $_MODULE['<{paytpv}prestashop>payment_return_88526efe38fd18179a127024aba8c1d7'] = 'Su pedido en %s se ha completado.';
 $_MODULE['<{paytpv}prestashop>payment_return_3cb701aea20df40357ca7d755af1cfb3'] = 'Información de pago de';
 $_MODULE['<{paytpv}prestashop>payment_return_1a434befae3f49ae09347ded52032f6f'] = 'Entidad';
