@@ -1883,6 +1883,7 @@ class Paytpv extends PaymentModule
             $active_suscriptions = (int) (Configuration::get('PAYTPV_SUSCRIPTIONS'));
 
             $index = 0;
+            $active_cards = array();
             foreach ($saved_card as $key => $val) {
                 if ($saved_card[$key]['EXPIRY_DATE'] == '') {
                     if ($this->apikey != '') {
