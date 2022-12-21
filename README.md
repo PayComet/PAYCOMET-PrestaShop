@@ -52,7 +52,7 @@ Todas las suscripciones mostrarán el estado actual:
 - FINALIZADA: Cuando se ha cumplido todo el periodo de la suscripción
 
 ## Release Notes
-> 6.7.19:
+> 6.7.20:
 
 - Cambio envío información de descuento
 - Mejoras de código
