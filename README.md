@@ -52,6 +52,10 @@ Todas las suscripciones mostrarán el estado actual:
 - FINALIZADA: Cuando se ha cumplido todo el periodo de la suscripción
 
 ## Release Notes
+> 6.7.21:
+
+- Se añade Waylet
+
 > 6.7.20:
 
 - Cambio envío información de descuento
