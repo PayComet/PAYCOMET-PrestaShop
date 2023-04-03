@@ -589,6 +589,20 @@ class PaytpvUrlModuleFrontController extends ModuleFrontController
             } elseif ($pagoRegistrado) {
                 die('Pago registrado');
             }
+        } else {
+            $ref = Tools::getValue('Order');
+            $id_cart = (int) $ref;
+            $id_order = Order::getOrderByCartId((int) $id_cart);
+            $order = new Order($id_order);
+            // Para APMs. Si el estado esta en "Pendient de pago" lo pasamos a Pago Aceptado
+            if ($order->getCurrentState() == Configuration::get("PS_CHECKOUT_STATE_WAITING_LOCAL_PAYMENT")) {
+                $order->addOrderPayment($importe, null, Tools::getValue('AuthCode'));
+                $history = new OrderHistory();
+                $history->id_order = (int)$order->id;
+                $history->changeIdOrderState(8, (int)($order->id), true);
+                die('Pago fallido');
+            }
+
         }
         die('Error');
     }

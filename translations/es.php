@@ -71,6 +71,8 @@ $_MODULE['<{paytpv}prestashop>paytpv_5e64e5973f0eb58814fefbf192cdce73'] = 'Siste
 $_MODULE['<{paytpv}prestashop>paytpv_1691bd9101cc8895aa1aaa7e6833ea91'] = 'Pagar con ';
 $_MODULE['<{paytpv}prestashop>paytpv_a9bda823978eec00057d6f1fc36419dd'] = 'Pago a plazos instantáneo';
 $_MODULE['<{paytpv}prestashop>paytpv_ffd2478830ca2f519f7fe7ee259d4b96'] = 'Le enviaremos su pedido en cuanto recibamos el pago.';
+$_MODULE['<{paytpv}prestashop>paytpv_79db19215007c9f9aa709bece2af3b39'] = 'Debes confirmar la compra en MB WAY, a través del aviso o en el área de actividad';
+$_MODULE['<{paytpv}prestashop>paytpv_3e62032c02e5bed1d467686dce7532b7'] = 'Gracias por confiar en nosotros. Su compra se ha formalizado correctamente y en breve procesaremos su pedido.';
 $_MODULE['<{paytpv}prestashop>paytpv_f088cd31be48912a0143f62d1215fb5d'] = 'Gracias por confiar en nosotros. Su compra se ha formalizado correctamente y en breve procesaremos su pedido.';
 $_MODULE['<{paytpv}prestashop>paytpv_1d036a5610c1bb53870b58e5dc1d4560'] = 'Este pedido es una Suscripción';
 $_MODULE['<{paytpv}prestashop>paytpv_8d9c307cb7f3c4a32822a51922d1ceaa'] = 'N';
@@ -210,6 +212,9 @@ $_MODULE['<{paytpv}prestashop>payment_bsiframe_0df6dc54d8913c70ff40a8ffcce9c5f6'
 $_MODULE['<{paytpv}prestashop>payment_error_902b0d55fddef6f8d651fe1035b7d4bd'] = 'Error';
 $_MODULE['<{paytpv}prestashop>payment_newpage_b933f6b9b13a6706766fb18b75af4f45'] = 'Pagar con Tarjeta';
 $_MODULE['<{paytpv}prestashop>payment_return_88526efe38fd18179a127024aba8c1d7'] = 'Su pedido en %s se ha completado.';
-$_MODULE['<{paytpv}prestashop>payment_return_3cb701aea20df40357ca7d755af1cfb3'] = 'Información de pago de';
-$_MODULE['<{paytpv}prestashop>payment_return_1a434befae3f49ae09347ded52032f6f'] = 'Entidad';
-$_MODULE['<{paytpv}prestashop>payment_return_63d5049791d9d79d86e9a108b0a999ca'] = 'Referencia';
+$_MODULE['<{paytpv}prestashop>payment_return_mbway_88526efe38fd18179a127024aba8c1d7'] = 'Su pedido en %s se ha completado.';
+$_MODULE['<{paytpv}prestashop>payment_return_multibanco_88526efe38fd18179a127024aba8c1d7'] = 'Su pedido en %s se ha completado.';
+$_MODULE['<{paytpv}prestashop>payment_return_multibanco_3cb701aea20df40357ca7d755af1cfb3'] = 'Información de pago de';
+$_MODULE['<{paytpv}prestashop>payment_return_multibanco_1a434befae3f49ae09347ded52032f6f'] = 'Entidad';
+$_MODULE['<{paytpv}prestashop>payment_return_multibanco_63d5049791d9d79d86e9a108b0a999ca'] = 'Referencia';
+
