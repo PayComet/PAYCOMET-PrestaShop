@@ -47,7 +47,7 @@ class Paytpv extends PaymentModule
         $this->name = 'paytpv';
         $this->tab = 'payments_gateways';
         $this->author = 'Paycomet';
-        $this->version = '6.7.21';
+        $this->version = '6.7.22';
         $this->module_key = 'deef285812f52026197223a4c07221c4';
 
         $this->bootstrap = true;
@@ -743,34 +743,34 @@ class Paytpv extends PaymentModule
         $amount = 0;
         foreach ($cart->getProducts() as $key => $product) {
 
-            $reduction = number_format($product["price_without_reduction"] * 100, 0, '.', '') - number_format($product["price_with_reduction_without_tax"] * 100, 0, '.', '');
+            $reduction = number_format((isset($product["price_without_reduction"]) ? $product["price_without_reduction"] : 0) * 100, 0, '.', '') - number_format($product["price_with_reduction_without_tax"] * 100, 0, '.', '');
 
-            if (is_int($product["quantity"])) {
+            if (is_int(isset($product["quantity"]) ? $product["quantity"] : 1)) {
                 $shoppingCartData[$key + $i]["sku"] = "1";
-                $shoppingCartData[$key + $i]["quantity"] = (int) $product["quantity"];
-                $shoppingCartData[$key + $i]["unitPrice"] = number_format($product["price_without_reduction"] * 100, 0, '.', ''); 
-                $shoppingCartData[$key + $i]["name"] = $product["name"];
-                $shoppingCartData[$key + $i]["category"] = $product["category"];
-                $shoppingCartData[$key + $i]["articleType"] = ($product["is_virtual"] == 1)?8 : 5;
+                $shoppingCartData[$key + $i]["quantity"] = (int) (isset($product["quantity"]) ? $product["quantity"] : 1);
+                $shoppingCartData[$key + $i]["unitPrice"] = number_format((isset($product["price_without_reduction"]) ? $product["price_without_reduction"] : 0) * 100, 0, '.', ''); 
+                $shoppingCartData[$key + $i]["name"] = isset($product["name"]) ? $product["name"] : "";
+                $shoppingCartData[$key + $i]["category"] = isset($product["category"]) ? $product["category"] : "";
+                $shoppingCartData[$key + $i]["articleType"] = ((isset($product["is_virtual"]) ? $product["is_virtual"] : 0) == 1)?8 : 5;
 
                 if ($reduction > 0) {
                     $shoppingCartData[$key + $i]["discountValue"] = $reduction;
                 }
                 
-                $amount += ($shoppingCartData[$key + $i]["unitPrice"] - $reduction) * $product["quantity"];
+                $amount += ($shoppingCartData[$key + $i]["unitPrice"] - $reduction) * isset($product["quantity"]) ? $product["quantity"] : 1;
             } else {
                 $shoppingCartData[$key + $i]["sku"] = "1";
                 $shoppingCartData[$key + $i]["quantity"] = 1;
-                $shoppingCartData[$key + $i]["unitPrice"] = number_format(($product["price_without_reduction"] * $product["quantity"]) * 100, 0, '.', '');
-                $shoppingCartData[$key + $i]["name"] = $product["name"];
-                $shoppingCartData[$key + $i]["category"] = $product["category"];
-                $shoppingCartData[$key + $i]["articleType"] = ($product["is_virtual"] == 1)?8 : 5;
+                $shoppingCartData[$key + $i]["unitPrice"] = number_format(((isset($product["price_without_reduction"]) ? $product["price_without_reduction"] : 0) * (isset($product["quantity"]) ? $product["quantity"] : 1)) * 100, 0, '.', '');
+                $shoppingCartData[$key + $i]["name"] = isset($product["name"]) ? $product["name"] : "";
+                $shoppingCartData[$key + $i]["category"] = isset($product["category"]) ? $product["category"] : "";
+                $shoppingCartData[$key + $i]["articleType"] = ((isset($product["is_virtual"]) ? $product["is_virtual"] : 0) == 1) ? 8 : 5;
                 
                 if ($reduction > 0) {
-                    $shoppingCartData[$key + $i]["discountValue"] = $product["reduction"];
+                    $shoppingCartData[$key + $i]["discountValue"] = isset($product["reduction"]) ? $product["reduction"] : 0;
                 }
                 
-                $amount += ($shoppingCartData[$key + $i]["unitPrice"] - $reduction) * $product["quantity"];
+                $amount += ($shoppingCartData[$key + $i]["unitPrice"] - $reduction) * isset($product["quantity"]) ? $product["quantity"] : 1;
             }
         }
         // Se calculan gastos de envio
