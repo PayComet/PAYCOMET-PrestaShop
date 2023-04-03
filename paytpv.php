@@ -2467,25 +2467,32 @@ class Paytpv extends PaymentModule
 
         $template = 'payment_return.tpl';
         $result_txt = "";
-        $mbentity = ""; // Entidad
-        $mbreference = ""; // Referencia
         $display = "";
+        $mbway = "";
 
         if (isset(Message::getMessagesByOrderId($order->id, true)[0]["message"])) {
             $message = Message::getMessagesByOrderId($order->id, true)[0]["message"];
             $methodData = json_decode(explode('|', $message, 2)[0]);
         }
 
-        if (strstr(Tools::strtolower($order->payment), "multibanco")) {
+        if (strstr(Tools::strtolower($order->payment), "multibanco") && isset($methodData->entityNumber) && isset($methodData->referenceNumber)) {
             $result_txt = $this->l('Your order will be sent as soon as we receive your payment.');
             $this->context->smarty->assign('mbentity', $methodData->entityNumber);
             $this->context->smarty->assign('mbreference', $methodData->referenceNumber);
             $template = 'payment_return_multibanco.tpl';
-        } else {
-            $result_txt = $this->l('Thank you for trusting us. Your purchase has been formalized correctly and we will process your order soon.');
+        } else if (strstr(Tools::strtolower($order->payment), "mb way")) {
+            $result_txt = $this->l('You must confirm the purchase on MB WAY, through the notice or in the activity area');
             $template = 'payment_return_mbway.tpl';
+        } else {
+
+            $result_txt = $this->l(
+                'Thank you for trusting us.
+                 Your purchase has been formalized correctly and we will process your order soon.'
+            );
         }
 
+        $this->context->smarty->assign('mbway', $mbway);
+        $this->context->smarty->assign('display', $display);
         $this->context->smarty->assign('shop_name', $this->context->shop->name);
         $this->context->smarty->assign('reference', $order->reference);
         $this->context->smarty->assign('result_txt', $result_txt);
