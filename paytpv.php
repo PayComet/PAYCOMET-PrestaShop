@@ -2131,7 +2131,7 @@ class Paytpv extends PaymentModule
                     // Personalacion APMs
                     switch ($methodId) {
                         case 33:
-                            $url_paytpv[$methodId]['title'] = $this->l('Instant installment payment');
+                            $url_paytpv[$methodId]['title'] = $this->l('Buy now and pay later');
                             break;
                         default:
                             break;
